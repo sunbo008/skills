@@ -1,0 +1,30 @@
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+dist/
+build/
+
+# 虚拟环境
+venv/
+.venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+.cursor/
+
+# 从远程安装的skills（可重新安装，不需要提交）
+.claude/skills/*/.openskills.json
+
+# 临时分析文件
+*_api_data.json
+
+# 生成的报告（按需本地查看，不需要提交）
+*.html
