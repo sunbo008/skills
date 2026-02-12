@@ -22,6 +22,9 @@ env/
 .claude/
 AGENTS.md
 
+# Node
+node_modules/
+
 # 从远程安装的skills（可重新安装，不需要提交）
 .claude/skills/*/.openskills.json
 
@@ -30,3 +33,15 @@ AGENTS.md
 
 # 生成的报告（按需本地查看，不需要提交）
 *.html
+*.docx
+*.json
+*.csv
+*.xlsx
+*.xls
+*.pdf
+*.txt
+*.md
+*.html
+*.css
+*.php
+generate_report.js
