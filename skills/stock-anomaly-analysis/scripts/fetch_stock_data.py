@@ -4,6 +4,11 @@
 数据来源：腾讯财经、东方财富
 """
 
+import sys
+import io
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
+
 import requests
 import json
 import re
@@ -332,6 +337,128 @@ def fetch_market_indices() -> dict:
         return {"error": str(e)}
 
 
+def calculate_temperature_history(stock_klines: list, index_klines: list) -> dict:
+    """
+    基于真实K线数据程序化计算每日市场温度
+    
+    算法: 5维度加权
+      ① 个股涨跌幅 (30%): score = clamp(50 + change_pct * 5, 0, 100)
+      ② 换手率活跃度 (20%): score = clamp(30 + (turnover/avg_turnover) * 25, 0, 100)
+      ③ 大盘联动 (20%): score = clamp(50 + index_change_pct * 15, 0, 100)
+      ④ 3日动量均值 (15%): score = clamp(50 + avg_3d_change * 5, 0, 100)
+      ⑤ 波幅方向 (15%): 涨时 clamp(50 + amplitude * 3), 跌时 clamp(50 - amplitude * 3)
+    
+    返回:
+      {
+        "source": "程序化计算(fetch_stock_data.py)",
+        "algorithm": "5维度加权: 涨跌幅30%+换手率20%+大盘联动20%+3日动量15%+波幅方向15%",
+        "data_basis": "东方财富K线API(个股+上证指数)",
+        "trading_days_count": N,
+        "history": [{"date": "MM-DD", "value": int, "label": str, "detail": str}, ...]
+      }
+    """
+    if not stock_klines or not index_klines:
+        return {"error": "K线数据不可用，无法计算温度历史"}
+    
+    # 构建大盘指数日期→数据映射
+    idx_map = {}
+    for k in index_klines:
+        idx_map[k["date"]] = k
+    
+    # 计算平均换手率(用于归一化)
+    turnovers = [k.get("turnover", 0) for k in stock_klines]
+    avg_turnover = sum(turnovers) / len(turnovers) if turnovers else 1
+    
+    def clamp(val, lo=0, hi=100):
+        return max(lo, min(hi, val))
+    
+    history = []
+    for i, s in enumerate(stock_klines):
+        date_str = s["date"]  # 真实交易日，来自API
+        chg = s.get("change_pct", 0)
+        turnover = s.get("turnover", 0)
+        amplitude = s.get("amplitude", 0)
+        
+        # 大盘当日数据
+        idx = idx_map.get(date_str, {})
+        idx_chg = idx.get("change_pct", 0)
+        
+        # ① 个股涨跌幅 (30%)
+        f1 = clamp(50 + chg * 5)
+        
+        # ② 换手率活跃度 (20%)
+        vol_ratio = turnover / avg_turnover if avg_turnover > 0 else 1
+        f2 = clamp(30 + vol_ratio * 25)
+        
+        # ③ 大盘联动 (20%)
+        f3 = clamp(50 + idx_chg * 15)
+        
+        # ④ 3日动量均值 (15%)
+        if i >= 2:
+            mom3 = sum(stock_klines[j].get("change_pct", 0) for j in range(max(0, i-2), i+1)) / 3
+        else:
+            mom3 = chg
+        f4 = clamp(50 + mom3 * 5)
+        
+        # ⑤ 波幅方向 (15%)
+        if chg >= 0:
+            f5 = clamp(50 + amplitude * 3)
+        else:
+            f5 = clamp(50 - amplitude * 3)
+        
+        # 加权合成
+        temp = f1 * 0.30 + f2 * 0.20 + f3 * 0.20 + f4 * 0.15 + f5 * 0.15
+        temp = round(max(5, min(95, temp)))
+        
+        # 自动生成事件标签(仅基于可观察的K线特征)
+        label = ""
+        if chg >= 9.9:
+            label = "涨停"
+        elif chg <= -9.9:
+            label = "跌停"
+        elif turnover > avg_turnover * 3:
+            label = f"天量{turnover:.0f}%"
+        elif turnover < avg_turnover * 0.4 and chg < -1:
+            label = "缩量下跌"
+        elif idx_chg < -1.5:
+            label = "大盘暴跌"
+        elif idx_chg > 1.2 and chg > 3:
+            label = "大盘反弹"
+        
+        # 连板检测
+        if chg >= 9.9 and i > 0 and stock_klines[i-1].get("change_pct", 0) >= 9.9:
+            prev_count = 1
+            for j in range(i-1, -1, -1):
+                if stock_klines[j].get("change_pct", 0) >= 9.9:
+                    prev_count += 1
+                else:
+                    break
+            if prev_count >= 2:
+                label = f"{prev_count}连板"
+        
+        # 格式化日期为 MM-DD
+        date_short = date_str[5:] if len(date_str) >= 10 else date_str
+        
+        # 详情字段(用于数据溯源)
+        detail = f"涨跌:{chg:+.2f}% 换手:{turnover:.1f}% 振幅:{amplitude:.1f}% 大盘:{idx_chg:+.2f}%"
+        
+        history.append({
+            "date": date_short,
+            "value": temp,
+            "label": label,
+            "detail": detail,
+        })
+    
+    return {
+        "source": "程序化计算(fetch_stock_data.py)",
+        "algorithm": "5维度加权: 涨跌幅30%+换手率20%+大盘联动20%+3日动量15%+波幅方向15%",
+        "data_basis": "东方财富K线API(个股+上证指数)",
+        "trading_days_count": len(history),
+        "avg_turnover_pct": round(avg_turnover, 2),
+        "history": history,
+    }
+
+
 def fetch_all_data(stock_code: str) -> dict:
     """获取股票全部数据"""
     print(f"📊 正在获取 {stock_code} 的数据...")
@@ -353,9 +480,24 @@ def fetch_all_data(stock_code: str) -> dict:
     print("  → 获取龙虎榜数据 (东方财富)...")
     result["dragon_tiger"] = fetch_dragon_tiger_eastmoney(stock_code)
     
-    # 4. 近期K线
-    print("  → 获取近期K线 (东方财富)...")
-    result["klines"] = fetch_kline_eastmoney(stock_code, "daily", 10)
+    # 4. 近期K线(30个交易日,用于温度历史计算)
+    print("  → 获取近期K线 (东方财富, 30日)...")
+    result["klines"] = fetch_kline_eastmoney(stock_code, "daily", 30)
+    
+    # 5. 大盘指数K线(同期, 用于温度历史计算)
+    print("  → 获取上证指数K线 (东方财富, 30日)...")
+    result["index_klines"] = fetch_kline_eastmoney("sh000001", "daily", 30)
+    
+    # 6. 程序化计算温度历史(基于真实K线数据)
+    stock_k = result["klines"].get("klines", []) if isinstance(result["klines"], dict) else []
+    index_k = result["index_klines"].get("klines", []) if isinstance(result["index_klines"], dict) else []
+    if stock_k and index_k:
+        print("  → 程序化计算温度历史 (基于K线数据)...")
+        result["temperature_history"] = calculate_temperature_history(stock_k, index_k)
+        print(f"    ✓ 计算完成: {result['temperature_history']['trading_days_count']}个交易日温度数据")
+    else:
+        print("  ⚠ K线数据不可用，跳过温度历史计算")
+        result["temperature_history"] = {"error": "K线数据不可用"}
     
     return result
 
@@ -368,6 +510,7 @@ def main():
     parser.add_argument('--fund', action='store_true', help='仅获取资金流向')
     parser.add_argument('--lhb', action='store_true', help='仅获取龙虎榜')
     parser.add_argument('--kline', action='store_true', help='仅获取K线')
+    parser.add_argument('--temperature', action='store_true', help='计算并输出温度历史(基于K线数据)')
     parser.add_argument('--market', action='store_true', help='获取大盘指数数据(无需股票代码)')
     
     args = parser.parse_args()
@@ -391,6 +534,18 @@ def main():
             data = fetch_dragon_tiger_eastmoney(stock_code)
         elif args.kline:
             data = fetch_kline_eastmoney(stock_code)
+        elif args.temperature:
+            print(f"🌡️ 计算 {stock_code} 温度历史...")
+            print("  → 获取个股K线 (30日)...")
+            sk = fetch_kline_eastmoney(stock_code, "daily", 30)
+            print("  → 获取上证指数K线 (30日)...")
+            ik = fetch_kline_eastmoney("sh000001", "daily", 30)
+            stock_k = sk.get("klines", []) if isinstance(sk, dict) else []
+            index_k = ik.get("klines", []) if isinstance(ik, dict) else []
+            if stock_k and index_k:
+                data = calculate_temperature_history(stock_k, index_k)
+            else:
+                data = {"error": "K线数据获取失败，无法计算温度"}
         else:
             data = fetch_all_data(stock_code)
     

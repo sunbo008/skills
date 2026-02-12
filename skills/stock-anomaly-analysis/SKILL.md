@@ -27,6 +27,30 @@ description: 个股异动多维度深度分析。针对某个股票，通过网�
    - 若搜索不到资金数据：该模块显示"暂无数据"
    - 不要用虚假数据填充空白
 
+4. **温度历史数据必须由脚本程序化计算 (最严格要求!)**
+   - **必须使用 `fetch_stock_data.py --temperature` 或 `fetch_stock_data.py` (全量模式) 的输出**
+   - **禁止AI自行估算/编造温度值** — 温度值只能来自脚本的 `calculate_temperature_history()` 函数输出
+   - **日期只能来自真实K线API返回** — 脚本从东方财富API获取K线数据，日期天然都是真实交易日
+   - **generate_report.py 会自动校验** — 渲染前检查所有日期是否为周末，发现周末自动过滤并告警
+   - **history_source字段**: 脚本自动标注 `"source": "程序化计算(fetch_stock_data.py)"`
+   - **最后一天的温度值**: AI可用当日7维度综合评估值替代脚本计算值(更全面)，但必须标注
+   - **事件标签(label)**: 脚本根据K线特征自动生成(涨停/跌停/天量/缩量/大盘暴跌等)，AI可补充已验证的真实事件标签
+
+   ```bash
+   # 获取温度历史数据的正确方式
+   python scripts/fetch_stock_data.py 002195 --temperature -o temp_history.json
+   
+   # 或在全量数据中自动包含
+   python scripts/fetch_stock_data.py 002195 -o all_data.json
+   # → 输出中的 temperature_history 字段即为程序化计算结果
+   ```
+
+   **❌ 禁止的做法:**
+   - 禁止AI根据"感觉"或"经验"编写温度历史数组
+   - 禁止手动推算交易日(周末/假日规则复杂，容易出错)
+   - 禁止在不运行脚本的情况下填写温度数据
+   - 禁止copy/paste不相关的温度数据
+
 ### 数据验证流程 (必须执行!)
 
 ```
@@ -213,15 +237,43 @@ site:cls.cn 人形机器人 政策
 # 获取实时行情 (腾讯财经接口)
 python scripts/fetch_stock_data.py 002195 --realtime
 
-# 获取完整数据 (行情+资金流向+龙虎榜+K线)
-python scripts/fetch_stock_data.py 002195
+# 获取完整数据 (行情+资金流向+龙虎榜+K线+温度历史)
+python scripts/fetch_stock_data.py 002195 -o stock_data.json
+
+# 单独获取温度历史(程序化计算)
+python scripts/fetch_stock_data.py 002195 --temperature -o temp_history.json
 ```
 
 **接口数据来源:**
 - 实时行情: 腾讯财经 (qt.gtimg.cn)
 - 资金流向: 东方财富 (push2.eastmoney.com)
 - 龙虎榜: 东方财富 (datacenter-web.eastmoney.com)
-- K线数据: 东方财富 (push2his.eastmoney.com)
+- K线数据: 东方财富 (push2his.eastmoney.com), 默认获取30个交易日
+- 大盘指数K线: 东方财富, 获取上证指数同期30个交易日
+- **温度历史: 由 `calculate_temperature_history()` 从K线数据程序化计算 (输出在 `temperature_history` 字段)**
+
+**⚠️ 全量模式(不带子命令参数)的输出中自动包含:**
+```json
+{
+  "klines": { ... },          // 个股30日K线
+  "index_klines": { ... },    // 上证指数30日K线
+  "temperature_history": {     // 程序化计算的温度历史 (直接使用!)
+    "source": "程序化计算(fetch_stock_data.py)",
+    "algorithm": "5维度加权: 涨跌幅30%+换手率20%+大盘联动20%+3日动量15%+波幅方向15%",
+    "trading_days_count": 30,
+    "history": [
+      {"date": "01-05", "value": 74, "label": "涨停", "detail": "涨跌:+10.01% 换手:2.6% ..."},
+      ...
+    ]
+  }
+}
+```
+
+**✅ 温度历史的正确使用方式:**
+1. 运行 `fetch_stock_data.py` 获取全量数据
+2. 直接使用输出中的 `temperature_history.history` 作为报告的温度历史数据
+3. AI可在此基础上补充/修改事件标签(label)，但日期和温度值不可篡改
+4. AI可用当日7维度评估值替代最后一天的温度值(更准确)
 
 **备选方案: WebSearch搜索 (仅当API不可用时)**
 ```
@@ -635,6 +687,16 @@ python scripts/fetch_stock_data.py --market
     "yesterday_temperature": 35,
     "temperature_change": "+7",
     
+    "history_source": "基于东方财富K线数据(个股+上证指数)加权计算: 涨跌幅30%+换手率20%+大盘联动20%+3日动量15%+波幅方向15%",
+    "history": [
+      {"date": "01-20", "value": 25, "label": "缩量调整"},
+      {"date": "01-21", "value": 30, "label": "止跌企稳"},
+      {"date": "01-22", "value": 35, "label": "温和放量"},
+      {"date": "01-23", "value": 33, "label": "小幅回踩"},
+      {"date": "01-26", "value": 38, "label": "开始回暖"},
+      {"date": "01-27", "value": 42, "label": "赚钱效应扩散"}
+    ],
+    
     "dimensions": {
       "profit_effect": {"score": 55, "weight": 0.25, "detail": "涨停45家，跌停12家"},
       "board_height": {"score": 50, "weight": 0.20, "detail": "最高板4板，梯队较完整"},
@@ -662,6 +724,51 @@ python scripts/fetch_stock_data.py --market
   }
 }
 ```
+
+##### 温度历史数据 — 由脚本自动计算 (禁止手动编写!)
+
+**温度历史已由 `fetch_stock_data.py` 中的 `calculate_temperature_history()` 函数程序化计算。**
+
+```
+获取方式 (二选一):
+  方式1: python scripts/fetch_stock_data.py 002195 → 输出中的 temperature_history 字段
+  方式2: python scripts/fetch_stock_data.py 002195 --temperature → 直接输出温度数据
+
+脚本内部算法 (5维度加权):
+  ① 个股涨跌幅 (30%): score = clamp(50 + change_pct × 5, 0, 100)
+  ② 换手率活跃度 (20%): score = clamp(30 + (turnover/avg) × 25, 0, 100)
+  ③ 大盘联动 (20%): score = clamp(50 + index_chg × 15, 0, 100)
+  ④ 3日动量均值 (15%): score = clamp(50 + avg_3d × 5, 0, 100)
+  ⑤ 波幅方向 (15%): 涨→clamp(50+amp×3), 跌→clamp(50-amp×3)
+
+自动生成的事件标签 (基于K线特征):
+  - 涨停/跌停: change_pct >= ±9.9%
+  - N连板: 连续涨停天数
+  - 天量N%: 换手率 > 3倍均值
+  - 缩量下跌: 换手率 < 0.4倍均值 且 下跌
+  - 大盘暴跌: 指数跌幅 > 1.5%
+  - 大盘反弹: 指数涨 > 1.2% 且 个股涨 > 3%
+
+每个数据点包含detail字段，记录原始K线数据(用于溯源):
+  detail: "涨跌:+10.01% 换手:2.6% 振幅:0.0% 大盘:+1.38%"
+```
+
+**✅ AI在使用脚本输出时可以做的:**
+- 补充已通过WebSearch验证的真实事件标签(如"国务院AI会议")
+- 用当日7维度综合评估值替代最后一天的脚本计算值
+- 过滤掉最早的几天以控制图表时间范围
+
+**❌ AI绝对不能做的:**
+- 不使用脚本输出而自行编写温度历史数组
+- 修改脚本计算的日期(日期由API保证为真实交易日)
+- 凭感觉修改脚本计算的温度值(除最后一天外)
+- 添加未经WebSearch验证的事件标签
+
+**🛡️ generate_report.py 自动校验:**
+- 渲染前自动检查所有日期是否为周末
+- 发现周末日期自动过滤并输出告警
+- 检查温度值是否在0-100范围内
+- 检查是否有history_source来源标注
 
 ##### 温度信号与炒股养家心法对照
 
@@ -1357,7 +1464,7 @@ python scripts/generate_report.py --data analysis.json --output 报告.html
 
 1. **股票卡片**: 实时行情数据
 2. **大盘环境**: 指数表现、市场广度、涨跌停、连板梯队、板块排名、风格判断
-3. **市场温度计** *(新增)*: 情绪周期阶段识别、温度值、7维度评分雷达、升温/降温趋势、介入建议星级
+3. **市场温度计** *(新增)*: 情绪周期阶段识别、温度值、**近期温度趋势折线图(history)**、7维度评分条、升温/降温趋势、介入建议星级、周期位置
 4. **近期触发因素**: 最新消息(按时间倒序，突出今日消息)
 5. **多方博弈分析**: 五大维度参与者态度与博弈格局（核心模块）
 6. **技术形态分析**: K线形态识别、关键价位、量价关系
@@ -1475,12 +1582,18 @@ WebSearch "A股 市场情绪 融资余额 2026年2月5日"
 
 ## scripts/
 
-- `fetch_stock_data.py`: **数据获取脚本 (推荐优先使用!)**
+- `fetch_stock_data.py`: **数据获取+计算脚本 (所有数值型数据的唯一来源!)**
   - 从腾讯财经、东方财富API获取实时精确数据
-  - 支持: 实时行情、资金流向、龙虎榜、K线
-  - 用法: `python scripts/fetch_stock_data.py 002195`
+  - 支持: 实时行情、资金流向、龙虎榜、K线(30日)、大盘指数K线
+  - **内置 `calculate_temperature_history()` 函数**: 从K线数据程序化计算每日温度值
+  - 全量用法: `python scripts/fetch_stock_data.py 002195 -o data.json`
+  - 温度专用: `python scripts/fetch_stock_data.py 002195 --temperature`
+  - 输出中的 `temperature_history` 字段包含完整的温度历史(日期+温度值+标签+详情)
   
-- `generate_report.py`: 报告生成脚本，区分触发因素和背景信息
+- `generate_report.py`: 报告生成脚本
+  - 区分触发因素和背景信息
+  - **内置温度历史日期校验**: 渲染前自动检查周末日期、温度值范围、来源标注
+  - 发现非交易日数据自动过滤并告警
 
 ## 数据获取优先级
 

@@ -4,6 +4,11 @@
 区分近期触发因素和历史背景信息
 """
 
+import sys
+import io
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
+
 import argparse
 import json
 import os
@@ -324,11 +329,99 @@ def validate_and_fix_urls(data):
     return data
 
 
+def validate_temperature_history(data):
+    """
+    校验温度历史数据的日期准确性
+    - 检查是否包含周末日期
+    - 检查日期是否与K线数据一致
+    - 检查是否有程序化计算来源标注
+    """
+    temp_data = data.get("market_temperature", {})
+    history = temp_data.get("history", [])
+    
+    if not history:
+        return data
+    
+    warnings = []
+    errors = []
+    
+    # 1. 检查是否有数据来源标注
+    source = temp_data.get("history_source", "")
+    if not source:
+        warnings.append("⚠️ 温度历史缺少 history_source 字段，无法追溯数据来源")
+    
+    # 2. 获取当前年份用于日期解析
+    current_year = datetime.now().year
+    
+    # 3. 逐条检查日期是否是周末
+    weekend_dates = []
+    for item in history:
+        date_str = item.get("date", "")
+        if not date_str or len(date_str) < 5:
+            continue
+        try:
+            month = int(date_str[:2])
+            day = int(date_str[3:5])
+            dt = datetime(current_year, month, day)
+            weekday = dt.weekday()  # 0=Mon, 5=Sat, 6=Sun
+            if weekday >= 5:
+                day_name = "周六" if weekday == 5 else "周日"
+                weekend_dates.append(f"{date_str}({day_name})")
+                errors.append(f"❌ 日期 {date_str} 是{day_name}，不是交易日!")
+        except (ValueError, IndexError):
+            warnings.append(f"⚠️ 无法解析日期: {date_str}")
+    
+    # 4. 检查日期是否连续合理(不应有周六/周日)
+    if weekend_dates:
+        print(f"\n🚨 温度历史日期校验失败!")
+        print(f"   发现 {len(weekend_dates)} 个非交易日: {', '.join(weekend_dates)}")
+        print(f"   ❌ 温度历史日期必须来自真实K线数据，禁止包含周末/假日!")
+        # 自动过滤掉周末日期
+        valid_history = []
+        for item in history:
+            date_str = item.get("date", "")
+            try:
+                month = int(date_str[:2])
+                day = int(date_str[3:5])
+                dt = datetime(current_year, month, day)
+                if dt.weekday() < 5:
+                    valid_history.append(item)
+            except (ValueError, IndexError):
+                valid_history.append(item)
+        
+        removed_count = len(history) - len(valid_history)
+        print(f"   🔧 已自动移除 {removed_count} 个非交易日数据点")
+        temp_data["history"] = valid_history
+        history = valid_history
+    
+    # 5. 检查温度值范围
+    out_of_range = []
+    for item in history:
+        v = item.get("value", 0)
+        if v < 0 or v > 100:
+            out_of_range.append(f"{item.get('date','')}={v}")
+    if out_of_range:
+        warnings.append(f"⚠️ 温度值超出0-100范围: {', '.join(out_of_range)}")
+    
+    # 输出校验结果
+    if not errors and not warnings:
+        print(f"🌡️ 温度历史校验通过: {len(history)}个数据点，全部为有效交易日\n")
+    else:
+        for w in warnings:
+            print(f"   {w}")
+        print()
+    
+    return data
+
+
 def generate_html(data):
     """生成HTML报告"""
     
     # 先校验并修复URL
     data = validate_and_fix_urls(data)
+    
+    # 校验温度历史数据
+    data = validate_temperature_history(data)
     
     stock = data["stock"]
     triggers = sorted(data.get("triggers", []), key=lambda x: x.get("weight", 0), reverse=True)
@@ -885,6 +978,359 @@ def generate_html(data):
                 <div class="bg-detail">{b["detail"]}</div>
                 <a href="{b.get("url", "#")}" target="_blank" class="bg-source">🔗 {b.get("source", "来源")}</a>
             </div>
+        </div>
+        '''
+    
+    # 生成市场温度计HTML
+    temperature_html = ""
+    temp_data = data.get("market_temperature", {})
+    if temp_data and temp_data.get("temperature_value") is not None:
+        temp_val = temp_data.get("temperature_value", 50)
+        phase = temp_data.get("phase", "未知")
+        phase_code = temp_data.get("phase_code", 3)
+        trend = temp_data.get("trend", "")
+        trend_arrow = temp_data.get("trend_arrow", "")
+        yesterday_temp = temp_data.get("yesterday_temperature", "")
+        temp_change = temp_data.get("temperature_change", "")
+        dimensions = temp_data.get("dimensions", {})
+        entry = temp_data.get("entry_suggestion", {})
+        cycle = temp_data.get("cycle_position", {})
+        
+        # 温度颜色渐变
+        if temp_val <= 15:
+            temp_color = "#3b82f6"  # 冰蓝
+            phase_bg = "linear-gradient(135deg, #1e3a5f, #1a2a4a)"
+            gauge_gradient = "linear-gradient(90deg, #60a5fa, #3b82f6)"
+        elif temp_val <= 35:
+            temp_color = "#06b6d4"  # 青色
+            phase_bg = "linear-gradient(135deg, #134e5e, #1a3a4a)"
+            gauge_gradient = "linear-gradient(90deg, #3b82f6, #06b6d4)"
+        elif temp_val <= 55:
+            temp_color = "#eab308"  # 黄色
+            phase_bg = "linear-gradient(135deg, #4a3a1a, #3a2a10)"
+            gauge_gradient = "linear-gradient(90deg, #06b6d4, #eab308)"
+        elif temp_val <= 75:
+            temp_color = "#f97316"  # 橙色
+            phase_bg = "linear-gradient(135deg, #5a2a0a, #4a1a00)"
+            gauge_gradient = "linear-gradient(90deg, #eab308, #f97316)"
+        elif temp_val <= 90:
+            temp_color = "#ef4444"  # 红色
+            phase_bg = "linear-gradient(135deg, #5a1a1a, #4a0a0a)"
+            gauge_gradient = "linear-gradient(90deg, #f97316, #ef4444)"
+        else:
+            temp_color = "#dc2626"  # 深红
+            phase_bg = "linear-gradient(135deg, #6a0a0a, #5a0000)"
+            gauge_gradient = "linear-gradient(90deg, #ef4444, #dc2626)"
+        
+        # 阶段标签
+        phase_labels = {
+            1: ("冰点期", "❄️"), 2: ("回暖期", "🌱"), 3: ("升温期", "☀️"),
+            4: ("高潮期", "🔥"), 5: ("疯狂期", "🌋"), 6: ("崩溃期", "💀"),
+        }
+        phase_emoji = phase_labels.get(phase_code, ("", "🌡️"))[1]
+        
+        # 趋势变化颜色
+        change_color_temp = "#ef4444" if str(temp_change).startswith("+") else "#22c55e" if str(temp_change).startswith("-") else "#888"
+        
+        # 7维度评分条
+        dim_config = {
+            "profit_effect": ("赚钱效应", "25%"),
+            "board_height": ("连板高度", "20%"),
+            "market_breadth": ("市场广度", "15%"),
+            "volume_level": ("量能水平", "10%"),
+            "sentiment_extreme": ("情绪极端度", "10%"),
+            "leader_status": ("龙头状态", "10%"),
+            "fund_trend": ("资金趋势", "10%"),
+        }
+        
+        dims_html = ""
+        for key, (label, weight) in dim_config.items():
+            dim = dimensions.get(key, {})
+            score = dim.get("score", 0)
+            detail = dim.get("detail", "")
+            # 分数颜色
+            if score >= 70:
+                bar_color = "#ef4444"
+            elif score >= 50:
+                bar_color = "#f97316"
+            elif score >= 30:
+                bar_color = "#eab308"
+            else:
+                bar_color = "#3b82f6"
+            dims_html += f'''
+            <div class="temp-dim-row">
+                <div class="temp-dim-label">{label}<span class="temp-dim-weight">{weight}</span></div>
+                <div class="temp-dim-bar-bg">
+                    <div class="temp-dim-bar-fill" style="width:{score}%; background:{bar_color}"></div>
+                </div>
+                <div class="temp-dim-score">{score}</div>
+                <div class="temp-dim-detail">{detail}</div>
+            </div>'''
+        
+        # 阶段刻度条
+        phases_ruler = ""
+        phase_defs = [
+            (0, 15, "冰点", "#3b82f6"), (15, 35, "回暖", "#06b6d4"),
+            (35, 55, "升温", "#eab308"), (55, 75, "高潮", "#f97316"),
+            (75, 90, "疯狂", "#ef4444"), (90, 100, "崩溃", "#dc2626"),
+        ]
+        for start, end, name, color in phase_defs:
+            width = end - start
+            is_current = start <= temp_val < end or (end == 100 and temp_val >= 90)
+            opacity = "1" if is_current else "0.35"
+            border_style = f"border: 2px solid {color}; box-shadow: 0 0 8px {color}40;" if is_current else ""
+            phases_ruler += f'''<div class="temp-phase-seg" style="width:{width}%; background:{color}; opacity:{opacity}; {border_style}"><span class="temp-phase-seg-label">{name}</span></div>'''
+        
+        # 入场建议
+        entry_html = ""
+        if entry:
+            market_level = entry.get("market_level", "")
+            combined = entry.get("combined_assessment", "")
+            position = entry.get("position_advice", "")
+            warning = entry.get("key_warning", "")
+            entry_html = f'''
+            <div class="temp-entry">
+                <div class="temp-entry-header">
+                    <span class="temp-entry-level">{market_level}</span>
+                    {"<span class='temp-entry-position'>" + position + "</span>" if position else ""}
+                </div>
+                <div class="temp-entry-text">{combined}</div>
+                {"<div class='temp-entry-warning'>⚠️ " + warning + "</div>" if warning else ""}
+            </div>'''
+        
+        # 周期位置
+        cycle_html = ""
+        if cycle:
+            desc = cycle.get("description", "")
+            from_peak = cycle.get("distance_from_peak", "")
+            from_bottom = cycle.get("distance_from_bottom", "")
+            progress = cycle.get("estimated_phase_progress", "")
+            duration = cycle.get("phase_duration_days", "")
+            cycle_html = f'''
+            <div class="temp-cycle">
+                <div class="temp-cycle-desc">{desc}</div>
+                <div class="temp-cycle-metrics">
+                    {"<span>距高潮: " + from_peak + "</span>" if from_peak else ""}
+                    {"<span>距冰点: " + from_bottom + "</span>" if from_bottom else ""}
+                    {"<span>阶段进度: " + progress + "</span>" if progress else ""}
+                    {"<span>持续天数: " + str(duration) + "天</span>" if duration else ""}
+                </div>
+            </div>'''
+        
+        # 温度趋势折线图
+        history = temp_data.get("history", [])
+        chart_html = ""
+        if len(history) >= 2:
+            chart_w, chart_h = 780, 240
+            pad_l, pad_r, pad_t, pad_b = 48, 20, 28, 40
+            plot_w = chart_w - pad_l - pad_r
+            plot_h = chart_h - pad_t - pad_b
+            
+            vals = [p["value"] for p in history]
+            y_min = max(0, (min(vals) // 10) * 10 - 5)
+            y_max = min(100, (max(vals) // 10 + 1) * 10 + 5)
+            y_range = y_max - y_min if y_max > y_min else 1
+            n = len(history)
+            
+            def px(i, v):
+                x = pad_l + (i / max(n - 1, 1)) * plot_w
+                y = pad_t + plot_h - ((v - y_min) / y_range) * plot_h
+                return x, y
+            
+            # 阶段背景色带 + 右侧阶段标签
+            phase_bands = [
+                (0, 15, "#3b82f6", "冰点"), (15, 35, "#06b6d4", "回暖"),
+                (35, 55, "#eab308", "升温"), (55, 75, "#f97316", "高潮"),
+                (75, 90, "#ef4444", "疯狂"), (90, 100, "#dc2626", "崩溃"),
+            ]
+            bands_svg = ""
+            for lo, hi, color, label_name in phase_bands:
+                if hi <= y_min or lo >= y_max:
+                    continue
+                band_lo = max(lo, y_min)
+                band_hi = min(hi, y_max)
+                by1 = pad_t + plot_h - ((band_hi - y_min) / y_range) * plot_h
+                by2 = pad_t + plot_h - ((band_lo - y_min) / y_range) * plot_h
+                band_h = by2 - by1
+                bands_svg += f'<rect x="{pad_l}" y="{by1:.1f}" width="{plot_w}" height="{band_h:.1f}" fill="{color}" opacity="0.07"/>'
+                # 右侧阶段标签(仅当色带高度足够)
+                if band_h > 14:
+                    label_cy = by1 + band_h / 2
+                    bands_svg += f'<text x="{chart_w - pad_r + 2}" y="{label_cy:.1f}" text-anchor="start" fill="{color}" font-size="9" dominant-baseline="middle" opacity="0.6">{label_name}</text>'
+            
+            # Y轴刻度线和标签
+            y_gridlines = ""
+            for tick in range(int(y_min), int(y_max) + 1, 10):
+                if tick < y_min or tick > y_max:
+                    continue
+                _, ty = px(0, tick)
+                y_gridlines += f'<line x1="{pad_l}" y1="{ty:.1f}" x2="{chart_w - pad_r}" y2="{ty:.1f}" stroke="#3a3a5a" stroke-width="0.5" stroke-dasharray="4,4"/>'
+                y_gridlines += f'<text x="{pad_l - 8}" y="{ty:.1f}" text-anchor="end" fill="#888" font-size="10" dominant-baseline="middle">{tick}°</text>'
+            
+            # 折线路径坐标 (贝塞尔曲线平滑)
+            points = [px(i, v) for i, v in enumerate(vals)]
+            # 使用 catmull-rom 转贝塞尔平滑曲线
+            def smooth_path(pts):
+                if len(pts) < 2:
+                    return ""
+                if len(pts) == 2:
+                    return f"M{pts[0][0]:.1f},{pts[0][1]:.1f} L{pts[1][0]:.1f},{pts[1][1]:.1f}"
+                path = f"M{pts[0][0]:.1f},{pts[0][1]:.1f}"
+                for i in range(1, len(pts)):
+                    x0, y0 = pts[i-1]
+                    x1, y1 = pts[i]
+                    # 控制点: 平滑系数
+                    cpx = (x0 + x1) / 2
+                    path += f" C{cpx:.1f},{y0:.1f} {cpx:.1f},{y1:.1f} {x1:.1f},{y1:.1f}"
+                return path
+            
+            line_path = smooth_path(points)
+            
+            # 渐变填充区域 (使用同样的平滑曲线)
+            area_path = line_path + f" L{points[-1][0]:.1f},{pad_t + plot_h:.1f} L{points[0][0]:.1f},{pad_t + plot_h:.1f} Z"
+            
+            # 智能X轴标签: 数据点多时只显示部分日期
+            x_label_step = max(1, n // 10)  # 最多显示约10个X轴日期
+            # 保证首尾和关键事件日期一定显示
+            show_x_label = set()
+            show_x_label.add(0)
+            show_x_label.add(n - 1)
+            for i in range(0, n, x_label_step):
+                show_x_label.add(i)
+            # 有事件标签的也显示
+            for i, h in enumerate(history):
+                if h.get("label"):
+                    show_x_label.add(i)
+            
+            # 智能温度值标签: 只在关键点显示(波峰/波谷/首尾/有事件)
+            show_val_label = set()
+            show_val_label.add(0)
+            show_val_label.add(n - 1)
+            for i in range(1, n - 1):
+                # 局部极值
+                if vals[i] >= vals[i-1] and vals[i] >= vals[i+1] and (vals[i] - min(vals[i-1], vals[i+1]) >= 3):
+                    show_val_label.add(i)
+                if vals[i] <= vals[i-1] and vals[i] <= vals[i+1] and (max(vals[i-1], vals[i+1]) - vals[i] >= 3):
+                    show_val_label.add(i)
+            # 有事件标签的
+            for i, h in enumerate(history):
+                if h.get("label"):
+                    show_val_label.add(i)
+            
+            # 数据点 + 标签
+            dots_svg = ""
+            for i, (pt, h) in enumerate(zip(points, history)):
+                x, y = pt
+                v = h["value"]
+                date = h.get("date", "")
+                label = h.get("label", "")
+                # 点颜色
+                if v <= 15: dc = "#3b82f6"
+                elif v <= 35: dc = "#06b6d4"
+                elif v <= 55: dc = "#eab308"
+                elif v <= 75: dc = "#f97316"
+                else: dc = "#ef4444"
+                is_last = (i == n - 1)
+                is_first = (i == 0)
+                
+                # X轴日期标签
+                if i in show_x_label:
+                    dots_svg += f'<text x="{x:.1f}" y="{pad_t + plot_h + 16}" text-anchor="middle" fill="#888" font-size="9">{date}</text>'
+                
+                # 垂直参考虚线(仅关键点)
+                if label or is_last or is_first:
+                    dots_svg += f'<line x1="{x:.1f}" y1="{y:.1f}" x2="{x:.1f}" y2="{pad_t + plot_h:.1f}" stroke="{dc}" stroke-width="0.5" stroke-dasharray="3,3" opacity="0.3"/>'
+                
+                # 数据点
+                if is_last:
+                    dots_svg += f'<circle cx="{x:.1f}" cy="{y:.1f}" r="12" fill="{dc}" opacity="0.2"/>'
+                    dots_svg += f'<circle cx="{x:.1f}" cy="{y:.1f}" r="7" fill="{dc}" stroke="#fff" stroke-width="2.5"/>'
+                elif label:
+                    dots_svg += f'<circle cx="{x:.1f}" cy="{y:.1f}" r="4.5" fill="{dc}" stroke="#1e1e2e" stroke-width="2"/>'
+                else:
+                    dots_svg += f'<circle cx="{x:.1f}" cy="{y:.1f}" r="3" fill="{dc}" stroke="#1e1e2e" stroke-width="1.5"/>'
+                
+                # 温度值标签
+                if i in show_val_label:
+                    vy = y - 14
+                    fw = "bold" if is_last else "normal"
+                    fs = "12" if is_last else "10"
+                    fc = "#fff" if is_last else "#ccc"
+                    dots_svg += f'<text x="{x:.1f}" y="{vy:.1f}" text-anchor="middle" fill="{fc}" font-size="{fs}" font-weight="{fw}">{v}°</text>'
+                
+                # 事件标签
+                if label:
+                    ly = y + 18
+                    # 如果点在下方区域，标签放上方
+                    if y > pad_t + plot_h * 0.65:
+                        ly = y - 24 if i in show_val_label else y - 14
+                    dots_svg += f'<text x="{x:.1f}" y="{ly:.1f}" text-anchor="middle" fill="#aaa" font-size="9">{label}</text>'
+            
+            chart_html = f'''
+            <div class="temp-chart-title">近期温度趋势 <span style="font-size:12px;color:#888;font-weight:normal;">（近1个月 {n}个交易日）</span></div>
+            <div class="temp-chart-container">
+                <svg viewBox="0 0 {chart_w} {chart_h}" width="100%" height="{chart_h}" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="tempAreaGrad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="{temp_color}" stop-opacity="0.25"/>
+                            <stop offset="100%" stop-color="{temp_color}" stop-opacity="0.01"/>
+                        </linearGradient>
+                        <linearGradient id="tempLineGrad" x1="0" y1="0" x2="1" y2="0">
+                            <stop offset="0%" stop-color="#f97316"/>
+                            <stop offset="40%" stop-color="#eab308"/>
+                            <stop offset="70%" stop-color="#06b6d4"/>
+                            <stop offset="100%" stop-color="{temp_color}"/>
+                        </linearGradient>
+                    </defs>
+                    <!-- 阶段色带 -->
+                    {bands_svg}
+                    <!-- Y轴网格 -->
+                    {y_gridlines}
+                    <!-- 填充区域 -->
+                    <path d="{area_path}" fill="url(#tempAreaGrad)"/>
+                    <!-- 平滑折线 -->
+                    <path d="{line_path}" fill="none" stroke="url(#tempLineGrad)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <!-- 数据点与标签 -->
+                    {dots_svg}
+                </svg>
+            </div>'''
+        
+        temperature_html = f'''
+        <div class="temp-container" style="background: {phase_bg}; border: 1px solid {temp_color}30;">
+            <!-- 温度主显示 -->
+            <div class="temp-main-row">
+                <div class="temp-gauge-area">
+                    <div class="temp-big-num" style="color: {temp_color};">{temp_val}°</div>
+                    <div class="temp-phase-badge" style="background: {temp_color};">{phase_emoji} {phase}</div>
+                    <div class="temp-trend">
+                        <span class="temp-trend-arrow" style="color: {change_color_temp};">{trend_arrow}</span>
+                        <span style="color: {change_color_temp};">{trend}</span>
+                        {"<span class='temp-yesterday'>昨日 " + str(yesterday_temp) + "° (" + str(temp_change) + ")</span>" if yesterday_temp else ""}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 阶段刻度条 -->
+            <div class="temp-ruler-container">
+                <div class="temp-ruler">{phases_ruler}</div>
+                <div class="temp-pointer" style="left: {temp_val}%;">
+                    <div class="temp-pointer-line" style="background: {temp_color};"></div>
+                    <div class="temp-pointer-dot" style="background: {temp_color}; box-shadow: 0 0 10px {temp_color};"></div>
+                </div>
+            </div>
+            
+            <!-- 温度趋势折线图 -->
+            {chart_html}
+            
+            <!-- 7维度评分 -->
+            <div class="temp-dims-title">七维度评分</div>
+            <div class="temp-dims">{dims_html}</div>
+            
+            <!-- 入场建议 -->
+            {entry_html}
+            
+            <!-- 周期位置 -->
+            {cycle_html}
         </div>
         '''
     
@@ -1739,6 +2185,285 @@ def generate_html(data):
             border-left: 3px solid #f97316;
         }}
         
+        /* 市场温度计样式 */
+        .temp-container {{
+            border-radius: 16px;
+            padding: 24px;
+            position: relative;
+        }}
+        
+        .temp-main-row {{
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }}
+        
+        .temp-gauge-area {{
+            text-align: center;
+        }}
+        
+        .temp-big-num {{
+            font-size: 72px;
+            font-weight: 900;
+            line-height: 1;
+            letter-spacing: -4px;
+            text-shadow: 0 0 30px currentColor;
+        }}
+        
+        .temp-phase-badge {{
+            display: inline-block;
+            color: white;
+            padding: 6px 20px;
+            border-radius: 20px;
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: 8px;
+        }}
+        
+        .temp-trend {{
+            margin-top: 10px;
+            font-size: 14px;
+            color: #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }}
+        
+        .temp-trend-arrow {{
+            font-size: 20px;
+            font-weight: bold;
+        }}
+        
+        .temp-yesterday {{
+            font-size: 12px;
+            color: #888;
+            background: #2a2a40;
+            padding: 2px 10px;
+            border-radius: 10px;
+        }}
+        
+        /* 阶段刻度条 */
+        .temp-ruler-container {{
+            position: relative;
+            margin: 20px 0 30px;
+            padding: 0 4px;
+        }}
+        
+        .temp-ruler {{
+            display: flex;
+            height: 28px;
+            border-radius: 14px;
+            overflow: hidden;
+            gap: 2px;
+        }}
+        
+        .temp-phase-seg {{
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }}
+        
+        .temp-phase-seg-label {{
+            font-size: 11px;
+            color: white;
+            font-weight: bold;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        }}
+        
+        .temp-pointer {{
+            position: absolute;
+            top: -6px;
+            transform: translateX(-50%);
+        }}
+        
+        .temp-pointer-line {{
+            width: 3px;
+            height: 40px;
+            margin: 0 auto;
+            border-radius: 2px;
+        }}
+        
+        .temp-pointer-dot {{
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin: -2px auto 0;
+            border: 2px solid white;
+        }}
+        
+        /* 温度趋势折线图 */
+        .temp-chart-title {{
+            font-size: 14px;
+            font-weight: bold;
+            color: #fff;
+            margin: 20px 0 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }}
+        
+        .temp-chart-container {{
+            background: rgba(0,0,0,0.2);
+            border-radius: 12px;
+            padding: 12px 8px 4px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255,255,255,0.05);
+            overflow-x: auto;
+        }}
+        
+        .temp-chart-container svg {{
+            display: block;
+            min-width: 500px;
+        }}
+        
+        /* 7维度评分 */
+        .temp-dims-title {{
+            font-size: 14px;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }}
+        
+        .temp-dims {{
+            margin-bottom: 20px;
+        }}
+        
+        .temp-dim-row {{
+            display: grid;
+            grid-template-columns: 110px 1fr 36px;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 6px;
+            padding: 4px 0;
+        }}
+        
+        .temp-dim-label {{
+            font-size: 12px;
+            color: #ccc;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }}
+        
+        .temp-dim-weight {{
+            font-size: 10px;
+            color: #666;
+            background: #2a2a40;
+            padding: 1px 5px;
+            border-radius: 6px;
+        }}
+        
+        .temp-dim-bar-bg {{
+            height: 16px;
+            background: #1a1a30;
+            border-radius: 8px;
+            overflow: hidden;
+        }}
+        
+        .temp-dim-bar-fill {{
+            height: 100%;
+            border-radius: 8px;
+            transition: width 0.5s ease;
+            min-width: 4px;
+        }}
+        
+        .temp-dim-score {{
+            font-size: 13px;
+            font-weight: bold;
+            color: #ddd;
+            text-align: right;
+        }}
+        
+        .temp-dim-detail {{
+            grid-column: 1 / -1;
+            font-size: 11px;
+            color: #666;
+            padding-left: 114px;
+            margin-top: -4px;
+            margin-bottom: 4px;
+        }}
+        
+        /* 入场建议 */
+        .temp-entry {{
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 14px;
+            border: 1px solid rgba(255,255,255,0.08);
+        }}
+        
+        .temp-entry-header {{
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }}
+        
+        .temp-entry-level {{
+            font-size: 18px;
+            font-weight: bold;
+            color: #fbbf24;
+        }}
+        
+        .temp-entry-position {{
+            font-size: 13px;
+            color: #8b5cf6;
+            background: rgba(139,92,246,0.15);
+            padding: 4px 12px;
+            border-radius: 10px;
+        }}
+        
+        .temp-entry-text {{
+            font-size: 13px;
+            color: #ccc;
+            line-height: 1.6;
+        }}
+        
+        .temp-entry-warning {{
+            margin-top: 10px;
+            font-size: 12px;
+            color: #f97316;
+            padding: 8px 12px;
+            background: rgba(249,115,22,0.1);
+            border-radius: 8px;
+            border-left: 3px solid #f97316;
+        }}
+        
+        /* 周期位置 */
+        .temp-cycle {{
+            background: rgba(255,255,255,0.03);
+            border-radius: 10px;
+            padding: 12px 14px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }}
+        
+        .temp-cycle-desc {{
+            font-size: 13px;
+            color: #aaa;
+            line-height: 1.5;
+            margin-bottom: 8px;
+        }}
+        
+        .temp-cycle-metrics {{
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            font-size: 12px;
+            color: #888;
+        }}
+        
+        .temp-cycle-metrics span {{
+            background: #1a1a30;
+            padding: 3px 10px;
+            border-radius: 8px;
+        }}
+        
         .core-logic-box {{
             font-size: 14px;
             color: #fbbf24;
@@ -1869,6 +2594,8 @@ def generate_html(data):
         
         {"<div class='section'><h2>🌍 大盘环境</h2>" + market_env_html + "</div>" if market_env_html else ""}
         
+        {"<div class='section'><h2>🌡️ 市场温度计</h2>" + temperature_html + "</div>" if temperature_html else ""}
+        
         <div class="section">
             <h2>🔥 近期触发因素</h2>
             {triggers_html if triggers_html else '<p style="color:#888">暂无近期触发因素数据</p>'}
@@ -1896,6 +2623,7 @@ def generate_html(data):
         <div class="section">
             <h2>🎯 走势预判</h2>
             {"<div class='core-logic-box'>💡 <strong>核心逻辑:</strong> " + outlook.get("core_logic", "") + "</div>" if outlook.get("core_logic") else ""}
+            {"<div class='core-logic-box' style='border-left-color:#8b5cf6; background:linear-gradient(135deg,rgba(139,92,246,0.1),rgba(139,92,246,0.03));'>🌡️ <strong>温度指引:</strong> " + outlook.get("temperature_guidance", "") + "</div>" if outlook.get("temperature_guidance") else ""}
             <div class="outlook-grid">
                 <div class="outlook-card">
                     <h3>📈 短期展望</h3>
