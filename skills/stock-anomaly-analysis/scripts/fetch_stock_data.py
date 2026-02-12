@@ -231,6 +231,107 @@ def fetch_kline_eastmoney(stock_code: str, period: str = "daily", limit: int = 3
         return {"error": str(e)}
 
 
+def fetch_market_indices() -> dict:
+    """
+    获取大盘核心指数数据
+    通过腾讯财经接口批量获取
+    """
+    # 指数代码映射
+    index_map = {
+        "shanghai":  ("sh000001", "上证指数"),
+        "shenzhen":  ("sz399001", "深证成指"),
+        "chinext":   ("sz399006", "创业板指"),
+        "sz50":      ("sh000016", "上证50"),
+        "hs300":     ("sh000300", "沪深300"),
+        "csi500":    ("sh000905", "中证500"),
+        "csi1000":   ("sh000852", "中证1000"),
+    }
+    
+    # 批量请求
+    codes = ",".join([v[0] for v in index_map.values()])
+    url = f"https://qt.gtimg.cn/q={codes}"
+    
+    try:
+        resp = requests.get(url, timeout=10)
+        resp.encoding = 'gbk'
+        text = resp.text
+        
+        result = {
+            "source": "腾讯财经",
+            "fetch_time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "indices": {},
+        }
+        
+        # 按行解析每个指数
+        lines = [line.strip() for line in text.split(';') if line.strip()]
+        
+        idx = 0
+        for key, (code, name) in index_map.items():
+            if idx >= len(lines):
+                break
+            line = lines[idx]
+            idx += 1
+            
+            match = re.search(r'"([^"]+)"', line)
+            if not match:
+                result["indices"][key] = {"name": name, "error": "解析失败"}
+                continue
+            
+            fields = match.group(1).split('~')
+            if len(fields) < 45:
+                result["indices"][key] = {"name": name, "error": "数据不完整"}
+                continue
+            
+            result["indices"][key] = {
+                "name": fields[1] if fields[1] else name,
+                "price": float(fields[3]) if fields[3] else 0,
+                "prev_close": float(fields[4]) if fields[4] else 0,
+                "change": float(fields[31]) if fields[31] else 0,
+                "change_pct": float(fields[32]) if fields[32] else 0,
+                "high": float(fields[33]) if fields[33] else 0,
+                "low": float(fields[34]) if fields[34] else 0,
+                "volume": int(fields[6]) if fields[6] else 0,
+                "amount": float(fields[37]) if fields[37] else 0,
+            }
+        
+        # 市场风格判断
+        sz50_pct = result["indices"].get("sz50", {}).get("change_pct", 0)
+        csi1000_pct = result["indices"].get("csi1000", {}).get("change_pct", 0)
+        shanghai_pct = result["indices"].get("shanghai", {}).get("change_pct", 0)
+        chinext_pct = result["indices"].get("chinext", {}).get("change_pct", 0)
+        
+        if sz50_pct > csi1000_pct + 0.5:
+            style = "大盘价值"
+        elif csi1000_pct > sz50_pct + 0.5:
+            style = "小盘成长"
+        else:
+            style = "均衡"
+        
+        # 简单环境评估
+        all_pcts = [v.get("change_pct", 0) for v in result["indices"].values() if isinstance(v, dict) and "change_pct" in v]
+        avg_pct = sum(all_pcts) / len(all_pcts) if all_pcts else 0
+        up_count = sum(1 for p in all_pcts if p > 0)
+        
+        if avg_pct > 1.5 and up_count >= 6:
+            status = "强势"
+        elif avg_pct > 0.5 and up_count >= 4:
+            status = "偏强"
+        elif avg_pct > -0.5:
+            status = "震荡"
+        elif avg_pct > -1.5:
+            status = "偏弱"
+        else:
+            status = "弱势"
+        
+        result["style"] = style
+        result["overall_status"] = status
+        result["avg_change_pct"] = round(avg_pct, 2)
+        
+        return result
+    except Exception as e:
+        return {"error": str(e)}
+
+
 def fetch_all_data(stock_code: str) -> dict:
     """获取股票全部数据"""
     print(f"📊 正在获取 {stock_code} 的数据...")
@@ -261,28 +362,37 @@ def fetch_all_data(stock_code: str) -> dict:
 
 def main():
     parser = argparse.ArgumentParser(description='获取股票实时数据')
-    parser.add_argument('stock_code', help='股票代码，如 002195 或 sz002195')
+    parser.add_argument('stock_code', nargs='?', default=None, help='股票代码，如 002195 或 sz002195')
     parser.add_argument('--output', '-o', help='输出JSON文件路径')
     parser.add_argument('--realtime', action='store_true', help='仅获取实时行情')
     parser.add_argument('--fund', action='store_true', help='仅获取资金流向')
     parser.add_argument('--lhb', action='store_true', help='仅获取龙虎榜')
     parser.add_argument('--kline', action='store_true', help='仅获取K线')
+    parser.add_argument('--market', action='store_true', help='获取大盘指数数据(无需股票代码)')
     
     args = parser.parse_args()
     
-    stock_code = args.stock_code
-    
-    # 单独获取某类数据
-    if args.realtime:
-        data = fetch_realtime_quote_tencent(stock_code)
-    elif args.fund:
-        data = fetch_fund_flow_eastmoney(stock_code)
-    elif args.lhb:
-        data = fetch_dragon_tiger_eastmoney(stock_code)
-    elif args.kline:
-        data = fetch_kline_eastmoney(stock_code)
+    # 大盘指数模式
+    if args.market:
+        print("📈 正在获取大盘指数数据...")
+        data = fetch_market_indices()
+    elif not args.stock_code:
+        parser.error("请提供股票代码，或使用 --market 获取大盘数据")
+        return
     else:
-        data = fetch_all_data(stock_code)
+        stock_code = args.stock_code
+        
+        # 单独获取某类数据
+        if args.realtime:
+            data = fetch_realtime_quote_tencent(stock_code)
+        elif args.fund:
+            data = fetch_fund_flow_eastmoney(stock_code)
+        elif args.lhb:
+            data = fetch_dragon_tiger_eastmoney(stock_code)
+        elif args.kline:
+            data = fetch_kline_eastmoney(stock_code)
+        else:
+            data = fetch_all_data(stock_code)
     
     # 输出
     json_str = json.dumps(data, ensure_ascii=False, indent=2)

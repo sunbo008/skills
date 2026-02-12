@@ -19,6 +19,8 @@ env/
 .vscode/
 .idea/
 .cursor/
+.claude/
+AGENTS.md
 
 # 从远程安装的skills（可重新安装，不需要提交）
 .claude/skills/*/.openskills.json

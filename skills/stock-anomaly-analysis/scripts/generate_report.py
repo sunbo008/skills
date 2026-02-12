@@ -27,6 +27,52 @@ def get_sample_data():
             "anomaly_type": "放量大涨"
         },
         "analysis_date": "2026-02-05",
+        "market_environment": {
+            "overall_score": 75,
+            "overall_status": "偏强",
+            "indices": {
+                "shanghai": {"name": "上证指数", "price": 3250.5, "change_pct": 1.2},
+                "shenzhen": {"name": "深证成指", "price": 10580.3, "change_pct": 1.5},
+                "chinext": {"name": "创业板指", "price": 2150.8, "change_pct": 2.1},
+                "sz50": {"name": "上证50", "price": 2830.5, "change_pct": 0.8},
+                "hs300": {"name": "沪深300", "price": 3920.1, "change_pct": 1.0},
+                "csi500": {"name": "中证500", "price": 5680.2, "change_pct": 1.8},
+                "csi1000": {"name": "中证1000", "price": 6250.3, "change_pct": 2.5}
+            },
+            "breadth": {
+                "limit_up_count": 65,
+                "limit_down_count": 8,
+                "advance_count": 3800,
+                "decline_count": 1200,
+                "advance_decline_ratio": "3.2:1",
+                "seal_rate": "72%",
+                "total_volume": "1.35万亿"
+            },
+            "ladder": {
+                "max_height": 5,
+                "max_height_stock": "XX科技(AI概念)",
+                "levels": {
+                    "5板": 1, "4板": 2, "3板": 5,
+                    "2板": 12, "首板": 45
+                },
+                "ladder_health": "完整",
+                "target_stock_level": "3板(第3梯队, 同梯队5只)"
+            },
+            "sector": {
+                "target_sector": "人形机器人",
+                "sector_rank": "3/120",
+                "sector_change_pct": 3.8,
+                "sector_limit_up": 8,
+                "related_sectors": ["AI", "智能驾驶", "传感器"],
+                "sector_phase": "主升期"
+            },
+            "style": {
+                "dominant": "小盘成长",
+                "sz50_vs_csi1000": "中证1000(+2.5%) > 上证50(+0.8%), 小票活跃",
+                "favorable_for_target": True
+            },
+            "impact_on_stock": "大盘偏强+板块领涨第3+梯队完整有空间+小盘风格有利，市场环境对该股异动形成正向支撑，短期上行阻力较小。"
+        },
         "triggers": [
             {
                 "type": "消息面",
@@ -105,9 +151,91 @@ def get_sample_data():
                 {"name": "机构专用", "amount": "3800万"}
             ]
         },
+        "participants": {
+            "hot_money": {
+                "stance": "强烈看多",
+                "summary": "[示例] 拉萨系游资大举介入，东方财富拉萨团结路净买入6200万，显示短线资金对连板预期强烈",
+                "details": [
+                    "东方财富拉萨团结路净买入6200万（知名游资席位）",
+                    "买入手法为尾盘扫板，显示强烈接力意愿",
+                    "该席位近1个月在机器人板块操作胜率超60%"
+                ],
+                "source_url": "#demo-需替换为真实链接",
+                "verified": False
+            },
+            "main_force": {
+                "stance": "看多",
+                "summary": "[示例] 主力连续2日净流入，今日主力净流入2.3亿，超大单净买入1.8亿，量价配合良好",
+                "details": [
+                    "今日主力净流入2.3亿元，超大单净买入1.8亿",
+                    "连续2日主力净流入，累计超4亿",
+                    "换手率12.3%放量上涨，量价配合健康"
+                ],
+                "source_url": "https://data.eastmoney.com/zjlx/002195.html",
+                "verified": True
+            },
+            "institution": {
+                "stance": "看多",
+                "summary": "[示例] 龙虎榜机构专用席位净买入8500万，近期有券商发布看好研报维持买入评级",
+                "details": [
+                    "机构专用席位买入8500万，为买方第一大席位",
+                    "某券商近期发布研报，维持'买入'评级，目标价15元",
+                    "北向资金今日净买入5200万"
+                ],
+                "source_url": "#demo-需替换为真实链接",
+                "verified": False
+            },
+            "regulatory": {
+                "stance": "利好",
+                "summary": "[示例] 国家发改委发布人形机器人产业发展支持政策，行业迎来政策催化",
+                "details": [
+                    "发改委近日发布《人形机器人产业发展行动计划》",
+                    "政策明确对核心零部件企业给予税收优惠和研发补贴",
+                    "公司未收到任何监管问询函或关注函"
+                ],
+                "source_url": "#demo-需替换为真实链接",
+                "verified": False
+            },
+            "retail": {
+                "stance": "乐观",
+                "summary": "[示例] 股吧讨论热度上升300%，看多情绪占主导，但未达到极度狂热阶段",
+                "details": [
+                    "东方财富股吧今日发帖量较昨日增长300%",
+                    "看多帖子占比约70%，讨论焦点为机器人概念和连板预期",
+                    "小单（散户）今日净卖出0.3亿，存在部分获利了结"
+                ],
+                "source_url": "#demo-需替换为真实链接",
+                "verified": False
+            },
+            "battle_summary": {
+                "pattern": "多方碾压",
+                "bull_count": 4,
+                "bear_count": 0,
+                "neutral_count": 1,
+                "conclusion": "游资+主力+机构+监管四维共振看多，散户情绪乐观但未过热。多方碾压格局下短期强势延续概率大，但需警惕散户情绪升温后的获利回吐。",
+                "key_signal": "机构+游资共同买入是最强信号，长短线资金形成合力"
+            }
+        },
+        "technical_pattern": {
+            "identified_pattern": "老鸭头",
+            "pattern_type": "看涨",
+            "reliability": 5,
+            "description": "5日线上穿10日线后股价小幅回落，但未跌破10日均线。5日线回踩后再次金叉，MACD在零轴上方金叉放量，符合经典老鸭头形态。主力洗盘完毕，即将展开主升浪。",
+            "key_levels": {
+                "support": 9.0,
+                "resistance": 10.5,
+                "stop_loss": 8.5,
+                "target": 12.0
+            },
+            "volume_match": True,
+            "trend_context": "上升趋势初期",
+            "additional_patterns": ["红三兵", "多方炮"],
+            "warning": "若跌破10日均线(约8.8元)则老鸭头形态失败，需及时止损"
+        },
         "outlook": {
-            "short_term": "短期维持强势。今日放量上涨，突破9.5元平台，上方压力位10.5-11元，下方支撑位9.0元。若明日能继续放量，有望挑战前高。",
+            "short_term": "短期维持强势。今日放量上涨，突破9.5元平台，上方压力位10.5-11元，下方支撑位9.0元。老鸭头形态确认后大概率展开主升浪。",
             "mid_term": "中期看好。订单持续落地，2026年进入收入确认期。宇树科技若成功IPO，公司作为核心供应商将获估值重估。目标价12-15元。",
+            "core_logic": "本次异动核心驱动力是政策催化叠加机构游资共振，技术面老鸭头形态确认主升浪启动。",
             "risks": [
                 "AI/机器人概念退潮风险",
                 "订单交付不及预期",
@@ -241,6 +369,150 @@ def generate_html(data):
             parts.append(f"振幅: {high:.2f}-{low:.2f}")
         market_data_html = f'<div class="market-data">{" | ".join(parts)}</div>'
     
+    # 生成大盘环境HTML
+    market_env_html = ""
+    market_env = data.get("market_environment", {})
+    if market_env:
+        overall_score = market_env.get("overall_score", 50)
+        overall_status = market_env.get("overall_status", "未知")
+        
+        # 状态颜色
+        status_colors = {
+            "强势": "#dc2626", "偏强": "#ef4444", "震荡": "#eab308",
+            "偏弱": "#22c55e", "弱势": "#16a34a"
+        }
+        status_color = status_colors.get(overall_status, "#6b7280")
+        
+        # 指数表格
+        indices = market_env.get("indices", {})
+        index_names = {
+            "shanghai": "上证指数", "shenzhen": "深证成指", "chinext": "创业板指",
+            "sz50": "上证50", "hs300": "沪深300", "csi500": "中证500",
+            "csi1000": "中证1000", "csi2000": "中证2000"
+        }
+        indices_html = ""
+        for key, name in index_names.items():
+            idx = indices.get(key, {})
+            if not idx or not isinstance(idx, dict) or "change_pct" not in idx:
+                continue
+            pct = idx.get("change_pct", 0)
+            color = "#ef4444" if pct >= 0 else "#22c55e"
+            sign = "+" if pct >= 0 else ""
+            price = idx.get("price", 0)
+            indices_html += f'''
+            <div class="idx-item">
+                <div class="idx-name">{name}</div>
+                <div class="idx-price">{price:.1f}</div>
+                <div class="idx-pct" style="color: {color}">{sign}{pct:.2f}%</div>
+            </div>'''
+        
+        # 市场广度
+        breadth = market_env.get("breadth", {})
+        breadth_html = ""
+        if breadth:
+            lu = breadth.get("limit_up_count", "--")
+            ld = breadth.get("limit_down_count", "--")
+            adv = breadth.get("advance_count", "--")
+            dec = breadth.get("decline_count", "--")
+            ratio = breadth.get("advance_decline_ratio", "--")
+            vol = breadth.get("total_volume", "--")
+            seal = breadth.get("seal_rate", "--")
+            breadth_html = f'''
+            <div class="breadth-grid">
+                <div class="breadth-item up"><div class="breadth-label">涨停</div><div class="breadth-val" style="color:#ef4444">{lu}</div></div>
+                <div class="breadth-item down"><div class="breadth-label">跌停</div><div class="breadth-val" style="color:#22c55e">{ld}</div></div>
+                <div class="breadth-item"><div class="breadth-label">涨跌比</div><div class="breadth-val">{ratio}</div></div>
+                <div class="breadth-item"><div class="breadth-label">封板率</div><div class="breadth-val">{seal}</div></div>
+                <div class="breadth-item"><div class="breadth-label">上涨</div><div class="breadth-val" style="color:#ef4444">{adv}</div></div>
+                <div class="breadth-item"><div class="breadth-label">下跌</div><div class="breadth-val" style="color:#22c55e">{dec}</div></div>
+                <div class="breadth-item"><div class="breadth-label">两市成交</div><div class="breadth-val">{vol}</div></div>
+            </div>'''
+        
+        # 连板梯队
+        ladder = market_env.get("ladder", {})
+        ladder_html = ""
+        if ladder:
+            max_h = ladder.get("max_height", 0)
+            max_stock = ladder.get("max_height_stock", "")
+            levels = ladder.get("levels", {})
+            target_level = ladder.get("target_stock_level", "")
+            health = ladder.get("ladder_health", "")
+            
+            levels_bars = ""
+            for level_name, count in sorted(levels.items(), key=lambda x: x[0], reverse=True):
+                bar_width = min(count * 8, 100)
+                levels_bars += f'''
+                <div class="ladder-row">
+                    <span class="ladder-level">{level_name}</span>
+                    <div class="ladder-bar-bg"><div class="ladder-bar-fill" style="width:{bar_width}%"></div></div>
+                    <span class="ladder-count">{count}只</span>
+                </div>'''
+            
+            ladder_html = f'''
+            <div class="ladder-box">
+                <div class="ladder-title">连板梯队 <span class="ladder-meta">最高板: {max_h}板 ({max_stock}) | 梯队: {health}</span></div>
+                {levels_bars}
+                {"<div class='ladder-target'>📍 该股位置: " + target_level + "</div>" if target_level else ""}
+            </div>'''
+        
+        # 板块信息
+        sector = market_env.get("sector", {})
+        sector_html = ""
+        if sector:
+            s_name = sector.get("target_sector", "")
+            s_rank = sector.get("sector_rank", "")
+            s_pct = sector.get("sector_change_pct", 0)
+            s_lu = sector.get("sector_limit_up", 0)
+            s_phase = sector.get("sector_phase", "")
+            related = sector.get("related_sectors", [])
+            s_color = "#ef4444" if s_pct >= 0 else "#22c55e"
+            
+            related_tags = " ".join([f'<span class="related-tag">{r}</span>' for r in related]) if related else ""
+            
+            sector_html = f'''
+            <div class="sector-box">
+                <div class="sector-info">
+                    <span class="sector-name">{s_name}</span>
+                    <span class="sector-rank">排名 {s_rank}</span>
+                    <span class="sector-pct" style="color:{s_color}">{"+" if s_pct>=0 else ""}{s_pct:.2f}%</span>
+                    <span class="sector-lu">板块涨停 {s_lu}只</span>
+                    {"<span class='sector-phase'>" + s_phase + "</span>" if s_phase else ""}
+                </div>
+                {"<div class='related-sectors'>关联板块: " + related_tags + "</div>" if related_tags else ""}
+            </div>'''
+        
+        # 风格
+        style_info = market_env.get("style", {})
+        style_html = ""
+        if style_info:
+            dominant = style_info.get("dominant", "")
+            detail = style_info.get("sz50_vs_csi1000", "")
+            favorable = style_info.get("favorable_for_target", None)
+            fav_text = "✓ 有利" if favorable else ("✗ 不利" if favorable is False else "")
+            fav_color = "#4ade80" if favorable else "#ef4444"
+            style_html = f'''
+            <div class="style-box">
+                <span>风格: <strong>{dominant}</strong></span>
+                <span>{detail}</span>
+                {"<span style='color:" + fav_color + "'>" + fav_text + "</span>" if fav_text else ""}
+            </div>'''
+        
+        # 影响判断
+        impact = market_env.get("impact_on_stock", "")
+        impact_html = f'<div class="env-impact">💡 {impact}</div>' if impact else ""
+        
+        market_env_html = f'''
+        <div class="env-header-row">
+            <span class="env-score-badge" style="background:{status_color}">环境 {overall_score}分 · {overall_status}</span>
+        </div>
+        <div class="idx-grid">{indices_html}</div>
+        {breadth_html}
+        {ladder_html}
+        {sector_html}
+        {style_html}
+        {impact_html}
+        '''
+    
     # 生成触发因素HTML
     triggers_html = ""
     for t in triggers:
@@ -347,6 +619,194 @@ def generate_html(data):
                 </div>
             </div>
             '''
+    
+    # 生成多方博弈分析HTML
+    participants_html = ""
+    participants = data.get("participants", {})
+    if participants:
+        # 参与者配置: key -> (名称, 图标, 描述)
+        participant_config = {
+            "hot_money": ("游资", "🔥", "短线热钱"),
+            "main_force": ("主力", "🐋", "控盘大资金"),
+            "institution": ("机构", "🏦", "基金/保险/QFII"),
+            "regulatory": ("监管层", "🏛️", "政策/合规"),
+            "retail": ("散户", "👥", "市场情绪"),
+        }
+        
+        # 态度颜色映射
+        stance_colors = {
+            "强烈看多": "#dc2626", "看多": "#ef4444", "乐观": "#f97316",
+            "强利好": "#dc2626", "利好": "#ef4444",
+            "中性": "#6b7280", "分歧": "#eab308", "多空均衡": "#eab308",
+            "看空": "#22c55e", "悲观": "#22c55e", "利空": "#22c55e",
+            "强烈看空": "#16a34a", "极度恐慌": "#16a34a", "强利空": "#16a34a",
+            "极度狂热": "#f97316", "未参与": "#4b5563",
+        }
+        
+        # 态度方向映射 (用于博弈力量条)
+        stance_direction = {
+            "强烈看多": 2, "看多": 1, "乐观": 1,
+            "强利好": 2, "利好": 1,
+            "极度狂热": 1,
+            "中性": 0, "分歧": 0, "未参与": 0,
+            "看空": -1, "悲观": -1, "利空": -1,
+            "强烈看空": -2, "极度恐慌": -1, "强利空": -2,
+        }
+        
+        # 生成每个参与者的卡片
+        cards_html = ""
+        for key, (name, icon, desc) in participant_config.items():
+            p = participants.get(key, {})
+            if not p:
+                continue
+            stance = p.get("stance", "中性")
+            summary = p.get("summary", "")
+            details = p.get("details", [])
+            color = stance_colors.get(stance, "#6b7280")
+            
+            details_html = ""
+            for d in details:
+                details_html += f'<li>{d}</li>'
+            
+            cards_html += f'''
+            <div class="participant-card">
+                <div class="participant-header">
+                    <span class="participant-icon">{icon}</span>
+                    <div class="participant-name-group">
+                        <span class="participant-name">{name}</span>
+                        <span class="participant-desc">{desc}</span>
+                    </div>
+                    <span class="participant-stance" style="background: {color}">{stance}</span>
+                </div>
+                <div class="participant-summary">{summary}</div>
+                <ul class="participant-details">{details_html}</ul>
+            </div>
+            '''
+        
+        # 博弈格局总结
+        battle = participants.get("battle_summary", {})
+        battle_html = ""
+        if battle:
+            pattern = battle.get("pattern", "")
+            bull = battle.get("bull_count", 0)
+            bear = battle.get("bear_count", 0)
+            neutral = battle.get("neutral_count", 0)
+            conclusion = battle.get("conclusion", "")
+            key_signal = battle.get("key_signal", "")
+            
+            # 格局颜色
+            pattern_colors = {
+                "多方碾压": "#dc2626", "多方占优": "#ef4444",
+                "多空均衡": "#eab308",
+                "空方占优": "#22c55e", "空方碾压": "#16a34a",
+            }
+            pattern_color = pattern_colors.get(pattern, "#6b7280")
+            
+            # 力量条: 总宽度5格
+            total = bull + bear + neutral
+            bull_pct = (bull / 5 * 100) if total > 0 else 0
+            neutral_pct = (neutral / 5 * 100) if total > 0 else 0
+            bear_pct = (bear / 5 * 100) if total > 0 else 0
+            
+            battle_html = f'''
+            <div class="battle-summary">
+                <div class="battle-header">
+                    <span class="battle-icon">⚔️</span>
+                    博弈格局
+                    <span class="battle-pattern" style="background: {pattern_color}">{pattern}</span>
+                </div>
+                <div class="battle-bar-container">
+                    <div class="battle-bar">
+                        <div class="battle-bar-bull" style="width: {bull_pct}%">多 {bull}</div>
+                        <div class="battle-bar-neutral" style="width: {neutral_pct}%">{neutral}</div>
+                        <div class="battle-bar-bear" style="width: {bear_pct}%">空 {bear}</div>
+                    </div>
+                    <div class="battle-bar-labels">
+                        <span style="color: #ef4444">多方</span>
+                        <span style="color: #22c55e">空方</span>
+                    </div>
+                </div>
+                <div class="battle-conclusion">{conclusion}</div>
+                {"<div class='battle-signal'>💡 <strong>关键信号:</strong> " + key_signal + "</div>" if key_signal else ""}
+            </div>
+            '''
+        
+        participants_html = f'''
+        <div class="participants-grid">
+            {cards_html}
+        </div>
+        {battle_html}
+        '''
+    
+    # 生成技术形态分析HTML
+    pattern_html = ""
+    tech_pattern = data.get("technical_pattern", {})
+    if tech_pattern and tech_pattern.get("identified_pattern"):
+        pattern_name = tech_pattern.get("identified_pattern", "")
+        pattern_type = tech_pattern.get("pattern_type", "")
+        reliability = tech_pattern.get("reliability", 0)
+        description = tech_pattern.get("description", "")
+        key_levels = tech_pattern.get("key_levels", {})
+        volume_match = tech_pattern.get("volume_match", False)
+        trend_context = tech_pattern.get("trend_context", "")
+        additional = tech_pattern.get("additional_patterns", [])
+        warning = tech_pattern.get("warning", "")
+        
+        # 形态类型颜色
+        type_colors = {"看涨": "#ef4444", "看跌": "#22c55e", "中继": "#eab308", "整理": "#6b7280"}
+        type_color = type_colors.get(pattern_type, "#6b7280")
+        
+        # 可靠度星星
+        stars = "★" * reliability + "☆" * (5 - reliability)
+        
+        # 关键价位
+        levels_html = ""
+        if key_levels:
+            level_items = []
+            level_map = {
+                "support": ("支撑位", "#22c55e"),
+                "resistance": ("压力位", "#ef4444"),
+                "stop_loss": ("止损位", "#f97316"),
+                "target": ("目标位", "#8b5cf6"),
+            }
+            for key, (label, color) in level_map.items():
+                val = key_levels.get(key)
+                if val:
+                    level_items.append(f'''
+                    <div class="level-item">
+                        <div class="level-label">{label}</div>
+                        <div class="level-value" style="color: {color}">¥{val:.2f}</div>
+                    </div>''')
+            levels_html = f'<div class="levels-grid">{"".join(level_items)}</div>'
+        
+        # 附加形态
+        additional_html = ""
+        if additional:
+            tags = " ".join([f'<span class="pattern-tag">{p}</span>' for p in additional])
+            additional_html = f'<div class="additional-patterns">同时出现: {tags}</div>'
+        
+        # 警告
+        warning_html = ""
+        if warning:
+            warning_html = f'<div class="pattern-warning">⚠️ {warning}</div>'
+        
+        pattern_html = f'''
+        <div class="pattern-card">
+            <div class="pattern-header">
+                <span class="pattern-name">{pattern_name}</span>
+                <span class="pattern-type" style="background: {type_color}">{pattern_type}</span>
+                <span class="pattern-stars">{stars}</span>
+            </div>
+            <div class="pattern-desc">{description}</div>
+            <div class="pattern-meta">
+                <span>趋势背景: {trend_context}</span>
+                <span>量价配合: {"✓ 是" if volume_match else "✗ 否"}</span>
+            </div>
+            {levels_html}
+            {additional_html}
+            {warning_html}
+        </div>
+        '''
     
     # 生成主力吸筹分析HTML
     chip_html = ""
@@ -641,6 +1101,353 @@ def generate_html(data):
         .fund-label {{ font-size: 12px; color: #888; margin-bottom: 4px; }}
         .fund-value {{ font-size: 18px; font-weight: bold; }}
         
+        /* 大盘环境样式 */
+        .env-header-row {{
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+        }}
+        
+        .env-score-badge {{
+            color: white;
+            padding: 6px 18px;
+            border-radius: 16px;
+            font-size: 15px;
+            font-weight: bold;
+        }}
+        
+        .idx-grid {{
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+            gap: 8px;
+            margin-bottom: 16px;
+        }}
+        
+        .idx-item {{
+            background: #1e1e2e;
+            border-radius: 8px;
+            padding: 10px 8px;
+            text-align: center;
+            border: 1px solid #3a3a5a;
+        }}
+        
+        .idx-name {{ font-size: 11px; color: #888; margin-bottom: 4px; }}
+        .idx-price {{ font-size: 14px; color: #ddd; font-weight: bold; }}
+        .idx-pct {{ font-size: 13px; font-weight: bold; }}
+        
+        .breadth-grid {{
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+            gap: 8px;
+            margin-bottom: 16px;
+        }}
+        
+        .breadth-item {{
+            background: #1e1e2e;
+            border-radius: 8px;
+            padding: 8px;
+            text-align: center;
+            border: 1px solid #3a3a5a;
+        }}
+        
+        .breadth-label {{ font-size: 11px; color: #888; margin-bottom: 2px; }}
+        .breadth-val {{ font-size: 16px; font-weight: bold; color: #ddd; }}
+        
+        .ladder-box {{
+            background: #1e1e2e;
+            border-radius: 10px;
+            padding: 14px;
+            margin-bottom: 16px;
+            border: 1px solid #3a3a5a;
+        }}
+        
+        .ladder-title {{
+            font-size: 14px;
+            color: #fff;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }}
+        
+        .ladder-meta {{ font-size: 12px; color: #888; font-weight: normal; margin-left: 8px; }}
+        
+        .ladder-row {{
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+        }}
+        
+        .ladder-level {{ font-size: 12px; color: #aaa; width: 40px; text-align: right; }}
+        
+        .ladder-bar-bg {{
+            flex: 1;
+            height: 14px;
+            background: #2a2a40;
+            border-radius: 4px;
+            overflow: hidden;
+        }}
+        
+        .ladder-bar-fill {{
+            height: 100%;
+            background: linear-gradient(90deg, #6366f1, #8b5cf6);
+            border-radius: 4px;
+        }}
+        
+        .ladder-count {{ font-size: 11px; color: #888; width: 36px; }}
+        
+        .ladder-target {{
+            margin-top: 8px;
+            font-size: 13px;
+            color: #eab308;
+            padding: 6px 10px;
+            background: rgba(234, 179, 8, 0.1);
+            border-radius: 6px;
+        }}
+        
+        .sector-box {{
+            background: #1e1e2e;
+            border-radius: 10px;
+            padding: 12px 14px;
+            margin-bottom: 12px;
+            border: 1px solid #3a3a5a;
+        }}
+        
+        .sector-info {{
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }}
+        
+        .sector-name {{ font-size: 15px; font-weight: bold; color: #fff; }}
+        .sector-rank {{ font-size: 13px; color: #6366f1; background: rgba(99,102,241,0.15); padding: 2px 10px; border-radius: 10px; }}
+        .sector-pct {{ font-size: 15px; font-weight: bold; }}
+        .sector-lu {{ font-size: 12px; color: #888; }}
+        .sector-phase {{ font-size: 12px; color: #fbbf24; background: rgba(251,191,36,0.15); padding: 2px 10px; border-radius: 10px; }}
+        
+        .related-sectors {{
+            margin-top: 8px;
+            font-size: 12px;
+            color: #888;
+        }}
+        
+        .related-tag {{
+            background: #3a3a5a;
+            color: #ccc;
+            padding: 2px 8px;
+            border-radius: 8px;
+            font-size: 11px;
+            margin-left: 4px;
+        }}
+        
+        .style-box {{
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            font-size: 13px;
+            color: #aaa;
+            padding: 10px 14px;
+            background: #1e1e2e;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            border: 1px solid #3a3a5a;
+        }}
+        
+        .style-box strong {{ color: #fff; }}
+        
+        .env-impact {{
+            font-size: 14px;
+            color: #ddd;
+            padding: 12px 14px;
+            background: linear-gradient(135deg, rgba(99,102,241,0.1), rgba(139,92,246,0.05));
+            border-radius: 8px;
+            border-left: 3px solid #6366f1;
+            line-height: 1.5;
+        }}
+        
+        /* 多方博弈分析样式 */
+        .participants-grid {{
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
+        }}
+        
+        .participant-card {{
+            background: #1e1e2e;
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid #3a3a5a;
+            transition: transform 0.2s;
+        }}
+        
+        .participant-card:hover {{
+            transform: translateY(-2px);
+        }}
+        
+        .participant-header {{
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }}
+        
+        .participant-icon {{ font-size: 24px; }}
+        
+        .participant-name-group {{
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }}
+        
+        .participant-name {{
+            font-size: 15px;
+            font-weight: bold;
+            color: #fff;
+        }}
+        
+        .participant-desc {{
+            font-size: 11px;
+            color: #666;
+        }}
+        
+        .participant-stance {{
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            white-space: nowrap;
+        }}
+        
+        .participant-summary {{
+            font-size: 13px;
+            color: #ccc;
+            line-height: 1.5;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: #252540;
+            border-radius: 8px;
+        }}
+        
+        .participant-details {{
+            list-style: none;
+            padding: 0;
+        }}
+        
+        .participant-details li {{
+            font-size: 12px;
+            color: #999;
+            padding: 4px 0 4px 16px;
+            position: relative;
+            line-height: 1.5;
+        }}
+        
+        .participant-details li::before {{
+            content: "•";
+            position: absolute;
+            left: 4px;
+            color: #6366f1;
+        }}
+        
+        .battle-summary {{
+            background: linear-gradient(135deg, #1a1a30 0%, #2a2040 100%);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #4a3a6a;
+        }}
+        
+        .battle-header {{
+            font-size: 16px;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }}
+        
+        .battle-icon {{ font-size: 20px; }}
+        
+        .battle-pattern {{
+            color: white;
+            padding: 4px 14px;
+            border-radius: 14px;
+            font-size: 13px;
+            font-weight: bold;
+        }}
+        
+        .battle-bar-container {{
+            margin-bottom: 16px;
+        }}
+        
+        .battle-bar {{
+            display: flex;
+            height: 32px;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 4px;
+        }}
+        
+        .battle-bar-bull {{
+            background: linear-gradient(90deg, #dc2626, #ef4444);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: bold;
+            min-width: 40px;
+        }}
+        
+        .battle-bar-neutral {{
+            background: #6b7280;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            min-width: 20px;
+        }}
+        
+        .battle-bar-bear {{
+            background: linear-gradient(90deg, #22c55e, #16a34a);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: bold;
+            min-width: 40px;
+        }}
+        
+        .battle-bar-labels {{
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+        }}
+        
+        .battle-conclusion {{
+            font-size: 14px;
+            color: #ddd;
+            line-height: 1.6;
+            padding: 12px;
+            background: #1e1e30;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }}
+        
+        .battle-signal {{
+            font-size: 13px;
+            color: #eab308;
+            padding: 10px 12px;
+            background: rgba(234, 179, 8, 0.1);
+            border-radius: 8px;
+            border-left: 3px solid #eab308;
+        }}
+        
+        .battle-signal strong {{ color: #fbbf24; }}
+        
         /* 主力吸筹分析样式 */
         .chip-analysis {{
             background: linear-gradient(135deg, #1a2a1a 0%, #1e2e1e 100%);
@@ -829,6 +1636,122 @@ def generate_html(data):
             text-decoration: none;
         }}
         
+        /* 技术形态分析样式 */
+        .pattern-card {{
+            background: linear-gradient(135deg, #1a1a2e 0%, #1e2a3a 100%);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #2a4a6a;
+        }}
+        
+        .pattern-header {{
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+        }}
+        
+        .pattern-name {{
+            font-size: 20px;
+            font-weight: bold;
+            color: #fff;
+        }}
+        
+        .pattern-type {{
+            color: white;
+            padding: 4px 14px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: bold;
+        }}
+        
+        .pattern-stars {{
+            font-size: 16px;
+            color: #eab308;
+            letter-spacing: 2px;
+        }}
+        
+        .pattern-desc {{
+            font-size: 14px;
+            color: #ccc;
+            line-height: 1.6;
+            padding: 12px;
+            background: #1e1e30;
+            border-radius: 8px;
+            margin-bottom: 14px;
+        }}
+        
+        .pattern-meta {{
+            display: flex;
+            gap: 20px;
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 14px;
+        }}
+        
+        .levels-grid {{
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 12px;
+            margin-bottom: 14px;
+        }}
+        
+        .level-item {{
+            text-align: center;
+            background: #1e1e30;
+            border-radius: 8px;
+            padding: 10px 8px;
+        }}
+        
+        .level-label {{
+            font-size: 11px;
+            color: #888;
+            margin-bottom: 4px;
+        }}
+        
+        .level-value {{
+            font-size: 18px;
+            font-weight: bold;
+        }}
+        
+        .additional-patterns {{
+            font-size: 13px;
+            color: #aaa;
+            margin-bottom: 10px;
+        }}
+        
+        .pattern-tag {{
+            background: #3a3a5a;
+            color: #ccc;
+            padding: 3px 10px;
+            border-radius: 10px;
+            font-size: 12px;
+            margin-left: 4px;
+        }}
+        
+        .pattern-warning {{
+            font-size: 13px;
+            color: #f97316;
+            padding: 10px 12px;
+            background: rgba(249, 115, 22, 0.1);
+            border-radius: 8px;
+            border-left: 3px solid #f97316;
+        }}
+        
+        .core-logic-box {{
+            font-size: 14px;
+            color: #fbbf24;
+            padding: 14px 16px;
+            background: linear-gradient(135deg, rgba(234, 179, 8, 0.1), rgba(245, 158, 11, 0.05));
+            border-radius: 10px;
+            border-left: 4px solid #eab308;
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }}
+        
+        .core-logic-box strong {{ color: #fbbf24; }}
+        
         /* 展望样式 */
         .outlook-grid {{
             display: grid;
@@ -944,10 +1867,16 @@ def generate_html(data):
             <span class="anomaly-badge">{stock.get("anomaly_type", "异常波动")}</span>
         </div>
         
+        {"<div class='section'><h2>🌍 大盘环境</h2>" + market_env_html + "</div>" if market_env_html else ""}
+        
         <div class="section">
             <h2>🔥 近期触发因素</h2>
             {triggers_html if triggers_html else '<p style="color:#888">暂无近期触发因素数据</p>'}
         </div>
+        
+        {"<div class='section'><h2>⚔️ 多方博弈分析</h2>" + participants_html + "</div>" if participants_html else ""}
+        
+        {"<div class='section'><h2>📐 技术形态分析</h2>" + pattern_html + "</div>" if pattern_html else ""}
         
         <div class="section">
             <h2>💰 资金动向</h2>
@@ -966,6 +1895,7 @@ def generate_html(data):
         
         <div class="section">
             <h2>🎯 走势预判</h2>
+            {"<div class='core-logic-box'>💡 <strong>核心逻辑:</strong> " + outlook.get("core_logic", "") + "</div>" if outlook.get("core_logic") else ""}
             <div class="outlook-grid">
                 <div class="outlook-card">
                     <h3>📈 短期展望</h3>
