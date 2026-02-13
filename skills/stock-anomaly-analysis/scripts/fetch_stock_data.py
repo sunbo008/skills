@@ -459,8 +459,354 @@ def calculate_temperature_history(stock_klines: list, index_klines: list) -> dic
     }
 
 
+# ============================================================
+# 板块联动分析 (新增)
+# ============================================================
+
+def get_eastmoney_secid(stock_code: str) -> str:
+    """获取东方财富格式的secid"""
+    exchange, code = get_exchange_prefix(stock_code)
+    return f"0.{code}" if exchange == 'sz' else f"1.{code}"
+
+
+def fetch_stock_sectors_eastmoney(stock_code: str) -> dict:
+    """
+    从东方财富获取个股所属概念板块和行业板块
+    接口: https://datacenter-web.eastmoney.com/api/data/v1/get
+    """
+    exchange, code = get_exchange_prefix(stock_code)
+    
+    url = "https://datacenter-web.eastmoney.com/api/data/v1/get"
+    params = {
+        "reportName": "RPT_F10_CORETHEME_BJHANGYE",
+        "columns": "ALL",
+        "filter": f'(SECURITY_CODE="{code}")',
+        "pageNumber": 1,
+        "pageSize": 50,
+        "source": "HSF10",
+        "client": "WEB",
+    }
+    
+    try:
+        resp = requests.get(url, params=params, timeout=10)
+        data = resp.json()
+        
+        if data.get('result') and data['result'].get('data'):
+            sectors = []
+            for item in data['result']['data']:
+                sectors.append({
+                    "name": item.get('BOARD_NAME', ''),
+                    "code": item.get('BOARD_CODE', ''),
+                    "rank": item.get('BOARD_RANK', 0),
+                    "is_precise": item.get('IS_PRECISE', 0),
+                    "board_type": item.get('BOARD_TYPE', ''),
+                })
+            return {
+                "source": "东方财富",
+                "stock_code": code,
+                "sectors": sectors,
+            }
+        return {"error": "无板块数据", "sectors": []}
+    except Exception as e:
+        return {"error": str(e), "sectors": []}
+
+
+def fetch_sector_stocks_eastmoney(sector_code: str, limit: int = 50) -> dict:
+    """
+    获取板块成分股，按今日涨跌幅降序排列
+    接口: https://push2.eastmoney.com/api/qt/clist/get
+    """
+    url = "https://push2.eastmoney.com/api/qt/clist/get"
+    params = {
+        "pn": 1,
+        "pz": limit,
+        "po": 1,
+        "np": 1,
+        "fltt": 2,
+        "invt": 2,
+        "fields": "f2,f3,f4,f5,f6,f7,f8,f9,f10,f12,f14,f15,f16,f17,f18,f20,f21",
+        "fs": f"b:{sector_code}",
+        "fid": "f3",
+    }
+    
+    try:
+        resp = requests.get(url, params=params, timeout=10)
+        data = resp.json()
+        
+        if data.get('data') and data['data'].get('diff'):
+            stocks = []
+            for item in data['data']['diff']:
+                stocks.append({
+                    "code": str(item.get('f12', '')),
+                    "name": item.get('f14', ''),
+                    "price": item.get('f2', 0),
+                    "change_pct": item.get('f3', 0),
+                    "change": item.get('f4', 0),
+                    "turnover": item.get('f8', 0),
+                    "pe": item.get('f9', 0),
+                    "market_cap": item.get('f20', 0),
+                })
+            total = data['data'].get('total', len(stocks))
+            return {
+                "source": "东方财富",
+                "sector_code": sector_code,
+                "total_stocks": total,
+                "stocks": stocks,
+            }
+        return {"error": "无成分股数据", "stocks": []}
+    except Exception as e:
+        return {"error": str(e), "stocks": []}
+
+
+def fetch_hot_sectors_eastmoney(sector_type: str = "concept", limit: int = 20) -> dict:
+    """
+    获取今日热门板块排行
+    sector_type: "concept" 概念板块, "industry" 行业板块
+    """
+    fs_map = {
+        "concept": "m:90+t:3",
+        "industry": "m:90+t:2",
+    }
+    
+    url = "https://push2.eastmoney.com/api/qt/clist/get"
+    params = {
+        "pn": 1,
+        "pz": limit,
+        "po": 1,
+        "np": 1,
+        "fltt": 2,
+        "invt": 2,
+        "fields": "f2,f3,f4,f12,f14,f104,f105,f128,f136,f140,f141",
+        "fs": fs_map.get(sector_type, fs_map["concept"]),
+        "fid": "f3",
+    }
+    
+    try:
+        resp = requests.get(url, params=params, timeout=10)
+        data = resp.json()
+        
+        if data.get('data') and data['data'].get('diff'):
+            sectors = []
+            for item in data['data']['diff']:
+                sectors.append({
+                    "code": item.get('f12', ''),
+                    "name": item.get('f14', ''),
+                    "change_pct": item.get('f3', 0),
+                    "up_count": item.get('f104', 0),
+                    "down_count": item.get('f105', 0),
+                    "leading_stock_name": item.get('f140', ''),
+                    "leading_stock_code": item.get('f141', ''),
+                })
+            return {
+                "source": "东方财富",
+                "type": sector_type,
+                "fetch_time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                "sectors": sectors,
+            }
+        return {"error": "无板块数据", "sectors": []}
+    except Exception as e:
+        return {"error": str(e), "sectors": []}
+
+
+def analyze_sector_position(stock_code: str, sector_name: str, sector_stocks: dict) -> dict:
+    """
+    分析个股在板块中的身位 (龙头/前排/中军/后排/掉队)
+    """
+    exchange, code = get_exchange_prefix(stock_code)
+    stocks = sector_stocks.get("stocks", [])
+    total = len(stocks)
+    
+    if total == 0:
+        return {"error": "无成分股数据"}
+    
+    rank = None
+    target_data = None
+    for i, s in enumerate(stocks):
+        if str(s["code"]) == code:
+            rank = i + 1
+            target_data = s
+            break
+    
+    if rank is None:
+        return {"error": "未在板块成分股中找到该股票", "sector_name": sector_name}
+    
+    ratio = rank / total
+    if ratio <= 0.05:
+        position, position_emoji = "龙头", "🏆"
+        position_detail = f"板块涨幅第{rank}/{total}名，处于绝对领涨位置"
+    elif ratio <= 0.2:
+        position, position_emoji = "前排", "🔴"
+        position_detail = f"板块涨幅第{rank}/{total}名，属于板块领涨梯队"
+    elif ratio <= 0.5:
+        position, position_emoji = "中军", "🟡"
+        position_detail = f"板块涨幅第{rank}/{total}名，与板块整体走势基本同步"
+    elif ratio <= 0.8:
+        position, position_emoji = "后排", "🔵"
+        position_detail = f"板块涨幅第{rank}/{total}名，弱于板块整体表现"
+    else:
+        position, position_emoji = "掉队", "⚪"
+        position_detail = f"板块涨幅第{rank}/{total}名，明显落后于板块大部分个股"
+    
+    leading = stocks[:5]
+    mid_start = max(0, total // 2 - 2)
+    mid_stocks = stocks[mid_start:mid_start + 5]
+    lagging = list(reversed(stocks[-5:])) if total > 5 else []
+    
+    valid_changes = [s["change_pct"] for s in stocks
+                     if isinstance(s.get("change_pct"), (int, float)) and s["change_pct"] != 0]
+    sector_avg = round(sum(valid_changes) / len(valid_changes), 2) if valid_changes else 0
+    
+    limit_up_count = sum(1 for s in stocks if isinstance(s.get("change_pct"), (int, float)) and s["change_pct"] >= 9.9)
+    limit_down_count = sum(1 for s in stocks if isinstance(s.get("change_pct"), (int, float)) and s["change_pct"] <= -9.9)
+    up_count = sum(1 for s in stocks if isinstance(s.get("change_pct"), (int, float)) and s["change_pct"] > 0)
+    down_count = sum(1 for s in stocks if isinstance(s.get("change_pct"), (int, float)) and s["change_pct"] < 0)
+    
+    stock_change = target_data["change_pct"] if target_data else 0
+    diff = stock_change - sector_avg
+    
+    if abs(diff) < 1:
+        independence = "弱"
+        independence_conclusion = f"与板块走势高度同步 (板块均涨{sector_avg}%, 个股涨{stock_change}%)"
+    elif diff > 5:
+        independence = "极强-正向"
+        independence_conclusion = f"远超板块表现 (板块均涨{sector_avg}%, 个股涨{stock_change}%), 走出独立强势行情"
+    elif diff > 2:
+        independence = "强-正向"
+        independence_conclusion = f"明显强于板块 (板块均涨{sector_avg}%, 个股涨{stock_change}%)"
+    elif diff > 1:
+        independence = "中-正向"
+        independence_conclusion = f"略强于板块 (板块均涨{sector_avg}%, 个股涨{stock_change}%)"
+    elif diff < -5:
+        independence = "极强-负向"
+        independence_conclusion = f"远逊板块表现 (板块均涨{sector_avg}%, 个股涨{stock_change}%), 需警惕个股风险"
+    elif diff < -2:
+        independence = "强-负向"
+        independence_conclusion = f"明显弱于板块 (板块均涨{sector_avg}%, 个股涨{stock_change}%)"
+    else:
+        independence = "中-负向"
+        independence_conclusion = f"略弱于板块 (板块均涨{sector_avg}%, 个股涨{stock_change}%)"
+    
+    def simplify(s):
+        return {"code": s["code"], "name": s["name"], "change_pct": s["change_pct"]}
+    
+    return {
+        "sector_name": sector_name,
+        "rank": rank,
+        "total": total,
+        "position": position,
+        "position_emoji": position_emoji,
+        "position_detail": position_detail,
+        "sector_avg_change": sector_avg,
+        "stock_change": stock_change,
+        "up_count": up_count,
+        "down_count": down_count,
+        "limit_up_count": limit_up_count,
+        "limit_down_count": limit_down_count,
+        "independence": independence,
+        "independence_conclusion": independence_conclusion,
+        "leading_stocks": [simplify(s) for s in leading],
+        "mid_stocks": [simplify(s) for s in mid_stocks],
+        "lagging_stocks": [simplify(s) for s in lagging],
+    }
+
+
+def calculate_technical_indicators(klines_data: dict) -> dict:
+    """从K线数据计算技术指标(均线、趋势、量价关系、支撑压力)"""
+    klines = klines_data.get("klines", [])
+    if not klines or len(klines) < 5:
+        return {"error": "K线数据不足"}
+    
+    closes = [k["close"] for k in klines]
+    volumes = [k["volume"] for k in klines]
+    current = closes[-1]
+    
+    def ma(data, period):
+        if len(data) < period:
+            return None
+        return round(sum(data[-period:]) / period, 3)
+    
+    ma5, ma10, ma20, ma60 = ma(closes, 5), ma(closes, 10), ma(closes, 20), ma(closes, 60)
+    
+    valid_mas = [(n, v) for n, v in [("MA5", ma5), ("MA10", ma10), ("MA20", ma20), ("MA60", ma60)] if v is not None]
+    if len(valid_mas) >= 3:
+        values = [v for _, v in valid_mas]
+        if all(values[i] >= values[i+1] for i in range(len(values)-1)):
+            ma_alignment = "多头排列"
+        elif all(values[i] <= values[i+1] for i in range(len(values)-1)):
+            ma_alignment = "空头排列"
+        else:
+            ma_alignment = "均线交叉缠绕"
+    else:
+        ma_alignment = "数据不足"
+    
+    avg_vol_5 = sum(volumes[-5:]) / 5
+    today_vol_ratio = round(volumes[-1] / avg_vol_5, 2) if avg_vol_5 > 0 else 1.0
+    
+    recent_change = klines[-1]["change_pct"]
+    if recent_change > 0 and today_vol_ratio > 1.3:
+        volume_price = "放量上涨，量价配合良好"
+    elif recent_change > 0 and today_vol_ratio < 0.7:
+        volume_price = "缩量上涨，上攻动力不足"
+    elif recent_change < 0 and today_vol_ratio > 1.3:
+        volume_price = "放量下跌，抛压较重"
+    elif recent_change < 0 and today_vol_ratio < 0.7:
+        volume_price = "缩量下跌，恐慌消退"
+    else:
+        volume_price = "量价关系中性"
+    
+    recent_klines = klines[-min(20, len(klines)):]
+    resistance = sorted(set(round(k["high"], 2) for k in recent_klines if k["high"] > current * 1.005), reverse=True)[:3]
+    support = sorted(set(round(k["low"], 2) for k in recent_klines if k["low"] < current * 0.995))[:3]
+    resistance.sort()
+    support.sort(reverse=True)
+    
+    short_t = closes[-1] - closes[-5] if len(closes) >= 5 else 0
+    mid_t = closes[-1] - closes[-20] if len(closes) >= 20 else short_t
+    if short_t > 0 and mid_t > 0:
+        trend = "上升趋势"
+    elif short_t < 0 and mid_t < 0:
+        trend = "下降趋势"
+    elif short_t > 0:
+        trend = "反弹修复"
+    elif short_t <= 0 and mid_t > 0:
+        trend = "高位回调"
+    else:
+        trend = "震荡整理"
+    
+    consecutive = 0
+    direction = None
+    for k in reversed(klines):
+        if direction is None:
+            direction = "up" if k["change_pct"] >= 0 else "down"
+        if (direction == "up" and k["change_pct"] >= 0) or (direction == "down" and k["change_pct"] < 0):
+            consecutive += 1
+        else:
+            break
+    
+    def period_change(n):
+        if len(closes) >= n + 1:
+            return round((closes[-1] / closes[-(n+1)] - 1) * 100, 2)
+        return None
+    
+    return {
+        "current_price": current,
+        "ma5": ma5, "ma10": ma10, "ma20": ma20, "ma60": ma60,
+        "ma_alignment": ma_alignment,
+        "volume_price": volume_price,
+        "today_vol_ratio": today_vol_ratio,
+        "support_levels": support,
+        "resistance_levels": resistance,
+        "trend": trend,
+        "consecutive_days": consecutive,
+        "consecutive_direction": "涨" if direction == "up" else "跌",
+        "change_5d": period_change(5),
+        "change_10d": period_change(10),
+        "change_20d": period_change(20),
+    }
+
+
 def fetch_all_data(stock_code: str) -> dict:
-    """获取股票全部数据"""
+    """获取股票全部数据 (含板块联动和技术指标)"""
     print(f"📊 正在获取 {stock_code} 的数据...")
     
     result = {
@@ -480,13 +826,13 @@ def fetch_all_data(stock_code: str) -> dict:
     print("  → 获取龙虎榜数据 (东方财富)...")
     result["dragon_tiger"] = fetch_dragon_tiger_eastmoney(stock_code)
     
-    # 4. 近期K线(30个交易日,用于温度历史计算)
-    print("  → 获取近期K线 (东方财富, 30日)...")
-    result["klines"] = fetch_kline_eastmoney(stock_code, "daily", 30)
+    # 4. 近期K线(70个交易日,用于温度历史和技术指标计算)
+    print("  → 获取近期K线 (东方财富, 70日)...")
+    result["klines"] = fetch_kline_eastmoney(stock_code, "daily", 70)
     
     # 5. 大盘指数K线(同期, 用于温度历史计算)
-    print("  → 获取上证指数K线 (东方财富, 30日)...")
-    result["index_klines"] = fetch_kline_eastmoney("sh000001", "daily", 30)
+    print("  → 获取上证指数K线 (东方财富, 70日)...")
+    result["index_klines"] = fetch_kline_eastmoney("sh000001", "daily", 70)
     
     # 6. 程序化计算温度历史(基于真实K线数据)
     stock_k = result["klines"].get("klines", []) if isinstance(result["klines"], dict) else []
@@ -498,6 +844,47 @@ def fetch_all_data(stock_code: str) -> dict:
     else:
         print("  ⚠ K线数据不可用，跳过温度历史计算")
         result["temperature_history"] = {"error": "K线数据不可用"}
+    
+    # 7. 技术指标计算 (基于K线)
+    print("  → 计算技术指标...")
+    if not result["klines"].get("error"):
+        result["technical"] = calculate_technical_indicators(result["klines"])
+    else:
+        result["technical"] = {"error": "无K线数据，无法计算技术指标"}
+    
+    # 8. 大盘指数
+    print("  → 获取大盘指数 (腾讯财经)...")
+    result["market_indices"] = fetch_market_indices()
+    
+    # 9. 个股所属板块
+    print("  → 获取所属板块 (东方财富)...")
+    result["stock_sectors"] = fetch_stock_sectors_eastmoney(stock_code)
+    
+    # 10. 今日热门概念板块TOP10
+    print("  → 获取今日热门概念板块 (东方财富)...")
+    result["hot_concept_sectors"] = fetch_hot_sectors_eastmoney("concept", 10)
+    
+    # 11. 板块联动分析 (取前3个最相关板块)
+    sectors = result["stock_sectors"].get("sectors", [])
+    if sectors:
+        print(f"  → 分析板块联动 (发现{len(sectors)}个相关板块)...")
+        sector_analysis = []
+        for sector_info in sectors[:3]:
+            sector_code = sector_info.get("code", "")
+            sector_name = sector_info.get("name", "")
+            if sector_code:
+                print(f"    → 分析板块: {sector_name} ({sector_code})...")
+                sector_stocks = fetch_sector_stocks_eastmoney(sector_code, 80)
+                if not sector_stocks.get("error"):
+                    position = analyze_sector_position(stock_code, sector_name, sector_stocks)
+                    sector_analysis.append({
+                        "sector_info": sector_info,
+                        "position_analysis": position,
+                    })
+        result["sector_analysis"] = sector_analysis
+    else:
+        result["sector_analysis"] = []
+        print("  ⚠️ 未获取到板块数据，建议通过WebSearch查询所属板块")
     
     return result
 
@@ -512,6 +899,10 @@ def main():
     parser.add_argument('--kline', action='store_true', help='仅获取K线')
     parser.add_argument('--temperature', action='store_true', help='计算并输出温度历史(基于K线数据)')
     parser.add_argument('--market', action='store_true', help='获取大盘指数数据(无需股票代码)')
+    parser.add_argument('--sectors', action='store_true', help='仅获取所属板块')
+    parser.add_argument('--sector-stocks', type=str, help='获取板块成分股(传入板块代码如BK1050)')
+    parser.add_argument('--hot-sectors', action='store_true', help='获取今日热门板块')
+    parser.add_argument('--technical', action='store_true', help='获取技术指标(需要K线数据)')
     
     args = parser.parse_args()
     
@@ -533,7 +924,19 @@ def main():
         elif args.lhb:
             data = fetch_dragon_tiger_eastmoney(stock_code)
         elif args.kline:
-            data = fetch_kline_eastmoney(stock_code)
+            data = fetch_kline_eastmoney(stock_code, limit=70)
+        elif args.sectors:
+            data = fetch_stock_sectors_eastmoney(stock_code)
+        elif args.sector_stocks:
+            data = fetch_sector_stocks_eastmoney(args.sector_stocks)
+        elif args.hot_sectors:
+            data = {
+                "concept": fetch_hot_sectors_eastmoney("concept", 10),
+                "industry": fetch_hot_sectors_eastmoney("industry", 10),
+            }
+        elif args.technical:
+            klines = fetch_kline_eastmoney(stock_code, limit=70)
+            data = calculate_technical_indicators(klines)
         elif args.temperature:
             print(f"🌡️ 计算 {stock_code} 温度历史...")
             print("  → 获取个股K线 (30日)...")
