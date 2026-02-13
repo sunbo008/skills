@@ -24,6 +24,7 @@ AGENTS.md
 
 # Node
 node_modules/
+docs/
 
 # 从远程安装的skills（可重新安装，不需要提交）
 .claude/skills/*/.openskills.json
@@ -40,7 +41,6 @@ node_modules/
 *.xls
 *.pdf
 *.txt
-*.md
 *.html
 *.css
 *.php
