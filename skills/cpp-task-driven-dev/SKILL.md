@@ -1,6 +1,6 @@
 ---
 name: cpp-task-driven-dev
-description: C++项目迭代开发工作流。整合openspec需求分析与任务拆解、Google C++架构师角色审核、cursor-agent CLI代码开发、单测与自动化测试、验收验证的闭环迭代流程。当用户提到"任务开发"、"迭代开发"、"C++开发流程"、"openspec需求"、"架构审核"、"cursor-agent开发"或需要按流程完成C++编码任务时使用此技能。
+description: C++项目迭代开发工作流。整合openspec需求分析与任务拆解、Google C++架构师角色审核、cursor-agent CLI代码开发、单测与自动化测试、验收验证的闭环迭代流程。当用户提到"任务开发"、"迭代开发"、"C++开发流程"、"C++开发"、"openspec需求"、"架构审核"、"cursor-agent开发"或需要按流程完成C++编码任务时使用此技能。
 ---
 
 # C++ 任务驱动迭代开发工作流
@@ -176,9 +176,37 @@ openspec instructions <next-ready-artifact> --change "<name>" --json
 - [ ] 2.1 更新 CMakeLists.txt
 - [ ] 2.2 集成测试
 
-## 3. 验证
-- [ ] 3.1 全量编译通过
-- [ ] 3.2 所有测试通过
+## 3. 单元测试 (Google Test)
+- [ ] 3.1 CMakeLists.txt 中集成 GTest (优先 find_package，未找到则 FetchContent 自动下载)
+- [ ] 3.2 编写单元测试 xxx_test.cpp (对照 specs 中每个 Scenario)
+- [ ] 3.3 边界条件测试 (空输入、极值、错误路径)
+
+**GTest 集成参考 (CMakeLists.txt):**
+```cmake
+# 优先查找系统已安装的 GTest，未找到则自动下载
+find_package(GTest QUIET)
+if(NOT GTest_FOUND)
+    include(FetchContent)
+    FetchContent_Declare(
+        googletest
+        GIT_REPOSITORY https://github.com/google/googletest.git
+        GIT_TAG        v1.15.2
+    )
+    set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+    FetchContent_MakeAvailable(googletest)
+endif()
+
+enable_testing()
+add_executable(xxx_test xxx_test.cpp)
+target_link_libraries(xxx_test PRIVATE GTest::gtest_main)
+include(GoogleTest)
+gtest_discover_tests(xxx_test)
+```
+
+## 4. 验证
+- [ ] 4.1 全量编译通过 (无错误无警告)
+- [ ] 4.2 所有单元测试通过 (0 failures)
+- [ ] 4.3 集成测试通过 (如有)
 ```
 
 ---

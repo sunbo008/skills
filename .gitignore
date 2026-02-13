@@ -40,7 +40,6 @@ docs/
 *.xlsx
 *.xls
 *.pdf
-*.txt
 *.html
 *.css
 *.php
