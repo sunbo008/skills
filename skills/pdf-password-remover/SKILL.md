@@ -1,3 +1,8 @@
+---
+name: pdf-password-remover
+description: 移除PDF文件的权限密码(Owner Password)，解锁打印、复制、编辑等受限操作。使用libqpdf C++ API实现，独立二进制无额外运行时依赖。当用户提到"PDF解密"、"移除PDF密码"、"PDF权限密码"、"解锁PDF"、"PDF打印限制"或需要移除PDF文件的操作限制时使用此技能。
+---
+
 # PDF 权限密码移除工具
 
 移除 PDF 文件的 **owner/permission 密码**，解锁打印、复制、编辑等受限操作。使用 libqpdf C++ API 直接操作 PDF，独立二进制无额外运行时依赖。
