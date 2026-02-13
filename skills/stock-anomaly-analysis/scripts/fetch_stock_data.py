@@ -20,6 +20,14 @@ def get_exchange_prefix(stock_code: str) -> tuple[str, str]:
     """根据股票代码判断交易所前缀"""
     code = stock_code.replace('.SZ', '').replace('.SH', '').replace('.sz', '').replace('.sh', '')
     
+    # 处理带 sh/sz/bj 前缀的代码 (如 sh000001, sz399001)
+    if code.startswith('sh'):
+        return 'sh', code[2:]
+    elif code.startswith('sz'):
+        return 'sz', code[2:]
+    elif code.startswith('bj'):
+        return 'bj', code[2:]
+    
     if code.startswith('6'):
         return 'sh', code  # 上交所
     elif code.startswith(('0', '3')):
