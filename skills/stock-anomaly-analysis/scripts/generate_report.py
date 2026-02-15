@@ -15,15 +15,61 @@ import os
 from datetime import datetime
 
 
+def _get_trading_day(offset=0):
+    """获取最近的交易日 (跳过周末)，offset=0为今天/最近交易日，offset=-1为上一个交易日"""
+    from datetime import timedelta
+    dt = datetime.now()
+    # 先找到今天或最近的交易日
+    while dt.weekday() >= 5:  # 5=Sat, 6=Sun
+        dt -= timedelta(days=1)
+    # 再往前偏移offset个交易日
+    for _ in range(abs(offset)):
+        dt -= timedelta(days=1)
+        while dt.weekday() >= 5:
+            dt -= timedelta(days=1)
+    return dt
+
+
+def _get_trading_days_before(anchor_dt, count):
+    """从anchor_dt往前获取count个交易日列表 (不含anchor_dt本身)"""
+    from datetime import timedelta
+    days = []
+    dt = anchor_dt
+    for _ in range(count):
+        dt -= timedelta(days=1)
+        while dt.weekday() >= 5:
+            dt -= timedelta(days=1)
+        days.append(dt)
+    return list(reversed(days))  # 从早到晚
+
+
 def get_sample_data():
-    """返回示例数据"""
+    """返回示例数据 (日期动态生成，始终基于最近交易日)"""
+    today = _get_trading_day(0)       # 今天/最近交易日
+    yesterday = _get_trading_day(-1)  # 上一个交易日
+    today_str = today.strftime("%Y-%m-%d")
+    yesterday_str = yesterday.strftime("%Y-%m-%d")
+    
+    # 生成温度历史: 最近15个交易日 + 今天
+    temp_history_days = _get_trading_days_before(today, 15)
+    temp_values = [30, 28, 25, 22, 18, 20, 23, 26, 28, 25, 27, 30, 33, 35, 32]
+    temp_labels = ["缩量调整", "", "放量下跌", "", "缩量新低", "", "止跌企稳", "", "", "回踩确认", "", "温和放量", "", "突破平台", ""]
+    temp_history = []
+    for i, d in enumerate(temp_history_days):
+        temp_history.append({"date": d.strftime("%m-%d"), "value": temp_values[i], "label": temp_labels[i]})
+    temp_history.append({"date": today.strftime("%m-%d"), "value": 42, "label": "放量大涨"})
+    
+    # 威科夫事件: Spring在前2个交易日，SOS在今天
+    spring_day = _get_trading_day(-2)
+    spring_str = spring_day.strftime("%Y-%m-%d")
+    
     return {
         "stock": {
             "code": "002195",
             "name": "岩山科技",
             "sector": "AI+机器人+智能驾驶",
             "price": 9.93,
-            "price_time": "2026-02-05 15:00",
+            "price_time": f"{today_str} 15:00",
             "change_pct": 5.67,
             "volume": "8.5亿",
             "turnover": "12.3%",
@@ -31,7 +77,7 @@ def get_sample_data():
             "low": 9.20,
             "anomaly_type": "放量大涨"
         },
-        "analysis_date": "2026-02-05",
+        "analysis_date": today_str,
         "market_environment": {
             "overall_score": 75,
             "overall_status": "偏强",
@@ -83,7 +129,7 @@ def get_sample_data():
                 "type": "消息面",
                 "title": "[示例] 公司公告获得新能源车企智驾订单",
                 "detail": "【此为演示数据】公司公告子公司纽劢科技与某头部新能源车企签订智能驾驶供货协议，预计2026年贡献收入1.2亿元。",
-                "date": "2026-02-05",
+                "date": today_str,
                 "source": "巨潮资讯",
                 "url": "#demo-url-需替换为真实公告链接",
                 "impact": "positive",
@@ -94,7 +140,7 @@ def get_sample_data():
                 "type": "板块联动",
                 "title": "[示例] 人形机器人板块集体走强",
                 "detail": "【此为演示数据】受海外机器人利好消息刺激，人形机器人板块今日大涨3.8%，多只个股涨停。",
-                "date": "2026-02-05",
+                "date": today_str,
                 "source": "东方财富",
                 "url": "#demo-url-需替换为真实新闻链接",
                 "impact": "positive",
@@ -105,7 +151,7 @@ def get_sample_data():
                 "type": "资金面",
                 "title": "[示例] 主力资金大幅流入",
                 "detail": "【此为演示数据】今日主力净流入2.3亿元，北向资金净买入5200万元，连续3日获主力加仓。",
-                "date": "2026-02-05",
+                "date": today_str,
                 "source": "同花顺",
                 "url": "https://data.10jqka.com.cn/funds/ggzjl/board/002195/",
                 "impact": "positive",
@@ -141,10 +187,10 @@ def get_sample_data():
             "north_net": "+0.52亿",
             "big_order": "+1.8亿",
             "retail_net": "-0.3亿",
-            "date": "2026-02-05"
+            "date": today_str
         },
         "dragon_tiger": {
-            "date": "2026-02-04",
+            "date": yesterday_str,
             "reason": "涨幅偏离值达7%",
             "buy_seats": [
                 {"name": "机构专用", "amount": "8500万"},
@@ -237,20 +283,97 @@ def get_sample_data():
             "additional_patterns": ["红三兵", "多方炮"],
             "warning": "若跌破10日均线(约8.8元)则老鸭头形态失败，需及时止损"
         },
+        "market_temperature": {
+            "temperature_value": 42,
+            "phase": "升温期",
+            "phase_code": 3,
+            "trend": "持续升温",
+            "trend_arrow": "↑",
+            "yesterday_temperature": 35,
+            "temperature_change": "+7",
+            "history_source": "基于东方财富K线数据(个股+上证指数)加权计算: 涨跌幅30%+换手率20%+大盘联动20%+3日动量15%+波幅方向15%",
+            "history": temp_history,
+            "dimensions": {
+                "profit_effect": {"score": 55, "weight": 0.25, "detail": "涨停45家，跌停12家"},
+                "board_height": {"score": 50, "weight": 0.20, "detail": "最高板4板，梯队较完整"},
+                "market_breadth": {"score": 48, "weight": 0.15, "detail": "涨跌比1.8:1，封板率55%"},
+                "volume_level": {"score": 40, "weight": 0.10, "detail": "成交额1.1万亿，较昨日微增"},
+                "sentiment_extreme": {"score": 35, "weight": 0.10, "detail": "股吧情绪偏中性，多空分歧"},
+                "leader_status": {"score": 45, "weight": 0.10, "detail": "龙头封板但有分歧"},
+                "fund_trend": {"score": 30, "weight": 0.10, "detail": "北向小幅流入，融资持平"}
+            },
+            "entry_suggestion": {
+                "market_level": "★★★ 精选介入",
+                "combined_assessment": "市场处于升温期(42°)，赚钱效应开始扩散但尚未过热，配合个股自身强势表现，可以积极精选介入",
+                "position_advice": "建议5-7成仓位",
+                "key_warning": "关注温度是否继续升温确认趋势，若连续2日降温需减仓"
+            },
+            "cycle_position": {
+                "description": "当前处于情绪周期的升温阶段，赚钱效应正在从少数龙头向更多个股扩散",
+                "distance_from_peak": "距离高潮期约13-33°空间",
+                "distance_from_bottom": "距离冰点约27-42°",
+                "phase_duration_days": 3,
+                "estimated_phase_progress": "40%"
+            }
+        },
+        "supply_demand": {
+            "wyckoff_phase": "吸筹末期→上涨初期",
+            "wyckoff_phase_code": 1,
+            "phase_evidence": [
+                "股价在8.5-10.5区间横盘整理超过15个交易日",
+                "下跌时成交量萎缩(平均换手率2.1%)，反弹时放量(平均换手率4.8%)",
+                "出现Spring信号: 2月3日假跌破8.5支撑后迅速收回至9.0以上"
+            ],
+            "supply_demand_score": 65,
+            "supply_demand_balance": "需求占优",
+            "volume_price_analysis": {
+                "pattern": "放量上涨",
+                "up_day_avg_volume": "6.8亿",
+                "down_day_avg_volume": "3.2亿",
+                "volume_ratio": 2.13,
+                "interpretation": "上涨日平均成交量是下跌日的2.13倍，需求力量明显强于供应，买方积极抢筹"
+            },
+            "divergence": {
+                "type": "无背离",
+                "detail": "近期量价配合良好，未出现明显背离信号"
+            },
+            "wyckoff_events": [
+                {"event": "Spring(弹簧)", "date": spring_str, "detail": "股价假跌破8.5元支撑位后迅速反弹至9.0以上，典型的最后一次供应测试", "significance": "高"},
+                {"event": "SOS(强势信号)", "date": today_str, "detail": "放量突破9.5元阻力位，成交量较前5日均值放大180%，需求正式超过供应", "significance": "高"}
+            ],
+            "supply_zones": [10.5, 11.0],
+            "demand_zones": [9.0, 8.5],
+            "supply_exhaustion_signs": [
+                "连续3日下跌时成交量递减，卖盘逐步枯竭",
+                "最近一次回调幅度仅3.2%，远小于前次回调7.8%"
+            ],
+            "demand_strength_signs": [
+                "今日主力净流入2.3亿，大额需求持续进入",
+                "涨停时封单量大于成交量的30%，买方积极"
+            ],
+            "conclusion": "当前处于威科夫吸筹末期→上涨初期过渡阶段。Spring已确认底部供应被充分吸收，SOS信号确认需求正式占优。供需格局明确有利于多方，上方10.5元为首个供应密集区。",
+            "supply_demand_forecast": {
+                "short_term": "需求持续占优，短期上方10.5元附近可能遇到供应释放",
+                "mid_term": "若能放量突破10.5供应区，则进入上涨期(Markup)，下一供应区在12-13元",
+                "key_observation": "关注9.5元是否能从阻力转为支撑(供需转换确认)"
+            }
+        },
         "outlook": {
-            "short_term": "短期维持强势。今日放量上涨，突破9.5元平台，上方压力位10.5-11元，下方支撑位9.0元。老鸭头形态确认后大概率展开主升浪。",
-            "mid_term": "中期看好。订单持续落地，2026年进入收入确认期。宇树科技若成功IPO，公司作为核心供应商将获估值重估。目标价12-15元。",
-            "core_logic": "本次异动核心驱动力是政策催化叠加机构游资共振，技术面老鸭头形态确认主升浪启动。",
+            "short_term": "短期维持强势。今日放量上涨，突破9.5元平台，上方供应密集区10.5-11元，下方需求支撑区9.0元。老鸭头形态确认后大概率展开主升浪。",
+            "mid_term": "中期看好。威科夫吸筹完成进入上涨期，订单持续落地，2026年进入收入确认期。若放量突破10.5供应区则打开12-15元空间。",
+            "core_logic": "本次异动核心驱动力是政策催化叠加机构游资共振+供需格局转换(Spring+SOS确认需求占优)，技术面老鸭头形态确认主升浪启动。",
+            "supply_demand_logic": "威科夫视角: 长期横盘吸筹已完成供应吸收，Spring确认底部卖盘枯竭，SOS确认需求突破供应防线。当前处于需求>供应的有利格局，上方10.5元为前期套牢盘供应区。",
             "risks": [
                 "AI/机器人概念退潮风险",
                 "订单交付不及预期",
-                "短期涨幅大，获利盘回吐",
-                "大盘系统性回调"
+                "短期涨幅大，获利盘回吐(供应释放)",
+                "大盘系统性回调",
+                "若出现天量滞涨则供应可能涌出(供需反转预警)"
             ]
         },
         "sources": [
-            {"title": "[示例] 公司公告-智驾订单", "url": "#demo-需替换为真实链接", "date": "2026-02-05", "source": "巨潮资讯"},
-            {"title": "今日资金流向", "url": "https://data.10jqka.com.cn/funds/ggzjl/board/002195/", "date": "2026-02-05", "source": "同花顺"},
+            {"title": "[示例] 公司公告-智驾订单", "url": "#demo-需替换为真实链接", "date": today_str, "source": "巨潮资讯"},
+            {"title": "今日资金流向", "url": "https://data.10jqka.com.cn/funds/ggzjl/board/002195/", "date": today_str, "source": "同花顺"},
             {"title": "宇树科技订单详情", "url": "https://caifuhao.eastmoney.com/news/20250918123725099612100", "date": "2025-09-18", "source": "东方财富"},
             {"title": "国际汽配商大单", "url": "https://www.jiemian.com/article/13408972.html", "date": "2025-10-15", "source": "界面新闻"}
         ]
@@ -414,14 +537,215 @@ def validate_temperature_history(data):
     return data
 
 
+def validate_dates(data):
+    """
+    校验报告中的日期时效性
+    - analysis_date 应为最近交易日 (不超过3天)
+    - price_time 应与 analysis_date 一致
+    - 标记为 today 的 triggers 日期应与 analysis_date 一致
+    - fund_flow 日期应与 analysis_date 一致
+    """
+    from datetime import timedelta
+    
+    now = datetime.now()
+    today_str = now.strftime("%Y-%m-%d")
+    
+    warnings = []
+    errors = []
+    
+    # 1. 校验 analysis_date
+    analysis_date_str = data.get("analysis_date", "")
+    if not analysis_date_str:
+        errors.append("❌ 缺少 analysis_date 字段!")
+    else:
+        try:
+            analysis_dt = datetime.strptime(analysis_date_str, "%Y-%m-%d")
+            days_diff = (now - analysis_dt).days
+            
+            if days_diff < 0:
+                errors.append(f"❌ analysis_date={analysis_date_str} 是未来日期!")
+            elif days_diff > 5:
+                errors.append(f"❌ analysis_date={analysis_date_str} 距今已{days_diff}天，数据严重过期! (今天={today_str})")
+            elif days_diff > 3:
+                warnings.append(f"⚠️ analysis_date={analysis_date_str} 距今{days_diff}天，数据可能过期 (今天={today_str})")
+            elif days_diff > 0:
+                # 1-3天可能是周末，检查是否合理
+                if analysis_dt.weekday() < 5:  # 工作日
+                    if days_diff == 1 and now.weekday() in [0, 6]:  # 周一或周日看周五的数据
+                        pass  # 合理
+                    elif days_diff <= 2 and now.weekday() == 0:  # 周一看周四/周五
+                        pass
+                    else:
+                        warnings.append(f"⚠️ analysis_date={analysis_date_str} 非今日({today_str})，请确认是否为最近交易日")
+        except ValueError:
+            errors.append(f"❌ analysis_date 格式错误: {analysis_date_str} (应为YYYY-MM-DD)")
+    
+    # 2. 校验 price_time 与 analysis_date 一致
+    stock = data.get("stock", {})
+    price_time = stock.get("price_time", "")
+    if price_time and analysis_date_str:
+        if not price_time.startswith(analysis_date_str):
+            errors.append(f"❌ price_time={price_time} 与 analysis_date={analysis_date_str} 不一致!")
+    
+    # 3. 校验 today 标记的 triggers 日期
+    triggers = data.get("triggers", [])
+    for t in triggers:
+        if t.get("freshness") == "today" and t.get("date"):
+            if t["date"] != analysis_date_str:
+                errors.append(f"❌ trigger '{t.get('title', '')[:20]}...' 标记为today但日期={t['date']}，应为{analysis_date_str}")
+    
+    # 4. 校验 fund_flow 日期
+    fund_flow = data.get("fund_flow", {})
+    ff_date = fund_flow.get("date", "")
+    if ff_date and analysis_date_str:
+        if ff_date != analysis_date_str:
+            warnings.append(f"⚠️ fund_flow日期={ff_date} 与 analysis_date={analysis_date_str} 不一致")
+    
+    # 5. 校验年份一致性 (所有触发因素的年份)
+    if analysis_date_str:
+        analysis_year = analysis_date_str[:4]
+        for t in triggers:
+            t_date = t.get("date", "")
+            if t_date and t.get("freshness") == "today":
+                if not t_date.startswith(analysis_year):
+                    errors.append(f"❌ trigger '{t.get('title', '')[:20]}...' 年份={t_date[:4]}，与分析年份{analysis_year}不一致!")
+    
+    # 输出校验结果
+    if errors or warnings:
+        print(f"\n{'🚨' if errors else '⚠️'} 日期时效性校验{'失败' if errors else '警告'}!")
+        for e in errors:
+            print(f"   {e}")
+        for w in warnings:
+            print(f"   {w}")
+        if not errors:
+            print(f"   ℹ️  以上为警告，不影响报告生成")
+        print()
+    else:
+        print(f"📅 日期校验通过: analysis_date={analysis_date_str}, price_time={price_time}\n")
+    
+    return data
+
+
+def validate_supply_demand(data):
+    """
+    校验威科夫供需分析数据的完整性和一致性
+    - 供需得分范围: -100 ~ +100
+    - 威科夫阶段代码: 1-4
+    - 量比合理性: > 0
+    - 事件日期: 非周末
+    - 供需区间逻辑: supply_zones > demand_zones
+    - 得分与结论一致性
+    """
+    sd = data.get("supply_demand", {})
+    
+    if not sd:
+        return data
+    
+    warnings = []
+    errors = []
+    
+    # 1. 供需得分范围校验
+    score = sd.get("supply_demand_score", 0)
+    if not isinstance(score, (int, float)):
+        errors.append(f"❌ supply_demand_score 类型错误: {type(score).__name__}，应为数字")
+    elif score < -100 or score > 100:
+        errors.append(f"❌ supply_demand_score={score} 超出范围 [-100, +100]")
+    
+    # 2. 威科夫阶段代码校验
+    phase_code = sd.get("wyckoff_phase_code", 0)
+    valid_codes = {1: "吸筹", 2: "上涨", 3: "派发", 4: "下跌"}
+    if phase_code not in valid_codes:
+        errors.append(f"❌ wyckoff_phase_code={phase_code} 无效，必须为 1(吸筹)/2(上涨)/3(派发)/4(下跌)")
+    
+    # 3. 量比合理性校验
+    vpa = sd.get("volume_price_analysis", {})
+    volume_ratio = vpa.get("volume_ratio", 0)
+    if volume_ratio is not None and isinstance(volume_ratio, (int, float)):
+        if volume_ratio <= 0:
+            errors.append(f"❌ volume_ratio={volume_ratio} 无效，必须 > 0")
+        elif volume_ratio > 10:
+            warnings.append(f"⚠️ volume_ratio={volume_ratio} 异常偏高(>10)，请确认数据来源")
+    
+    # 4. 威科夫事件日期校验
+    events = sd.get("wyckoff_events", [])
+    current_year = datetime.now().year
+    weekend_events = []
+    for evt in events:
+        date_str = evt.get("date", "")
+        if not date_str or len(date_str) < 10:
+            continue
+        try:
+            dt = datetime.strptime(date_str, "%Y-%m-%d")
+            if dt.weekday() >= 5:
+                day_name = "周六" if dt.weekday() == 5 else "周日"
+                weekend_events.append(f"{date_str}({day_name}): {evt.get('event', '')}")
+        except ValueError:
+            warnings.append(f"⚠️ 威科夫事件日期格式错误: {date_str} (应为YYYY-MM-DD)")
+    
+    if weekend_events:
+        for we in weekend_events:
+            errors.append(f"❌ 威科夫事件日期为非交易日: {we}")
+    
+    # 5. 供需区间逻辑校验: supply_zones 应高于 demand_zones
+    supply_zones = sd.get("supply_zones", [])
+    demand_zones = sd.get("demand_zones", [])
+    if supply_zones and demand_zones:
+        min_supply = min(supply_zones) if supply_zones else float('inf')
+        max_demand = max(demand_zones) if demand_zones else 0
+        if min_supply <= max_demand:
+            warnings.append(f"⚠️ 供应区最低价({min_supply}) ≤ 需求区最高价({max_demand})，供需区间可能交叉，请确认")
+    
+    # 6. 得分与结论一致性校验
+    balance = sd.get("supply_demand_balance", "")
+    if isinstance(score, (int, float)):
+        if score > 20 and "供应占优" in balance:
+            errors.append(f"❌ 供需得分={score}(需求占优)但结论为'{balance}'，得分与结论矛盾!")
+        elif score < -20 and "需求占优" in balance:
+            errors.append(f"❌ 供需得分={score}(供应占优)但结论为'{balance}'，得分与结论矛盾!")
+    
+    # 7. 必要字段完整性检查
+    required_fields = ["wyckoff_phase", "wyckoff_phase_code", "supply_demand_score", 
+                       "supply_demand_balance", "volume_price_analysis", "conclusion"]
+    missing = [f for f in required_fields if not sd.get(f)]
+    if missing:
+        warnings.append(f"⚠️ 供需分析缺少字段: {', '.join(missing)}")
+    
+    # 8. phase_evidence 不能为空
+    evidence = sd.get("phase_evidence", [])
+    if not evidence:
+        warnings.append("⚠️ phase_evidence 为空，威科夫阶段判断缺少依据")
+    
+    # 输出校验结果
+    if errors or warnings:
+        print(f"\n{'🚨' if errors else '⚠️'} 威科夫供需分析校验{'失败' if errors else '警告'}!")
+        for e in errors:
+            print(f"   {e}")
+        for w in warnings:
+            print(f"   {w}")
+        if not errors:
+            print(f"   ℹ️  以上为警告，不影响报告生成")
+        print()
+    else:
+        phase_name = sd.get("wyckoff_phase", "未知")
+        print(f"⚖️ 供需分析校验通过: 阶段={phase_name}, 得分={score}, 余额={balance}\n")
+    
+    return data
+
+
 def generate_html(data):
     """生成HTML报告"""
     
     # 先校验并修复URL
     data = validate_and_fix_urls(data)
     
+    # 校验日期时效性
+    data = validate_dates(data)
+    
     # 校验温度历史数据
     data = validate_temperature_history(data)
+    
+    # 校验供需分析数据
+    data = validate_supply_demand(data)
     
     stock = data["stock"]
     triggers = sorted(data.get("triggers", []), key=lambda x: x.get("weight", 0), reverse=True)
@@ -898,6 +1222,240 @@ def generate_html(data):
             {levels_html}
             {additional_html}
             {warning_html}
+        </div>
+        '''
+    
+    # 生成威科夫供需分析HTML
+    supply_demand_html = ""
+    sd_data = data.get("supply_demand", {})
+    if sd_data and sd_data.get("wyckoff_phase"):
+        sd_phase = sd_data.get("wyckoff_phase", "")
+        sd_phase_code = sd_data.get("wyckoff_phase_code", 0)
+        sd_score = sd_data.get("supply_demand_score", 0)
+        sd_balance = sd_data.get("supply_demand_balance", "")
+        sd_evidence = sd_data.get("phase_evidence", [])
+        sd_vp = sd_data.get("volume_price_analysis", {})
+        sd_divergence = sd_data.get("divergence", {})
+        sd_events = sd_data.get("wyckoff_events", [])
+        sd_supply_zones = sd_data.get("supply_zones", [])
+        sd_demand_zones = sd_data.get("demand_zones", [])
+        sd_exhaustion = sd_data.get("supply_exhaustion_signs", [])
+        sd_demand_signs = sd_data.get("demand_strength_signs", [])
+        sd_conclusion = sd_data.get("conclusion", "")
+        sd_forecast = sd_data.get("supply_demand_forecast", {})
+        
+        # 阶段颜色和图标
+        phase_config = {
+            1: ("#3b82f6", "🔵", "吸筹期"),
+            2: ("#ef4444", "🔴", "上涨期"),
+            3: ("#f97316", "🟠", "派发期"),
+            4: ("#22c55e", "🟢", "下跌期"),
+        }
+        sd_color, sd_emoji, sd_phase_label = phase_config.get(sd_phase_code, ("#6b7280", "⚪", "未知"))
+        
+        # 供需得分仪表盘颜色
+        if sd_score >= 60:
+            score_color = "#ef4444"
+            score_label = "需求强力占优"
+        elif sd_score >= 20:
+            score_color = "#f97316"
+            score_label = "需求略占优"
+        elif sd_score >= -19:
+            score_color = "#eab308"
+            score_label = "供需均衡"
+        elif sd_score >= -59:
+            score_color = "#06b6d4"
+            score_label = "供应略占优"
+        else:
+            score_color = "#22c55e"
+            score_label = "供应强力占优"
+        
+        # 供需得分条 (范围 -100 ~ +100, 映射到 0% ~ 100%)
+        score_pct = (sd_score + 100) / 2  # 映射到 0-100%
+        
+        # 阶段证据
+        evidence_html = ""
+        for e in sd_evidence:
+            evidence_html += f'<li>{e}</li>'
+        
+        # 量价分析
+        vp_html = ""
+        if sd_vp:
+            vp_pattern = sd_vp.get("pattern", "")
+            vp_ratio = sd_vp.get("volume_ratio", 0)
+            vp_up = sd_vp.get("up_day_avg_volume", "")
+            vp_down = sd_vp.get("down_day_avg_volume", "")
+            vp_interp = sd_vp.get("interpretation", "")
+            
+            ratio_color = "#ef4444" if vp_ratio > 1.3 else "#22c55e" if vp_ratio < 0.7 else "#eab308"
+            ratio_label = "需求>供应" if vp_ratio > 1.3 else "供应>需求" if vp_ratio < 0.7 else "供需均衡"
+            
+            vp_html = f'''
+            <div class="sd-vp-box">
+                <div class="sd-vp-title">📊 量价供需分析</div>
+                <div class="sd-vp-grid">
+                    <div class="sd-vp-item">
+                        <div class="sd-vp-label">量价模式</div>
+                        <div class="sd-vp-value">{vp_pattern}</div>
+                    </div>
+                    <div class="sd-vp-item">
+                        <div class="sd-vp-label">量比(涨/跌)</div>
+                        <div class="sd-vp-value" style="color:{ratio_color}">{vp_ratio:.2f}x</div>
+                        <div class="sd-vp-sub">{ratio_label}</div>
+                    </div>
+                    {"<div class='sd-vp-item'><div class='sd-vp-label'>上涨日均量</div><div class='sd-vp-value' style='color:#ef4444'>" + vp_up + "</div></div>" if vp_up else ""}
+                    {"<div class='sd-vp-item'><div class='sd-vp-label'>下跌日均量</div><div class='sd-vp-value' style='color:#22c55e'>" + vp_down + "</div></div>" if vp_down else ""}
+                </div>
+                <div class="sd-vp-interp">{vp_interp}</div>
+            </div>'''
+        
+        # 量价背离
+        divergence_html = ""
+        if sd_divergence:
+            div_type = sd_divergence.get("type", "")
+            div_detail = sd_divergence.get("detail", "")
+            div_color = "#ef4444" if "顶背离" in div_type else "#22c55e" if "底背离" in div_type else "#4ade80"
+            div_icon = "⚠️" if "背离" in div_type and "无" not in div_type else "✅"
+            divergence_html = f'''
+            <div class="sd-divergence" style="border-left-color: {div_color};">
+                {div_icon} <strong>{div_type}</strong>: {div_detail}
+            </div>'''
+        
+        # 威科夫事件时间线
+        events_html = ""
+        if sd_events:
+            for ev in sd_events:
+                ev_name = ev.get("event", "")
+                ev_date = ev.get("date", "")
+                ev_detail = ev.get("detail", "")
+                ev_sig = ev.get("significance", "")
+                sig_color = "#ef4444" if ev_sig == "高" else "#eab308" if ev_sig == "中" else "#6b7280"
+                events_html += f'''
+                <div class="sd-event-item">
+                    <div class="sd-event-dot" style="background: {sig_color};"></div>
+                    <div class="sd-event-content">
+                        <div class="sd-event-header">
+                            <span class="sd-event-name">{ev_name}</span>
+                            <span class="sd-event-date">{ev_date}</span>
+                            <span class="sd-event-sig" style="background: {sig_color};">{ev_sig}</span>
+                        </div>
+                        <div class="sd-event-detail">{ev_detail}</div>
+                    </div>
+                </div>'''
+            events_html = f'''
+            <div class="sd-events-box">
+                <div class="sd-events-title">🔑 关键威科夫事件</div>
+                <div class="sd-events-timeline">{events_html}</div>
+            </div>'''
+        
+        # 供应区/需求区
+        zones_html = ""
+        if sd_supply_zones or sd_demand_zones:
+            supply_tags = " ".join([f'<span class="sd-zone-tag supply">¥{z:.1f}</span>' for z in sd_supply_zones]) if sd_supply_zones else '<span class="sd-zone-na">暂无数据</span>'
+            demand_tags = " ".join([f'<span class="sd-zone-tag demand">¥{z:.1f}</span>' for z in sd_demand_zones]) if sd_demand_zones else '<span class="sd-zone-na">暂无数据</span>'
+            zones_html = f'''
+            <div class="sd-zones">
+                <div class="sd-zone-row">
+                    <span class="sd-zone-label" style="color:#ef4444">▲ 供应密集区(压力)</span>
+                    <div class="sd-zone-tags">{supply_tags}</div>
+                </div>
+                <div class="sd-zone-row">
+                    <span class="sd-zone-label" style="color:#22c55e">▼ 需求支撑区(支撑)</span>
+                    <div class="sd-zone-tags">{demand_tags}</div>
+                </div>
+            </div>'''
+        
+        # 供应枯竭/需求增强信号
+        signals_html = ""
+        if sd_exhaustion or sd_demand_signs:
+            exh_items = "".join([f'<li class="sd-signal-item exhaust">{s}</li>' for s in sd_exhaustion])
+            dem_items = "".join([f'<li class="sd-signal-item demand">{s}</li>' for s in sd_demand_signs])
+            signals_html = f'''
+            <div class="sd-signals-grid">
+                {"<div class='sd-signals-col'><div class='sd-signals-title' style='color:#22c55e'>📉 供应枯竭信号</div><ul>" + exh_items + "</ul></div>" if exh_items else ""}
+                {"<div class='sd-signals-col'><div class='sd-signals-title' style='color:#ef4444'>📈 需求增强信号</div><ul>" + dem_items + "</ul></div>" if dem_items else ""}
+            </div>'''
+        
+        # 供需预判
+        forecast_html = ""
+        if sd_forecast:
+            fc_short = sd_forecast.get("short_term", "")
+            fc_mid = sd_forecast.get("mid_term", "")
+            fc_key = sd_forecast.get("key_observation", "")
+            forecast_html = f'''
+            <div class="sd-forecast">
+                <div class="sd-forecast-title">🔮 供需趋势预判</div>
+                {"<div class='sd-forecast-item'><span class='sd-forecast-label'>短期:</span> " + fc_short + "</div>" if fc_short else ""}
+                {"<div class='sd-forecast-item'><span class='sd-forecast-label'>中期:</span> " + fc_mid + "</div>" if fc_mid else ""}
+                {"<div class='sd-forecast-key'>💡 <strong>关键观察:</strong> " + fc_key + "</div>" if fc_key else ""}
+            </div>'''
+        
+        # 威科夫阶段指示条
+        phase_defs = [
+            (1, "吸筹", "#3b82f6"), (2, "上涨", "#ef4444"),
+            (3, "派发", "#f97316"), (4, "下跌", "#22c55e"),
+        ]
+        phase_ruler_html = ""
+        for pc, pname, pcolor in phase_defs:
+            is_current = pc == sd_phase_code
+            opacity = "1" if is_current else "0.3"
+            border = f"border: 2px solid {pcolor}; box-shadow: 0 0 8px {pcolor}40;" if is_current else ""
+            phase_ruler_html += f'<div class="sd-phase-seg" style="background:{pcolor}; opacity:{opacity}; {border}"><span>{pname}</span></div>'
+        
+        supply_demand_html = f'''
+        <div class="sd-container" style="border: 1px solid {sd_color}30;">
+            <!-- 阶段+得分主显示 -->
+            <div class="sd-main-row">
+                <div class="sd-phase-area">
+                    <div class="sd-phase-emoji">{sd_emoji}</div>
+                    <div class="sd-phase-name" style="color: {sd_color};">{sd_phase}</div>
+                    <div class="sd-balance-badge" style="background: {score_color};">{sd_balance}</div>
+                </div>
+                <div class="sd-score-area">
+                    <div class="sd-score-num" style="color: {score_color};">{sd_score:+d}</div>
+                    <div class="sd-score-label">{score_label}</div>
+                    <div class="sd-score-bar-bg">
+                        <div class="sd-score-bar-center"></div>
+                        <div class="sd-score-bar-fill" style="left: {min(score_pct, 50):.1f}%; width: {abs(score_pct - 50):.1f}%; background: {score_color};"></div>
+                        <div class="sd-score-pointer" style="left: {score_pct:.1f}%;"></div>
+                    </div>
+                    <div class="sd-score-bar-labels">
+                        <span style="color:#22c55e">供应占优 -100</span>
+                        <span style="color:#888">均衡 0</span>
+                        <span style="color:#ef4444">需求占优 +100</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 阶段刻度条 -->
+            <div class="sd-phase-ruler">{phase_ruler_html}</div>
+            
+            <!-- 阶段证据 -->
+            <div class="sd-evidence">
+                <div class="sd-evidence-title">📋 阶段判断依据</div>
+                <ul class="sd-evidence-list">{evidence_html}</ul>
+            </div>
+            
+            <!-- 量价分析 -->
+            {vp_html}
+            
+            <!-- 量价背离 -->
+            {divergence_html}
+            
+            <!-- 威科夫事件 -->
+            {events_html}
+            
+            <!-- 供应区/需求区 -->
+            {zones_html}
+            
+            <!-- 供应枯竭/需求增强信号 -->
+            {signals_html}
+            
+            <!-- 结论 -->
+            <div class="sd-conclusion">💡 {sd_conclusion}</div>
+            
+            <!-- 供需预判 -->
+            {forecast_html}
         </div>
         '''
     
@@ -2185,6 +2743,459 @@ def generate_html(data):
             border-left: 3px solid #f97316;
         }}
         
+        /* 威科夫供需分析样式 */
+        .sd-container {{
+            background: linear-gradient(135deg, #1a1a2e 0%, #1e2a3a 100%);
+            border-radius: 16px;
+            padding: 24px;
+        }}
+        
+        .sd-main-row {{
+            display: flex;
+            align-items: center;
+            gap: 32px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }}
+        
+        .sd-phase-area {{
+            text-align: center;
+            min-width: 160px;
+        }}
+        
+        .sd-phase-emoji {{
+            font-size: 48px;
+            margin-bottom: 8px;
+        }}
+        
+        .sd-phase-name {{
+            font-size: 22px;
+            font-weight: 900;
+            margin-bottom: 8px;
+        }}
+        
+        .sd-balance-badge {{
+            display: inline-block;
+            color: white;
+            padding: 4px 16px;
+            border-radius: 16px;
+            font-size: 13px;
+            font-weight: bold;
+        }}
+        
+        .sd-score-area {{
+            flex: 1;
+            min-width: 250px;
+        }}
+        
+        .sd-score-num {{
+            font-size: 42px;
+            font-weight: 900;
+            line-height: 1;
+            margin-bottom: 4px;
+        }}
+        
+        .sd-score-label {{
+            font-size: 14px;
+            color: #aaa;
+            margin-bottom: 12px;
+        }}
+        
+        .sd-score-bar-bg {{
+            position: relative;
+            height: 20px;
+            background: linear-gradient(90deg, #22c55e20 0%, #eab30820 50%, #ef444420 100%);
+            border-radius: 10px;
+            overflow: visible;
+            border: 1px solid #3a3a5a;
+        }}
+        
+        .sd-score-bar-center {{
+            position: absolute;
+            left: 50%;
+            top: 0;
+            width: 2px;
+            height: 100%;
+            background: #888;
+            transform: translateX(-50%);
+        }}
+        
+        .sd-score-bar-fill {{
+            position: absolute;
+            top: 2px;
+            height: calc(100% - 4px);
+            border-radius: 8px;
+            opacity: 0.8;
+        }}
+        
+        .sd-score-pointer {{
+            position: absolute;
+            top: -4px;
+            width: 8px;
+            height: 28px;
+            background: white;
+            border-radius: 4px;
+            transform: translateX(-50%);
+            box-shadow: 0 0 8px rgba(255,255,255,0.5);
+        }}
+        
+        .sd-score-bar-labels {{
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+            margin-top: 4px;
+        }}
+        
+        .sd-phase-ruler {{
+            display: flex;
+            gap: 4px;
+            margin-bottom: 20px;
+        }}
+        
+        .sd-phase-seg {{
+            flex: 1;
+            height: 28px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: white;
+            font-weight: bold;
+            transition: all 0.3s;
+        }}
+        
+        .sd-evidence {{
+            background: rgba(255,255,255,0.03);
+            border-radius: 10px;
+            padding: 14px;
+            margin-bottom: 16px;
+        }}
+        
+        .sd-evidence-title {{
+            font-size: 14px;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 10px;
+        }}
+        
+        .sd-evidence-list {{
+            list-style: none;
+            padding: 0;
+        }}
+        
+        .sd-evidence-list li {{
+            font-size: 13px;
+            color: #bbb;
+            padding: 4px 0 4px 18px;
+            position: relative;
+            line-height: 1.5;
+        }}
+        
+        .sd-evidence-list li::before {{
+            content: "▸";
+            position: absolute;
+            left: 2px;
+            color: #6366f1;
+        }}
+        
+        .sd-vp-box {{
+            background: rgba(0,0,0,0.2);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }}
+        
+        .sd-vp-title {{
+            font-size: 14px;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 12px;
+        }}
+        
+        .sd-vp-grid {{
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+            margin-bottom: 10px;
+        }}
+        
+        .sd-vp-item {{
+            text-align: center;
+            background: rgba(255,255,255,0.03);
+            border-radius: 8px;
+            padding: 10px;
+        }}
+        
+        .sd-vp-label {{
+            font-size: 11px;
+            color: #888;
+            margin-bottom: 4px;
+        }}
+        
+        .sd-vp-value {{
+            font-size: 18px;
+            font-weight: bold;
+            color: #fff;
+        }}
+        
+        .sd-vp-sub {{
+            font-size: 11px;
+            color: #aaa;
+            margin-top: 2px;
+        }}
+        
+        .sd-vp-interp {{
+            font-size: 13px;
+            color: #ccc;
+            line-height: 1.5;
+            padding: 10px;
+            background: rgba(255,255,255,0.02);
+            border-radius: 8px;
+        }}
+        
+        .sd-divergence {{
+            font-size: 13px;
+            color: #ddd;
+            padding: 10px 14px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 8px;
+            border-left: 3px solid #4ade80;
+            margin-bottom: 16px;
+        }}
+        
+        .sd-events-box {{
+            margin-bottom: 16px;
+        }}
+        
+        .sd-events-title {{
+            font-size: 14px;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 12px;
+        }}
+        
+        .sd-events-timeline {{
+            position: relative;
+            padding-left: 16px;
+        }}
+        
+        .sd-events-timeline::before {{
+            content: "";
+            position: absolute;
+            left: 5px;
+            top: 4px;
+            bottom: 4px;
+            width: 2px;
+            background: #3a3a5a;
+        }}
+        
+        .sd-event-item {{
+            position: relative;
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+            padding-left: 8px;
+        }}
+        
+        .sd-event-dot {{
+            position: absolute;
+            left: -16px;
+            top: 6px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            border: 2px solid #1a1a2e;
+        }}
+        
+        .sd-event-content {{
+            flex: 1;
+            background: rgba(255,255,255,0.03);
+            border-radius: 8px;
+            padding: 10px 14px;
+        }}
+        
+        .sd-event-header {{
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+            flex-wrap: wrap;
+        }}
+        
+        .sd-event-name {{
+            font-size: 14px;
+            font-weight: bold;
+            color: #fff;
+        }}
+        
+        .sd-event-date {{
+            font-size: 12px;
+            color: #888;
+        }}
+        
+        .sd-event-sig {{
+            font-size: 10px;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 8px;
+        }}
+        
+        .sd-event-detail {{
+            font-size: 13px;
+            color: #aaa;
+            line-height: 1.5;
+        }}
+        
+        .sd-zones {{
+            background: rgba(255,255,255,0.03);
+            border-radius: 10px;
+            padding: 14px;
+            margin-bottom: 16px;
+        }}
+        
+        .sd-zone-row {{
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 6px 0;
+            flex-wrap: wrap;
+        }}
+        
+        .sd-zone-label {{
+            font-size: 13px;
+            font-weight: bold;
+            min-width: 160px;
+        }}
+        
+        .sd-zone-tags {{
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }}
+        
+        .sd-zone-tag {{
+            padding: 4px 14px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: bold;
+        }}
+        
+        .sd-zone-tag.supply {{
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }}
+        
+        .sd-zone-tag.demand {{
+            background: rgba(34, 197, 94, 0.15);
+            color: #22c55e;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }}
+        
+        .sd-zone-na {{
+            font-size: 13px;
+            color: #666;
+        }}
+        
+        .sd-signals-grid {{
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
+        }}
+        
+        .sd-signals-col {{
+            background: rgba(255,255,255,0.02);
+            border-radius: 10px;
+            padding: 14px;
+        }}
+        
+        .sd-signals-title {{
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }}
+        
+        .sd-signals-col ul {{
+            list-style: none;
+            padding: 0;
+        }}
+        
+        .sd-signal-item {{
+            font-size: 12px;
+            color: #bbb;
+            padding: 4px 0 4px 16px;
+            position: relative;
+            line-height: 1.5;
+        }}
+        
+        .sd-signal-item.exhaust::before {{
+            content: "↓";
+            position: absolute;
+            left: 2px;
+            color: #22c55e;
+        }}
+        
+        .sd-signal-item.demand::before {{
+            content: "↑";
+            position: absolute;
+            left: 2px;
+            color: #ef4444;
+        }}
+        
+        .sd-conclusion {{
+            font-size: 14px;
+            color: #ddd;
+            padding: 14px 16px;
+            background: linear-gradient(135deg, rgba(99,102,241,0.1), rgba(139,92,246,0.05));
+            border-radius: 10px;
+            border-left: 3px solid #6366f1;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }}
+        
+        .sd-forecast {{
+            background: rgba(255,255,255,0.03);
+            border-radius: 10px;
+            padding: 14px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }}
+        
+        .sd-forecast-title {{
+            font-size: 14px;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 10px;
+        }}
+        
+        .sd-forecast-item {{
+            font-size: 13px;
+            color: #ccc;
+            padding: 6px 0;
+            line-height: 1.5;
+        }}
+        
+        .sd-forecast-label {{
+            font-weight: bold;
+            color: #8b5cf6;
+        }}
+        
+        .sd-forecast-key {{
+            margin-top: 8px;
+            font-size: 13px;
+            color: #eab308;
+            padding: 8px 12px;
+            background: rgba(234, 179, 8, 0.08);
+            border-radius: 8px;
+            border-left: 3px solid #eab308;
+        }}
+        
+        .sd-forecast-key strong {{
+            color: #fbbf24;
+        }}
+        
         /* 市场温度计样式 */
         .temp-container {{
             border-radius: 16px;
@@ -2603,6 +3614,8 @@ def generate_html(data):
         
         {"<div class='section'><h2>⚔️ 多方博弈分析</h2>" + participants_html + "</div>" if participants_html else ""}
         
+        {"<div class='section'><h2>⚖️ 威科夫供需分析</h2>" + supply_demand_html + "</div>" if supply_demand_html else ""}
+        
         {"<div class='section'><h2>📐 技术形态分析</h2>" + pattern_html + "</div>" if pattern_html else ""}
         
         <div class="section">
@@ -2623,6 +3636,7 @@ def generate_html(data):
         <div class="section">
             <h2>🎯 走势预判</h2>
             {"<div class='core-logic-box'>💡 <strong>核心逻辑:</strong> " + outlook.get("core_logic", "") + "</div>" if outlook.get("core_logic") else ""}
+            {"<div class='core-logic-box' style='border-left-color:#3b82f6; background:linear-gradient(135deg,rgba(59,130,246,0.1),rgba(59,130,246,0.03));'>⚖️ <strong>供需逻辑:</strong> " + outlook.get("supply_demand_logic", "") + "</div>" if outlook.get("supply_demand_logic") else ""}
             {"<div class='core-logic-box' style='border-left-color:#8b5cf6; background:linear-gradient(135deg,rgba(139,92,246,0.1),rgba(139,92,246,0.03));'>🌡️ <strong>温度指引:</strong> " + outlook.get("temperature_guidance", "") + "</div>" if outlook.get("temperature_guidance") else ""}
             <div class="outlook-grid">
                 <div class="outlook-card">

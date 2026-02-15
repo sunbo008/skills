@@ -44,3 +44,5 @@ docs/
 *.css
 *.php
 generate_report.js
+nul
+test/
