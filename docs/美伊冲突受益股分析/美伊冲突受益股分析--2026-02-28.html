@@ -1,0 +1,1294 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>美伊冲突受益股分析报告 2026-02-28</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #1e1e2e 0%, #2d2d44 100%);
+            min-height: 100vh;
+            color: #e0e0e0;
+            padding: 20px;
+        }
+
+        .container { max-width: 1100px; margin: 0 auto; }
+
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h1 { font-size: 28px; color: #fff; margin-bottom: 8px; }
+        .header .subtitle { font-size: 16px; color: #a0a0c0; margin-bottom: 6px; }
+        .header .date { color: #888; font-size: 13px; }
+
+        .section {
+            background: #2a2a40;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 1px solid #3a3a5a;
+        }
+
+        .section h2 {
+            font-size: 18px;
+            color: #fff;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #4a4a6a;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section h2::before {
+            content: "";
+            display: inline-block;
+            width: 4px;
+            height: 20px;
+            background: linear-gradient(to bottom, #6366f1, #8b5cf6);
+            border-radius: 2px;
+        }
+
+        /* 地缘背景卡片 */
+        .geo-card {
+            background: linear-gradient(135deg, #3b1a1a 0%, #2a1a2e 100%);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 1px solid #5a2a2a;
+        }
+
+        .geo-card h2 { color: #ff6b6b; border-bottom-color: #5a2a2a; }
+        .geo-card h2::before { background: linear-gradient(to bottom, #ef4444, #dc2626); }
+
+        .geo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .geo-item {
+            background: rgba(0,0,0,0.25);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .geo-item .label { font-size: 12px; color: #999; margin-bottom: 6px; }
+        .geo-item .value { font-size: 22px; font-weight: bold; }
+        .geo-item .value.up { color: #ef4444; }
+        .geo-item .value.warn { color: #f59e0b; }
+        .geo-item .sub { font-size: 12px; color: #888; margin-top: 4px; }
+
+        .geo-bullets { list-style: none; padding: 0; }
+        .geo-bullets li {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            font-size: 14px;
+            color: #ccc;
+            padding-left: 20px;
+            position: relative;
+        }
+        .geo-bullets li::before {
+            content: "!";
+            position: absolute;
+            left: 0;
+            color: #ef4444;
+            font-weight: bold;
+        }
+
+        /* 油价柱状图 */
+        .oil-bars { display: flex; gap: 24px; justify-content: center; margin: 20px 0; }
+        .oil-bar-wrap { text-align: center; }
+        .oil-bar-label { font-size: 12px; color: #999; margin-bottom: 6px; }
+        .oil-bar-container {
+            width: 80px;
+            height: 120px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+        .oil-bar-fill {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            border-radius: 0 0 8px 8px;
+            transition: height 1s ease;
+        }
+        .oil-bar-value {
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: 8px;
+        }
+        .oil-bar-chg { font-size: 13px; color: #ef4444; }
+
+        /* 梯队标题 */
+        .tier-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #4a4a6a;
+        }
+
+        .tier-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            font-size: 16px;
+            font-weight: bold;
+            color: #fff;
+            flex-shrink: 0;
+        }
+
+        .tier-badge.t1 { background: linear-gradient(135deg, #ef4444, #dc2626); }
+        .tier-badge.t2 { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .tier-badge.t3 { background: linear-gradient(135deg, #6b7280, #4b5563); }
+
+        .tier-title { font-size: 18px; color: #fff; }
+        .tier-desc { font-size: 13px; color: #888; }
+
+        /* 股票卡片 */
+        .stock-card {
+            background: linear-gradient(135deg, #1e1e30 0%, #252540 100%);
+            border-radius: 14px;
+            padding: 20px;
+            margin-bottom: 16px;
+            border: 1px solid #3a3a5a;
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+        }
+
+        .stock-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+        }
+
+        .stock-card.expanded .stock-detail { display: block; }
+
+        .stock-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .stock-left { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+        .stock-name { font-size: 20px; font-weight: bold; color: #fff; }
+        .stock-code { font-size: 12px; color: #888; background: #3a3a5a; padding: 3px 10px; border-radius: 20px; }
+
+        .stock-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+        .tag {
+            font-size: 11px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+        .tag.bullish { background: rgba(34,197,94,0.15); color: #22c55e; border: 1px solid rgba(34,197,94,0.3); }
+        .tag.sector { background: rgba(99,102,241,0.15); color: #818cf8; border: 1px solid rgba(99,102,241,0.3); }
+        .tag.warn { background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); }
+        .tag.bearish { background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
+
+        .stock-right { text-align: right; }
+        .stock-price { font-size: 26px; font-weight: bold; }
+        .stock-price.up { color: #ef4444; }
+        .stock-price.down { color: #22c55e; }
+        .stock-change { font-size: 14px; margin-top: 2px; }
+        .stock-change.up { color: #ef4444; }
+        .stock-change.down { color: #22c55e; }
+
+        /* 评级星星 */
+        .rating { display: flex; align-items: center; gap: 6px; margin-top: 8px; }
+        .stars { color: #f59e0b; font-size: 16px; letter-spacing: 2px; }
+        .rating-text { font-size: 12px; color: #999; }
+
+        /* 指标网格 */
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .metric {
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .metric .label { font-size: 11px; color: #888; margin-bottom: 4px; }
+        .metric .val { font-size: 15px; font-weight: bold; color: #fff; }
+        .metric .val.good { color: #22c55e; }
+        .metric .val.neutral { color: #f59e0b; }
+        .metric .val.bad { color: #ef4444; }
+
+        /* 详情展开区 */
+        .stock-detail {
+            display: none;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #3a3a5a;
+        }
+
+        .analysis-text {
+            font-size: 14px;
+            line-height: 1.8;
+            color: #c0c0d0;
+            margin-bottom: 12px;
+        }
+
+        .buy-point {
+            background: rgba(34,197,94,0.08);
+            border: 1px solid rgba(34,197,94,0.2);
+            border-radius: 10px;
+            padding: 14px;
+        }
+
+        .buy-point .title {
+            font-size: 13px;
+            font-weight: bold;
+            color: #22c55e;
+            margin-bottom: 8px;
+        }
+
+        .buy-point .content { font-size: 13px; color: #a0c0a0; line-height: 1.7; }
+
+        /* MA 可视化 */
+        .ma-visual {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        .ma-bar {
+            height: 6px;
+            border-radius: 3px;
+            flex: 1;
+            min-width: 40px;
+            position: relative;
+        }
+        .ma-bar .ma-label {
+            position: absolute;
+            top: -18px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 10px;
+            color: #888;
+            white-space: nowrap;
+        }
+        .ma-bar .ma-val {
+            position: absolute;
+            bottom: -18px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 10px;
+            color: #aaa;
+            white-space: nowrap;
+        }
+        .ma-bar.ma5 { background: #ef4444; }
+        .ma-bar.ma10 { background: #f59e0b; }
+        .ma-bar.ma20 { background: #6366f1; }
+        .ma-bar.ma60 { background: #22c55e; }
+
+        /* 策略总结 */
+        .strategy-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .strategy-item {
+            background: rgba(0,0,0,0.2);
+            border-radius: 12px;
+            padding: 18px;
+        }
+
+        .strategy-item h3 {
+            font-size: 14px;
+            color: #fff;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .strategy-item p { font-size: 13px; color: #aaa; line-height: 1.7; }
+
+        /* 排序 + 筛选 */
+        .filter-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            background: rgba(99,102,241,0.1);
+            border: 1px solid rgba(99,102,241,0.3);
+            color: #818cf8;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .filter-btn:hover, .filter-btn.active {
+            background: rgba(99,102,241,0.25);
+            border-color: #6366f1;
+            color: #fff;
+        }
+
+        /* 核心组合高亮 */
+        .core-combo {
+            background: linear-gradient(135deg, rgba(99,102,241,0.1) 0%, rgba(139,92,246,0.1) 100%);
+            border: 1px solid rgba(99,102,241,0.3);
+            border-radius: 14px;
+            padding: 20px;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .core-combo h3 { font-size: 16px; color: #fff; margin-bottom: 12px; }
+        .combo-stocks {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .combo-chip {
+            background: rgba(99,102,241,0.2);
+            border: 1px solid rgba(99,102,241,0.4);
+            border-radius: 12px;
+            padding: 10px 20px;
+            font-size: 14px;
+            color: #c4b5fd;
+            font-weight: 500;
+        }
+        .combo-chip .pct { font-size: 12px; color: #888; margin-left: 6px; }
+
+        /* 免责声明 */
+        .disclaimer {
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            padding: 20px;
+            border-top: 1px solid #3a3a5a;
+            margin-top: 20px;
+        }
+
+        /* 优先级排序表 */
+        .rank-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+        }
+
+        .rank-table th {
+            background: rgba(0,0,0,0.3);
+            padding: 12px;
+            text-align: left;
+            font-size: 13px;
+            color: #888;
+            border-bottom: 2px solid #4a4a6a;
+        }
+
+        .rank-table td {
+            padding: 12px;
+            font-size: 14px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .rank-table tr:hover td { background: rgba(99,102,241,0.05); }
+
+        .rank-num {
+            display: inline-flex;
+            width: 28px;
+            height: 28px;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-size: 13px;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .rank-num.r1 { background: #ef4444; }
+        .rank-num.r2 { background: #f97316; }
+        .rank-num.r3 { background: #f59e0b; }
+        .rank-num.r4 { background: #6366f1; }
+        .rank-num.r5 { background: #8b5cf6; }
+
+        .expand-hint {
+            font-size: 11px;
+            color: #666;
+            text-align: center;
+            margin-top: 6px;
+        }
+
+        @media (max-width: 640px) {
+            .stock-top { flex-direction: column; }
+            .stock-right { text-align: left; }
+            .geo-grid { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <!-- Header -->
+    <div class="header">
+        <h1>美伊冲突受益股 分析报告</h1>
+        <div class="subtitle">以色列已发动攻击 | 美国军事集结中东 | 11只标的综合研判</div>
+        <div class="date">分析日期: 2026-02-28 (周六) | 数据截止: 2026-02-28 15:00 收盘</div>
+    </div>
+
+    <!-- 地缘背景 -->
+    <div class="geo-card">
+        <h2>地缘政治背景</h2>
+
+        <div class="oil-bars">
+            <div class="oil-bar-wrap">
+                <div class="oil-bar-label">WTI 原油</div>
+                <div class="oil-bar-container">
+                    <div class="oil-bar-fill" style="height: 70%; background: linear-gradient(to top, #ef4444, #f97316);"></div>
+                </div>
+                <div class="oil-bar-value" style="color:#ef4444;">$70.35</div>
+                <div class="oil-bar-chg">+2.52%</div>
+            </div>
+            <div class="oil-bar-wrap">
+                <div class="oil-bar-label">布伦特原油</div>
+                <div class="oil-bar-container">
+                    <div class="oil-bar-fill" style="height: 74%; background: linear-gradient(to top, #ef4444, #f97316);"></div>
+                </div>
+                <div class="oil-bar-value" style="color:#ef4444;">$74.04</div>
+                <div class="oil-bar-chg">+2.08%</div>
+            </div>
+            <div class="oil-bar-wrap">
+                <div class="oil-bar-label">BDTI运输指数</div>
+                <div class="oil-bar-container">
+                    <div class="oil-bar-fill" style="height: 85%; background: linear-gradient(to top, #f59e0b, #ef4444);"></div>
+                </div>
+                <div class="oil-bar-value" style="color:#f59e0b;">1842</div>
+                <div class="oil-bar-chg">阶段新高</div>
+            </div>
+            <div class="oil-bar-wrap">
+                <div class="oil-bar-label">COMEX 黄金</div>
+                <div class="oil-bar-container">
+                    <div class="oil-bar-fill" style="height: 90%; background: linear-gradient(to top, #f59e0b, #fbbf24);"></div>
+                </div>
+                <div class="oil-bar-value" style="color:#fbbf24;">$5200+</div>
+                <div class="oil-bar-chg">历史高位</div>
+            </div>
+        </div>
+
+        <ul class="geo-bullets">
+            <li>特朗普对伊朗核谈判表态"不满意"，美伊谈判未取得实质进展</li>
+            <li>美国下令在中东进行自2003年以来规模最大的军事集结</li>
+            <li>以色列已对伊朗发动攻击，地缘冲突持续升级</li>
+            <li>预测市场数据显示：美国打击伊朗概率约 26%</li>
+            <li>霍尔木兹海峡承担全球 40% 石油贸易，180万桶/日伊朗出口面临中断风险</li>
+            <li>本周日 OPEC+ 供应会议将决定油价短期方向</li>
+        </ul>
+    </div>
+
+    <!-- 核心组合 -->
+    <div class="core-combo">
+        <h3>核心推荐组合："油金双核"策略</h3>
+        <div class="combo-stocks">
+            <div class="combo-chip">中国海油 600938 <span class="pct">3成仓</span></div>
+            <div class="combo-chip">招商南油 601975 <span class="pct">2成仓</span></div>
+            <div class="combo-chip">紫金矿业 601899 <span class="pct">2成仓</span></div>
+            <div class="combo-chip">中远海能 600026 <span class="pct">1.5成仓</span></div>
+            <div class="combo-chip">中金黄金 600489 <span class="pct">1.5成仓</span></div>
+        </div>
+    </div>
+
+    <!-- 筛选栏 -->
+    <div class="filter-bar">
+        <button class="filter-btn active" onclick="filterTier('all')">全部 (11)</button>
+        <button class="filter-btn" onclick="filterTier('t1')">第一梯队 (3)</button>
+        <button class="filter-btn" onclick="filterTier('t2')">第二梯队 (3)</button>
+        <button class="filter-btn" onclick="filterTier('t3')">第三梯队 (5)</button>
+        <button class="filter-btn" onclick="filterTier('oil')">石油/油运</button>
+        <button class="filter-btn" onclick="filterTier('gold')">黄金</button>
+        <button class="filter-btn" onclick="filterTier('mil')">军工</button>
+    </div>
+
+    <!-- ===== 第一梯队 ===== -->
+    <div class="section" id="tier1">
+        <div class="tier-header">
+            <span class="tier-badge t1">1</span>
+            <div>
+                <div class="tier-title">第一梯队：强烈推荐关注</div>
+                <div class="tier-desc">技术面 + 基本面 + 催化三重共振</div>
+            </div>
+        </div>
+
+        <!-- 中国海油 -->
+        <div class="stock-card" data-tier="t1" data-sector="oil" onclick="this.classList.toggle('expanded')">
+            <div class="stock-top">
+                <div>
+                    <div class="stock-left">
+                        <span class="stock-name">中国海油</span>
+                        <span class="stock-code">600938</span>
+                    </div>
+                    <div class="stock-tags">
+                        <span class="tag bullish">多头排列</span>
+                        <span class="tag bullish">上升趋势</span>
+                        <span class="tag sector">石油开采</span>
+                    </div>
+                    <div class="rating">
+                        <span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
+                        <span class="rating-text">强烈推荐</span>
+                    </div>
+                </div>
+                <div class="stock-right">
+                    <div class="stock-price up">35.87</div>
+                    <div class="stock-change up">+1.13% (+0.40)</div>
+                </div>
+            </div>
+
+            <div class="metrics">
+                <div class="metric">
+                    <div class="label">PE(TTM)</div>
+                    <div class="val good">13.83</div>
+                </div>
+                <div class="metric">
+                    <div class="label">均线状态</div>
+                    <div class="val good">多头排列</div>
+                </div>
+                <div class="metric">
+                    <div class="label">20日涨幅</div>
+                    <div class="val" style="color:#ef4444;">+12.73%</div>
+                </div>
+                <div class="metric">
+                    <div class="label">换手率</div>
+                    <div class="val">1.12%</div>
+                </div>
+                <div class="metric">
+                    <div class="label">总市值</div>
+                    <div class="val">17049亿</div>
+                </div>
+                <div class="metric">
+                    <div class="label">量比</div>
+                    <div class="val neutral">0.59</div>
+                </div>
+            </div>
+
+            <div class="stock-detail">
+                <div class="analysis-text">
+                    <strong>技术面：</strong>11只标的中<strong>唯一多头排列</strong>(MA5 35.87 > MA10 35.24 > MA20 34.65 > MA60 30.76)，技术面最强。20日涨幅12.73%说明资金已率先布局。缩量上涨(量比0.59)表明上方抛压轻、筹码锁定良好。支撑位32.72/31.90，压力位36.90/37.26。<br><br>
+                    <strong>基本面：</strong>中国最大海上原油生产商，PE仅13.83估值合理。2025H1业绩符合预期，产量稳步上升。油价每上涨10美元/桶，年利润增厚约200亿。<br><br>
+                    <strong>催化逻辑：</strong>美伊冲突升级 → 霍尔木兹海峡风险 → 国际油价飙升 → 直接增厚利润。
+                </div>
+                <div class="buy-point">
+                    <div class="title">买入建议</div>
+                    <div class="content">
+                        回踩 MA10 (35.24) 附近是较好介入位；若站稳 37 元压力位则突破加仓。<br>
+                        止损设在 MA20 (34.65) 下方。建议仓位：3成。
+                    </div>
+                </div>
+            </div>
+            <div class="expand-hint">点击展开详细分析</div>
+        </div>
+
+        <!-- 招商南油 -->
+        <div class="stock-card" data-tier="t1" data-sector="oil" onclick="this.classList.toggle('expanded')">
+            <div class="stock-top">
+                <div>
+                    <div class="stock-left">
+                        <span class="stock-name">招商南油</span>
+                        <span class="stock-code">601975</span>
+                    </div>
+                    <div class="stock-tags">
+                        <span class="tag bullish">买盘积极</span>
+                        <span class="tag bullish">换手活跃</span>
+                        <span class="tag sector">油运</span>
+                    </div>
+                    <div class="rating">
+                        <span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
+                        <span class="rating-text">强烈推荐</span>
+                    </div>
+                </div>
+                <div class="stock-right">
+                    <div class="stock-price up">4.11</div>
+                    <div class="stock-change up">+2.24% (+0.09)</div>
+                </div>
+            </div>
+
+            <div class="metrics">
+                <div class="metric">
+                    <div class="label">PE(TTM)</div>
+                    <div class="val good">15.87</div>
+                </div>
+                <div class="metric">
+                    <div class="label">换手率</div>
+                    <div class="val" style="color:#ef4444;">5.82%</div>
+                </div>
+                <div class="metric">
+                    <div class="label">振幅</div>
+                    <div class="val">5.72%</div>
+                </div>
+                <div class="metric">
+                    <div class="label">外盘/内盘</div>
+                    <div class="val good">14.2/13.0亿</div>
+                </div>
+                <div class="metric">
+                    <div class="label">总市值</div>
+                    <div class="val">192亿</div>
+                </div>
+                <div class="metric">
+                    <div class="label">海外营收占比</div>
+                    <div class="val">64.12%</div>
+                </div>
+            </div>
+
+            <div class="stock-detail">
+                <div class="analysis-text">
+                    <strong>技术面：</strong>换手率5.82%为所有标的中最高，说明资金交投极为活跃。外盘(14.2亿)大于内盘(13.0亿)，买方力量占优。2月12日单日涨4.89%已展现弹性。振幅5.72%说明日内波动大、短线机会丰富。<br><br>
+                    <strong>基本面：</strong>PE仅15.87，估值极低。海外营收占比64.12%。BDTI原油运输指数创1842点阶段新高，中东-中国VLCC运费维持12万美元以上。<br><br>
+                    <strong>催化逻辑：</strong>油运板块弹性之王。中东冲突 → 油轮绕行 → 运距增加 → 运价飙升。小盘股(192亿市值)弹性远超大盘股。
+                </div>
+                <div class="buy-point">
+                    <div class="title">买入建议</div>
+                    <div class="content">
+                        当前价位可分批建仓；回踩 4.00 元附近加仓。<br>
+                        若突破 4.22 (今日高点) 则确认突破形态。建议仓位：2成。
+                    </div>
+                </div>
+            </div>
+            <div class="expand-hint">点击展开详细分析</div>
+        </div>
+
+        <!-- 中远海能 -->
+        <div class="stock-card" data-tier="t1" data-sector="oil" onclick="this.classList.toggle('expanded')">
+            <div class="stock-top">
+                <div>
+                    <div class="stock-left">
+                        <span class="stock-name">中远海能</span>
+                        <span class="stock-code">600026</span>
+                    </div>
+                    <div class="stock-tags">
+                        <span class="tag bullish">运价新高</span>
+                        <span class="tag sector">油运龙头</span>
+                        <span class="tag sector">A+H</span>
+                    </div>
+                    <div class="rating">
+                        <span class="stars">&#9733;&#9733;&#9733;&#9733;</span>
+                        <span class="rating-text">积极关注</span>
+                    </div>
+                </div>
+                <div class="stock-right">
+                    <div class="stock-price up">20.58</div>
+                    <div class="stock-change up">+0.68% (+0.14)</div>
+                </div>
+            </div>
+
+            <div class="metrics">
+                <div class="metric">
+                    <div class="label">PE(TTM)</div>
+                    <div class="val">34.05</div>
+                </div>
+                <div class="metric">
+                    <div class="label">换手率</div>
+                    <div class="val">2.71%</div>
+                </div>
+                <div class="metric">
+                    <div class="label">振幅</div>
+                    <div class="val" style="color:#f59e0b;">6.31%</div>
+                </div>
+                <div class="metric">
+                    <div class="label">总市值(A)</div>
+                    <div class="val">715亿</div>
+                </div>
+                <div class="metric">
+                    <div class="label">H股表现</div>
+                    <div class="val" style="color:#ef4444;">2/20涨7%</div>
+                </div>
+                <div class="metric">
+                    <div class="label">VLCC运费</div>
+                    <div class="val good">$12万+</div>
+                </div>
+            </div>
+
+            <div class="stock-detail">
+                <div class="analysis-text">
+                    <strong>技术面：</strong>振幅6.31%为所有标的中最大，多空博弈激烈。H股2月20日盘初涨超7%已验证地缘催化的爆发力。外盘(4.76亿)与内盘(4.67亿)基本持平，说明当日是分歧状态。<br><br>
+                    <strong>基本面：</strong>国内油运绝对龙头。BDTI原油运输指数1842点创阶段新高。中东-中国VLCC运费维持12万美元以上高位。<br><br>
+                    <strong>催化逻辑：</strong>与招商南油相同，但市值更大(715亿)，确定性更强、弹性略小。A+H双上市可参考H股走势提前判断。
+                </div>
+                <div class="buy-point">
+                    <div class="title">买入建议</div>
+                    <div class="content">
+                        回踩 20 元整数关口可介入；止损设在 19.99 (今日低点) 下方。<br>
+                        建议仓位：1.5成。
+                    </div>
+                </div>
+            </div>
+            <div class="expand-hint">点击展开详细分析</div>
+        </div>
+    </div>
+
+    <!-- ===== 第二梯队 ===== -->
+    <div class="section" id="tier2">
+        <div class="tier-header">
+            <span class="tier-badge t2">2</span>
+            <div>
+                <div class="tier-title">第二梯队：积极关注</div>
+                <div class="tier-desc">基本面优秀，等待技术面确认</div>
+            </div>
+        </div>
+
+        <!-- 紫金矿业 -->
+        <div class="stock-card" data-tier="t2" data-sector="gold" onclick="this.classList.toggle('expanded')">
+            <div class="stock-top">
+                <div>
+                    <div class="stock-left">
+                        <span class="stock-name">紫金矿业</span>
+                        <span class="stock-code">601899</span>
+                    </div>
+                    <div class="stock-tags">
+                        <span class="tag bullish">业绩爆发</span>
+                        <span class="tag warn">均线缠绕</span>
+                        <span class="tag sector">黄金龙头</span>
+                    </div>
+                    <div class="rating">
+                        <span class="stars">&#9733;&#9733;&#9733;&#9733;</span>
+                        <span class="rating-text">积极关注</span>
+                    </div>
+                </div>
+                <div class="stock-right">
+                    <div class="stock-price up">39.55</div>
+                    <div class="stock-change up">+0.46% (+0.18)</div>
+                </div>
+            </div>
+
+            <div class="metrics">
+                <div class="metric">
+                    <div class="label">PE(TTM)</div>
+                    <div class="val">23.08</div>
+                </div>
+                <div class="metric">
+                    <div class="label">均线状态</div>
+                    <div class="val neutral">缠绕待突破</div>
+                </div>
+                <div class="metric">
+                    <div class="label">20日涨幅</div>
+                    <div class="val" style="color:#ef4444;">+5.02%</div>
+                </div>
+                <div class="metric">
+                    <div class="label">总市值</div>
+                    <div class="val">10516亿</div>
+                </div>
+                <div class="metric">
+                    <div class="label">2025净利预告</div>
+                    <div class="val good">510-520亿</div>
+                </div>
+                <div class="metric">
+                    <div class="label">净利增速</div>
+                    <div class="val good">+59~62%</div>
+                </div>
+            </div>
+
+            <div class="stock-detail">
+                <div class="analysis-text">
+                    <strong>技术面：</strong>均线交叉缠绕，大趋势向上(20日涨5%)，但短期方向待选择。MA5(39.13) < MA20(39.26)，需等MA5上穿MA20确认多头。支撑36.57，压力42.58。<br><br>
+                    <strong>基本面：</strong>A股黄金绝对龙头。2025年归母净利润预告510-520亿(+59%-62%)，矿产金产量约90吨，量价齐升。拟55亿加元收购Allied Gold，新增金资源量533吨。规划2026年矿产金105吨、2028年金铜产量全球前3。<br><br>
+                    <strong>催化逻辑：</strong>高盛预计金价2026年底上行至$5400。地缘冲突 → 避险 → 金价新高 → 业绩再超预期。中长期成长性在所有标的中最强。
+                </div>
+                <div class="buy-point">
+                    <div class="title">买入建议</div>
+                    <div class="content">
+                        等待放量突破 40 元 (MA20 确认站稳) 即为买入信号。<br>
+                        回踩 MA10 (38.95) 不破可低吸。中长期持有逻辑最强。建议仓位：2成。
+                    </div>
+                </div>
+            </div>
+            <div class="expand-hint">点击展开详细分析</div>
+        </div>
+
+        <!-- 中金黄金 -->
+        <div class="stock-card" data-tier="t2" data-sector="gold" onclick="this.classList.toggle('expanded')">
+            <div class="stock-top">
+                <div>
+                    <div class="stock-left">
+                        <span class="stock-name">中金黄金</span>
+                        <span class="stock-code">600489</span>
+                    </div>
+                    <div class="stock-tags">
+                        <span class="tag bullish">买盘积极</span>
+                        <span class="tag sector">黄金</span>
+                    </div>
+                    <div class="rating">
+                        <span class="stars">&#9733;&#9733;&#9733;&#9733;</span>
+                        <span class="rating-text">积极关注</span>
+                    </div>
+                </div>
+                <div class="stock-right">
+                    <div class="stock-price up">31.84</div>
+                    <div class="stock-change up">+2.48% (+0.77)</div>
+                </div>
+            </div>
+
+            <div class="metrics">
+                <div class="metric">
+                    <div class="label">PE(TTM)</div>
+                    <div class="val">34.91</div>
+                </div>
+                <div class="metric">
+                    <div class="label">换手率</div>
+                    <div class="val">1.91%</div>
+                </div>
+                <div class="metric">
+                    <div class="label">外盘/内盘</div>
+                    <div class="val good">5.45/3.83亿</div>
+                </div>
+                <div class="metric">
+                    <div class="label">总市值</div>
+                    <div class="val">1543亿</div>
+                </div>
+                <div class="metric">
+                    <div class="label">当日涨幅</div>
+                    <div class="val" style="color:#ef4444;">+2.48%</div>
+                </div>
+                <div class="metric">
+                    <div class="label">振幅</div>
+                    <div class="val">3.41%</div>
+                </div>
+            </div>
+
+            <div class="stock-detail">
+                <div class="analysis-text">
+                    <strong>技术面：</strong>当日涨2.48%为黄金股中最强。外盘(5.45亿)远大于内盘(3.83亿)，买方积极抢筹。相比山东黄金从高位回落，中金黄金走势更健康。中盘股(1543亿)弹性优于紫金矿业。<br><br>
+                    <strong>催化逻辑：</strong>与紫金矿业共享黄金上涨逻辑，但市值更小弹性更大。
+                </div>
+                <div class="buy-point">
+                    <div class="title">买入建议</div>
+                    <div class="content">
+                        回踩 31 元附近建仓；若站稳 32 元 (今日高点附近) 则确认突破。<br>
+                        建议仓位：1.5成。
+                    </div>
+                </div>
+            </div>
+            <div class="expand-hint">点击展开详细分析</div>
+        </div>
+
+        <!-- 广汇能源 -->
+        <div class="stock-card" data-tier="t2" data-sector="oil" onclick="this.classList.toggle('expanded')">
+            <div class="stock-top">
+                <div>
+                    <div class="stock-left">
+                        <span class="stock-name">广汇能源</span>
+                        <span class="stock-code">600256</span>
+                    </div>
+                    <div class="stock-tags">
+                        <span class="tag warn">等待企稳</span>
+                        <span class="tag sector">LNG/煤炭</span>
+                    </div>
+                    <div class="rating">
+                        <span class="stars">&#9733;&#9733;&#9733;</span>
+                        <span class="rating-text">关注</span>
+                    </div>
+                </div>
+                <div class="stock-right">
+                    <div class="stock-price up">5.88</div>
+                    <div class="stock-change up">+2.26% (+0.13)</div>
+                </div>
+            </div>
+
+            <div class="metrics">
+                <div class="metric">
+                    <div class="label">PE(TTM)</div>
+                    <div class="val good">18.91</div>
+                </div>
+                <div class="metric">
+                    <div class="label">换手率</div>
+                    <div class="val">2.71%</div>
+                </div>
+                <div class="metric">
+                    <div class="label">总市值</div>
+                    <div class="val">376亿</div>
+                </div>
+                <div class="metric">
+                    <div class="label">振幅</div>
+                    <div class="val">2.78%</div>
+                </div>
+            </div>
+
+            <div class="stock-detail">
+                <div class="analysis-text">
+                    PE仅18.91偏低，小盘弹性股(376亿)。主营LNG和煤炭，天然气价格受中东局势推升将直接利好。但2月初曾跌5.17%，近期走势偏弱，需等技术面企稳确认。
+                </div>
+                <div class="buy-point">
+                    <div class="title">买入建议</div>
+                    <div class="content">
+                        等待站稳 5.90-6.00 元确认企稳后再介入，目前偏左侧。
+                    </div>
+                </div>
+            </div>
+            <div class="expand-hint">点击展开详细分析</div>
+        </div>
+    </div>
+
+    <!-- ===== 第三梯队 ===== -->
+    <div class="section" id="tier3">
+        <div class="tier-header">
+            <span class="tier-badge t3">3</span>
+            <div>
+                <div class="tier-title">第三梯队：观望为主</div>
+                <div class="tier-desc">存在瑕疵或性价比不足，等催化确认</div>
+            </div>
+        </div>
+
+        <!-- 山东黄金 -->
+        <div class="stock-card" data-tier="t3" data-sector="gold" onclick="this.classList.toggle('expanded')">
+            <div class="stock-top">
+                <div>
+                    <div class="stock-left">
+                        <span class="stock-name">山东黄金</span>
+                        <span class="stock-code">600547</span>
+                    </div>
+                    <div class="stock-tags">
+                        <span class="tag warn">反弹修复中</span>
+                        <span class="tag warn">高位回落</span>
+                        <span class="tag sector">黄金</span>
+                    </div>
+                    <div class="rating">
+                        <span class="stars">&#9733;&#9733;&#9733;</span>
+                        <span class="rating-text">观望</span>
+                    </div>
+                </div>
+                <div class="stock-right">
+                    <div class="stock-price up">47.31</div>
+                    <div class="stock-change up">+1.52% (+0.71)</div>
+                </div>
+            </div>
+
+            <div class="metrics">
+                <div class="metric"><div class="label">PE</div><div class="val">45.04</div></div>
+                <div class="metric"><div class="label">20日涨幅</div><div class="val bad">-6.30%</div></div>
+                <div class="metric"><div class="label">机构目标价</div><div class="val good">59.10</div></div>
+                <div class="metric"><div class="label">趋势</div><div class="val neutral">反弹修复</div></div>
+            </div>
+
+            <div class="stock-detail">
+                <div class="analysis-text">
+                    从高位59元大幅回落至47元，20日跌6.3%，抛压较重。虽然机构目标价59.10元有25%空间，但技术面处于"反弹修复"阶段。布林带支撑位40.73元。等MA20(49.53)上方企稳后再考虑，当前风险收益比不如紫金矿业和中金黄金。
+                </div>
+            </div>
+            <div class="expand-hint">点击展开详细分析</div>
+        </div>
+
+        <!-- 中航沈飞 -->
+        <div class="stock-card" data-tier="t3" data-sector="mil" onclick="this.classList.toggle('expanded')">
+            <div class="stock-top">
+                <div>
+                    <div class="stock-left">
+                        <span class="stock-name">中航沈飞</span>
+                        <span class="stock-code">600760</span>
+                    </div>
+                    <div class="stock-tags">
+                        <span class="tag bearish">业绩下滑</span>
+                        <span class="tag bearish">主力流出</span>
+                        <span class="tag sector">军工/歼击机</span>
+                    </div>
+                    <div class="rating">
+                        <span class="stars">&#9733;&#9733;</span>
+                        <span class="rating-text">谨慎</span>
+                    </div>
+                </div>
+                <div class="stock-right">
+                    <div class="stock-price down">55.34</div>
+                    <div class="stock-change down">-0.88% (-0.49)</div>
+                </div>
+            </div>
+
+            <div class="metrics">
+                <div class="metric"><div class="label">PE</div><div class="val bad">53.41</div></div>
+                <div class="metric"><div class="label">营收增速</div><div class="val bad">-18.54%</div></div>
+                <div class="metric"><div class="label">净利增速</div><div class="val bad">-25.10%</div></div>
+                <div class="metric"><div class="label">机构目标价</div><div class="val">72.55</div></div>
+            </div>
+
+            <div class="stock-detail">
+                <div class="analysis-text">
+                    业绩下滑严重(营收-18.54%，净利-25.10%)，主力资金持续流出，PE高达53倍。军工股更多靠情绪驱动，波动大但持续性差。不建议主动介入。若美伊开战带动军工暴涨，可在突破56元时短线跟随，严格止损。
+                </div>
+            </div>
+            <div class="expand-hint">点击展开详细分析</div>
+        </div>
+
+        <!-- 中国石油 -->
+        <div class="stock-card" data-tier="t3" data-sector="oil" onclick="this.classList.toggle('expanded')">
+            <div class="stock-top">
+                <div>
+                    <div class="stock-left">
+                        <span class="stock-name">中国石油</span>
+                        <span class="stock-code">601857</span>
+                    </div>
+                    <div class="stock-tags">
+                        <span class="tag warn">大象难起舞</span>
+                        <span class="tag sector">石油/央企</span>
+                    </div>
+                    <div class="rating">
+                        <span class="stars">&#9733;&#9733;</span>
+                        <span class="rating-text">谨慎</span>
+                    </div>
+                </div>
+                <div class="stock-right">
+                    <div class="stock-price down">10.86</div>
+                    <div class="stock-change down">-0.28% (-0.03)</div>
+                </div>
+            </div>
+
+            <div class="metrics">
+                <div class="metric"><div class="label">PE</div><div class="val good">12.57</div></div>
+                <div class="metric"><div class="label">换手率</div><div class="val bad">0.10%</div></div>
+                <div class="metric"><div class="label">总市值</div><div class="val">19876亿</div></div>
+                <div class="metric"><div class="label">PB</div><div class="val">1.28</div></div>
+            </div>
+
+            <div class="stock-detail">
+                <div class="analysis-text">
+                    PE 12.57估值低，但总市值近2万亿，大象难起舞。换手率仅0.1%，流动性极差。油价上涨对其有利，但弹性远不如中国海油。适合稳健型长线配置和分红策略，不适合短线博弈。
+                </div>
+            </div>
+            <div class="expand-hint">点击展开详细分析</div>
+        </div>
+
+        <!-- 中国船舶 -->
+        <div class="stock-card" data-tier="t3" data-sector="mil" onclick="this.classList.toggle('expanded')">
+            <div class="stock-top">
+                <div>
+                    <div class="stock-left">
+                        <span class="stock-name">中国船舶</span>
+                        <span class="stock-code">600150</span>
+                    </div>
+                    <div class="stock-tags">
+                        <span class="tag warn">高PE</span>
+                        <span class="tag sector">军工/造船</span>
+                    </div>
+                    <div class="rating">
+                        <span class="stars">&#9733;&#9733;</span>
+                        <span class="rating-text">谨慎</span>
+                    </div>
+                </div>
+                <div class="stock-right">
+                    <div class="stock-price down">37.75</div>
+                    <div class="stock-change down">-0.94% (-0.36)</div>
+                </div>
+            </div>
+
+            <div class="metrics">
+                <div class="metric"><div class="label">PE</div><div class="val">42.09</div></div>
+                <div class="metric"><div class="label">换手率</div><div class="val">1.17%</div></div>
+                <div class="metric"><div class="label">总市值</div><div class="val">2841亿</div></div>
+                <div class="metric"><div class="label">PB</div><div class="val">2.01</div></div>
+            </div>
+
+            <div class="stock-detail">
+                <div class="analysis-text">
+                    PE 42倍偏高，当日跌0.94%。军工股中辨识度低于中航沈飞，地缘冲突弹性有限。近期走势偏弱。
+                </div>
+            </div>
+            <div class="expand-hint">点击展开详细分析</div>
+        </div>
+
+        <!-- 洪都航空 -->
+        <div class="stock-card" data-tier="t3" data-sector="mil" onclick="this.classList.toggle('expanded')">
+            <div class="stock-top">
+                <div>
+                    <div class="stock-left">
+                        <span class="stock-name">洪都航空</span>
+                        <span class="stock-code">600316</span>
+                    </div>
+                    <div class="stock-tags">
+                        <span class="tag bearish">PE极高</span>
+                        <span class="tag bearish">纯情绪驱动</span>
+                        <span class="tag sector">军工/导弹</span>
+                    </div>
+                    <div class="rating">
+                        <span class="stars">&#9733;</span>
+                        <span class="rating-text">不建议</span>
+                    </div>
+                </div>
+                <div class="stock-right">
+                    <div class="stock-price up">41.36</div>
+                    <div class="stock-change up">+0.05% (+0.02)</div>
+                </div>
+            </div>
+
+            <div class="metrics">
+                <div class="metric"><div class="label">PE</div><div class="val bad">803.98</div></div>
+                <div class="metric"><div class="label">换手率</div><div class="val">1.26%</div></div>
+                <div class="metric"><div class="label">总市值</div><div class="val">297亿</div></div>
+                <div class="metric"><div class="label">振幅</div><div class="val">3.68%</div></div>
+            </div>
+
+            <div class="stock-detail">
+                <div class="analysis-text">
+                    PE高达803倍，纯情绪炒作标的。基本面极差，振幅大但方向不确定。不建议参与。
+                </div>
+            </div>
+            <div class="expand-hint">点击展开详细分析</div>
+        </div>
+    </div>
+
+    <!-- 综合排序表 -->
+    <div class="section">
+        <h2>综合买入优先级排序</h2>
+        <table class="rank-table">
+            <thead>
+                <tr>
+                    <th>排名</th>
+                    <th>股票</th>
+                    <th>评级</th>
+                    <th>核心逻辑</th>
+                    <th>PE</th>
+                    <th>建议仓位</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><span class="rank-num r1">1</span></td>
+                    <td><strong>中国海油</strong> 600938</td>
+                    <td style="color:#f59e0b;">&#9733;&#9733;&#9733;&#9733;&#9733;</td>
+                    <td>多头排列 + 低PE + 油价直接受益</td>
+                    <td style="color:#22c55e;">13.83</td>
+                    <td>3成</td>
+                </tr>
+                <tr>
+                    <td><span class="rank-num r2">2</span></td>
+                    <td><strong>招商南油</strong> 601975</td>
+                    <td style="color:#f59e0b;">&#9733;&#9733;&#9733;&#9733;&#9733;</td>
+                    <td>低PE + 油运高景气 + 弹性最大</td>
+                    <td style="color:#22c55e;">15.87</td>
+                    <td>2成</td>
+                </tr>
+                <tr>
+                    <td><span class="rank-num r3">3</span></td>
+                    <td><strong>中远海能</strong> 600026</td>
+                    <td style="color:#f59e0b;">&#9733;&#9733;&#9733;&#9733;</td>
+                    <td>油运龙头 + 运价新高</td>
+                    <td>34.05</td>
+                    <td>1.5成</td>
+                </tr>
+                <tr>
+                    <td><span class="rank-num r4">4</span></td>
+                    <td><strong>紫金矿业</strong> 601899</td>
+                    <td style="color:#f59e0b;">&#9733;&#9733;&#9733;&#9733;</td>
+                    <td>黄金龙头 + 业绩爆发 + 长期成长</td>
+                    <td>23.08</td>
+                    <td>2成</td>
+                </tr>
+                <tr>
+                    <td><span class="rank-num r5">5</span></td>
+                    <td><strong>中金黄金</strong> 600489</td>
+                    <td style="color:#f59e0b;">&#9733;&#9733;&#9733;&#9733;</td>
+                    <td>黄金受益 + 买盘积极 + 弹性更大</td>
+                    <td>34.91</td>
+                    <td>1.5成</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 操作策略 -->
+    <div class="section">
+        <h2>操作策略建议</h2>
+        <div class="strategy-grid">
+            <div class="strategy-item">
+                <h3>仓位控制</h3>
+                <p>总仓位不超过7成，留3成现金应对波动。地缘事件具有高度不确定性，重仓单边押注风险极大。</p>
+            </div>
+            <div class="strategy-item">
+                <h3>分批建仓</h3>
+                <p>每只股票分2-3次买入，不一次性重仓。首次建仓用计划仓位的1/3，确认趋势后加仓。</p>
+            </div>
+            <div class="strategy-item">
+                <h3>止损纪律</h3>
+                <p>每只股票设5-8%止损线，严格执行。地缘事件可能反转极快，"买预期卖事实"需警惕。</p>
+            </div>
+            <div class="strategy-item">
+                <h3>卖出信号</h3>
+                <p>若美伊达成和解协议，油气/军工应立刻减仓；黄金可继续持有(避险属性长期有效)。</p>
+            </div>
+            <div class="strategy-item">
+                <h3>关键催化</h3>
+                <p>本周日 OPEC+ 会议结果是油价短期方向关键变量。密切关注美伊谈判进展和军事动向。</p>
+            </div>
+            <div class="strategy-item">
+                <h3>历史经验</h3>
+                <p>地缘冲突引发的市场波动平均持续7-12个交易日。采用"油气守正 + 军工出奇"的组合策略。</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 免责声明 -->
+    <div class="disclaimer">
+        以上分析基于2026年2月28日公开市场数据，仅供参考研究，不构成任何投资建议。<br>
+        地缘政治事件具有高度不确定性，投资有风险，入市需谨慎。请根据自身风险承受能力审慎决策。<br>
+        数据来源: 腾讯财经、东方财富、新浪财经、财联社
+    </div>
+</div>
+
+<script>
+document.querySelectorAll('.stock-card').forEach(card => {
+    const hint = card.querySelector('.expand-hint');
+    if (hint) {
+        const observer = new MutationObserver(() => {
+            hint.textContent = card.classList.contains('expanded') ? '点击收起' : '点击展开详细分析';
+        });
+        observer.observe(card, { attributes: true, attributeFilter: ['class'] });
+    }
+});
+
+function filterTier(tier) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
+
+    const cards = document.querySelectorAll('.stock-card');
+    const sections = document.querySelectorAll('#tier1, #tier2, #tier3');
+
+    if (tier === 'all') {
+        cards.forEach(c => c.style.display = '');
+        sections.forEach(s => s.style.display = '');
+        return;
+    }
+
+    const sectorMap = { oil: 'oil', gold: 'gold', mil: 'mil' };
+    const tierMap = { t1: 't1', t2: 't2', t3: 't3' };
+
+    if (sectorMap[tier]) {
+        sections.forEach(s => s.style.display = '');
+        cards.forEach(c => {
+            c.style.display = c.dataset.sector === tier ? '' : 'none';
+        });
+        sections.forEach(s => {
+            const visibleCards = s.querySelectorAll(`.stock-card[data-sector="${tier}"]`);
+            s.style.display = visibleCards.length > 0 ? '' : 'none';
+        });
+    } else if (tierMap[tier]) {
+        cards.forEach(c => {
+            c.style.display = c.dataset.tier === tier ? '' : 'none';
+        });
+        const tierSections = { t1: 'tier1', t2: 'tier2', t3: 'tier3' };
+        sections.forEach(s => {
+            s.style.display = s.id === tierSections[tier] ? '' : 'none';
+        });
+    }
+}
+</script>
+</body>
+</html>

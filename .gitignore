@@ -31,6 +31,9 @@ node_modules/
 # 临时分析文件
 *_api_data.json
 
+# 批量扫描本地K线缓存数据
+**/stock-batch-scanner/data/
+
 # 生成的报告（按需本地查看，不需要提交）
 *.html
 *.docx
