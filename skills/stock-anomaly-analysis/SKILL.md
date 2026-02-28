@@ -2027,22 +2027,23 @@ python scripts/fetch_stock_data.py [代码] --kline
 运行脚本:
 ```bash
 # 只接受真实数据文件，禁止使用示例数据
-# 报告必须输出到 AR/ 目录，命名规则: 股票名称--日期.html
-python scripts/generate_report.py --data analysis.json --output AR/安邦护卫--2026-02-05.html
+# 报告必须输出到 docs/<股票名称>/ 目录
+python scripts/generate_report.py --data analysis.json --output docs/岩山科技/岩山科技--2026-02-05.html
 ```
 
 **报告输出规则 (必须遵守!):**
 ```
-目录: AR/  (技能根目录下的 AR 子目录，不存在则自动创建)
+目录: docs/<股票名称>/  (项目根目录下的 docs 子目录，按股票名称分子目录，不存在则自动创建)
 命名: <股票名称>--<分析日期>.html
-示例: AR/安邦护卫--2026-02-13.html
-      AR/岩山科技--2026-02-05.html
-      AR/比亚迪--2026-03-10.html
+示例: docs/安邦护卫/安邦护卫--2026-02-13.html
+      docs/岩山科技/岩山科技--2026-02-05.html
+      docs/比亚迪/比亚迪--2026-03-10.html
 规则:
   - 股票名称直接使用中文简称，不含股票代码
-  - 日期为 analysis_date，格式 YYYY-MM-DD，不含分隔符
+  - 日期为 analysis_date，格式 YYYY-MM-DD
   - 文件扩展名 .html
-  - 禁止在技能根目录下直接生成报告文件
+  - 同一股票的多次分析报告和数据文件集中存放在同一子目录
+  - analysis.json 数据文件也保存到同目录: docs/<股票名称>/<代码>_analysis_<日期>.json
 ```
 
 **禁止使用 --sample 参数生成报告。示例数据仅供了解JSON格式，不得用于实际报告。**
@@ -2167,7 +2168,7 @@ WebSearch "A股 市场情绪 融资余额 2026年2月5日"
 → 关键供需信号: 若出现天量滞涨(放量不涨)，供应可能反转占优，需减仓
 
 === 第九步: 生成报告 ===
-整理JSON → python scripts/generate_report.py --data analysis.json --output AR/岩山科技--2026-02-05.html
+整理JSON → python scripts/generate_report.py --data analysis.json --output docs/岩山科技/岩山科技--2026-02-05.html
 ```
 
 ## 注意事项

@@ -1,0 +1,2290 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>岩山科技(002195) 异动分析报告</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #1e1e2e 0%, #2d2d44 100%);
+            min-height: 100vh;
+            color: #e0e0e0;
+            padding: 20px;
+        }
+        
+        .container { max-width: 1000px; margin: 0 auto; }
+        
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h1 { font-size: 28px; color: #fff; margin-bottom: 10px; }
+        .header .date { color: #888; font-size: 14px; }
+        
+        .stock-card {
+            background: linear-gradient(135deg, #2a2a40 0%, #1a1a2e 100%);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 1px solid #3a3a5a;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        
+        .stock-info { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+        .stock-name { font-size: 24px; font-weight: bold; color: #fff; }
+        .stock-code { font-size: 14px; color: #888; background: #3a3a5a; padding: 4px 12px; border-radius: 20px; }
+        .stock-sector { font-size: 14px; color: #888; }
+        
+        .stock-price-container { text-align: right; }
+        .stock-price { font-size: 32px; font-weight: bold; color: #ef4444; }
+        .stock-change { font-size: 18px; color: #ef4444; }
+        .price-time { font-size: 12px; color: #666; margin-top: 4px; }
+        .market-data { font-size: 12px; color: #888; margin-top: 4px; }
+        
+        .anomaly-badge {
+            background: #6b7280;
+            color: white;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .section {
+            background: #2a2a40;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 1px solid #3a3a5a;
+        }
+        
+        .section h2 {
+            font-size: 18px;
+            color: #fff;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #4a4a6a;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section h2::before {
+            content: "";
+            display: inline-block;
+            width: 4px;
+            height: 20px;
+            background: linear-gradient(to bottom, #6366f1, #8b5cf6);
+            border-radius: 2px;
+        }
+        
+        /* 触发因素样式 */
+        .trigger-card {
+            background: #1e1e2e;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            border: 1px solid #3a3a5a;
+        }
+        
+        .trigger-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .trigger-type {
+            background: #4a4a6a;
+            color: #fff;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+        
+        .freshness-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        
+        .freshness-badge.today {
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            color: white;
+            animation: pulse 2s infinite;
+        }
+        
+        .freshness-badge.recent {
+            background: #6366f1;
+            color: white;
+        }
+        
+        .freshness-badge.week {
+            background: #4a4a6a;
+            color: #ccc;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .trigger-impact {
+            color: #fff;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+        
+        .trigger-weight {
+            color: #888;
+            font-size: 12px;
+            margin-left: auto;
+        }
+        
+        .trigger-title { font-size: 16px; color: #fff; margin-bottom: 8px; }
+        .trigger-detail { font-size: 14px; color: #aaa; line-height: 1.6; }
+        
+        .trigger-source {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed #3a3a5a;
+            font-size: 12px;
+            display: flex;
+            gap: 16px;
+        }
+        
+        .info-date { color: #888; }
+        .info-source { color: #6366f1; text-decoration: none; }
+        .info-source:hover { text-decoration: underline; }
+        
+        /* 资金流向样式 */
+        .fund-flow {
+            background: #1e1e2e;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            border: 1px solid #3a3a5a;
+        }
+        
+        .fund-header {
+            font-size: 14px;
+            color: #fff;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .fund-date { font-size: 12px; color: #888; }
+        
+        .fund-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+        
+        .fund-item { text-align: center; }
+        .fund-label { font-size: 12px; color: #888; margin-bottom: 4px; }
+        .fund-value { font-size: 18px; font-weight: bold; }
+        
+        /* 大盘环境样式 */
+        .env-header-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .env-score-badge {
+            color: white;
+            padding: 6px 18px;
+            border-radius: 16px;
+            font-size: 15px;
+            font-weight: bold;
+        }
+        
+        .idx-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .idx-item {
+            background: #1e1e2e;
+            border-radius: 8px;
+            padding: 10px 8px;
+            text-align: center;
+            border: 1px solid #3a3a5a;
+        }
+        
+        .idx-name { font-size: 11px; color: #888; margin-bottom: 4px; }
+        .idx-price { font-size: 14px; color: #ddd; font-weight: bold; }
+        .idx-pct { font-size: 13px; font-weight: bold; }
+        
+        .breadth-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .breadth-item {
+            background: #1e1e2e;
+            border-radius: 8px;
+            padding: 8px;
+            text-align: center;
+            border: 1px solid #3a3a5a;
+        }
+        
+        .breadth-label { font-size: 11px; color: #888; margin-bottom: 2px; }
+        .breadth-val { font-size: 16px; font-weight: bold; color: #ddd; }
+        
+        .ladder-box {
+            background: #1e1e2e;
+            border-radius: 10px;
+            padding: 14px;
+            margin-bottom: 16px;
+            border: 1px solid #3a3a5a;
+        }
+        
+        .ladder-title {
+            font-size: 14px;
+            color: #fff;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        
+        .ladder-meta { font-size: 12px; color: #888; font-weight: normal; margin-left: 8px; }
+        
+        .ladder-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+        
+        .ladder-level { font-size: 12px; color: #aaa; width: 40px; text-align: right; }
+        
+        .ladder-bar-bg {
+            flex: 1;
+            height: 14px;
+            background: #2a2a40;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .ladder-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #6366f1, #8b5cf6);
+            border-radius: 4px;
+        }
+        
+        .ladder-count { font-size: 11px; color: #888; width: 36px; }
+        
+        .ladder-target {
+            margin-top: 8px;
+            font-size: 13px;
+            color: #eab308;
+            padding: 6px 10px;
+            background: rgba(234, 179, 8, 0.1);
+            border-radius: 6px;
+        }
+        
+        .sector-box {
+            background: #1e1e2e;
+            border-radius: 10px;
+            padding: 12px 14px;
+            margin-bottom: 12px;
+            border: 1px solid #3a3a5a;
+        }
+        
+        .sector-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .sector-name { font-size: 15px; font-weight: bold; color: #fff; }
+        .sector-rank { font-size: 13px; color: #6366f1; background: rgba(99,102,241,0.15); padding: 2px 10px; border-radius: 10px; }
+        .sector-pct { font-size: 15px; font-weight: bold; }
+        .sector-lu { font-size: 12px; color: #888; }
+        .sector-phase { font-size: 12px; color: #fbbf24; background: rgba(251,191,36,0.15); padding: 2px 10px; border-radius: 10px; }
+        
+        .related-sectors {
+            margin-top: 8px;
+            font-size: 12px;
+            color: #888;
+        }
+        
+        .related-tag {
+            background: #3a3a5a;
+            color: #ccc;
+            padding: 2px 8px;
+            border-radius: 8px;
+            font-size: 11px;
+            margin-left: 4px;
+        }
+        
+        .style-box {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            font-size: 13px;
+            color: #aaa;
+            padding: 10px 14px;
+            background: #1e1e2e;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            border: 1px solid #3a3a5a;
+        }
+        
+        .style-box strong { color: #fff; }
+        
+        .env-impact {
+            font-size: 14px;
+            color: #ddd;
+            padding: 12px 14px;
+            background: linear-gradient(135deg, rgba(99,102,241,0.1), rgba(139,92,246,0.05));
+            border-radius: 8px;
+            border-left: 3px solid #6366f1;
+            line-height: 1.5;
+        }
+        
+        /* 多方博弈分析样式 */
+        .participants-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        
+        .participant-card {
+            background: #1e1e2e;
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid #3a3a5a;
+            transition: transform 0.2s;
+        }
+        
+        .participant-card:hover {
+            transform: translateY(-2px);
+        }
+        
+        .participant-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        
+        .participant-icon { font-size: 24px; }
+        
+        .participant-name-group {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+        
+        .participant-name {
+            font-size: 15px;
+            font-weight: bold;
+            color: #fff;
+        }
+        
+        .participant-desc {
+            font-size: 11px;
+            color: #666;
+        }
+        
+        .participant-stance {
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+        
+        .participant-summary {
+            font-size: 13px;
+            color: #ccc;
+            line-height: 1.5;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: #252540;
+            border-radius: 8px;
+        }
+        
+        .participant-details {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .participant-details li {
+            font-size: 12px;
+            color: #999;
+            padding: 4px 0 4px 16px;
+            position: relative;
+            line-height: 1.5;
+        }
+        
+        .participant-details li::before {
+            content: "•";
+            position: absolute;
+            left: 4px;
+            color: #6366f1;
+        }
+        
+        .battle-summary {
+            background: linear-gradient(135deg, #1a1a30 0%, #2a2040 100%);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #4a3a6a;
+        }
+        
+        .battle-header {
+            font-size: 16px;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .battle-icon { font-size: 20px; }
+        
+        .battle-pattern {
+            color: white;
+            padding: 4px 14px;
+            border-radius: 14px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+        
+        .battle-bar-container {
+            margin-bottom: 16px;
+        }
+        
+        .battle-bar {
+            display: flex;
+            height: 32px;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 4px;
+        }
+        
+        .battle-bar-bull {
+            background: linear-gradient(90deg, #dc2626, #ef4444);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: bold;
+            min-width: 40px;
+        }
+        
+        .battle-bar-neutral {
+            background: #6b7280;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            min-width: 20px;
+        }
+        
+        .battle-bar-bear {
+            background: linear-gradient(90deg, #22c55e, #16a34a);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: bold;
+            min-width: 40px;
+        }
+        
+        .battle-bar-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+        }
+        
+        .battle-conclusion {
+            font-size: 14px;
+            color: #ddd;
+            line-height: 1.6;
+            padding: 12px;
+            background: #1e1e30;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        
+        .battle-signal {
+            font-size: 13px;
+            color: #eab308;
+            padding: 10px 12px;
+            background: rgba(234, 179, 8, 0.1);
+            border-radius: 8px;
+            border-left: 3px solid #eab308;
+        }
+        
+        .battle-signal strong { color: #fbbf24; }
+        
+        /* 主力吸筹分析样式 */
+        .chip-analysis {
+            background: linear-gradient(135deg, #1a2a1a 0%, #1e2e1e 100%);
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 16px;
+            border: 1px solid #2a4a2a;
+        }
+        
+        .chip-header {
+            font-size: 16px;
+            font-weight: bold;
+            color: #4ade80;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .chip-icon { font-size: 20px; }
+        
+        .chip-conclusion {
+            background: #2a3a2a;
+            padding: 10px 14px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            color: #fff;
+        }
+        
+        .chip-conclusion strong {
+            color: #4ade80;
+        }
+        
+        .chip-features {
+            margin-bottom: 12px;
+        }
+        
+        .chip-subtitle {
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 8px;
+        }
+        
+        .chip-features ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .chip-features li {
+            padding: 6px 0;
+            padding-left: 20px;
+            position: relative;
+            font-size: 13px;
+            color: #d0d0d0;
+        }
+        
+        .chip-features li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #4ade80;
+        }
+        
+        .chip-pattern {
+            background: #1e2e1e;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+        }
+        
+        .chip-pattern p {
+            color: #a0a0a0;
+            line-height: 1.6;
+        }
+        
+        /* 龙虎榜样式 */
+        .dragon-tiger {
+            background: #1e1e2e;
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid #3a3a5a;
+        }
+        
+        .dragon-header {
+            font-size: 14px;
+            color: #fff;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .dragon-date { font-size: 12px; color: #888; }
+        .dragon-reason { font-size: 12px; color: #666; }
+        
+        .dragon-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        
+        .dragon-title {
+            font-size: 13px;
+            padding: 6px;
+            border-radius: 6px;
+            text-align: center;
+            margin-bottom: 8px;
+        }
+        
+        .dragon-title.buy { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+        .dragon-title.sell { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+        
+        .seat-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 8px;
+            border-radius: 6px;
+            margin-bottom: 4px;
+            font-size: 12px;
+        }
+        
+        .seat-item.buy { background: rgba(239, 68, 68, 0.1); }
+        .seat-item.sell { background: rgba(34, 197, 94, 0.1); }
+        .seat-name { color: #ccc; }
+        .seat-amount { color: #888; }
+        
+        /* 背景信息样式 */
+        .bg-timeline {
+            position: relative;
+            padding-left: 20px;
+        }
+        
+        .bg-timeline::before {
+            content: "";
+            position: absolute;
+            left: 6px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #3a3a5a;
+        }
+        
+        .bg-item {
+            position: relative;
+            padding: 12px 0 12px 20px;
+            border-bottom: 1px dashed #3a3a5a;
+        }
+        
+        .bg-item:last-child { border-bottom: none; }
+        
+        .bg-item::before {
+            content: "";
+            position: absolute;
+            left: -17px;
+            top: 18px;
+            width: 10px;
+            height: 10px;
+            background: #6366f1;
+            border-radius: 50%;
+        }
+        
+        .bg-date {
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 4px;
+        }
+        
+        .bg-title {
+            font-size: 14px;
+            color: #fff;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+        
+        .bg-detail {
+            font-size: 13px;
+            color: #aaa;
+            line-height: 1.5;
+            margin-bottom: 6px;
+        }
+        
+        .bg-source {
+            font-size: 12px;
+            color: #6366f1;
+            text-decoration: none;
+        }
+        
+        /* 技术形态分析样式 */
+        .pattern-card {
+            background: linear-gradient(135deg, #1a1a2e 0%, #1e2a3a 100%);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #2a4a6a;
+        }
+        
+        .pattern-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+        }
+        
+        .pattern-name {
+            font-size: 20px;
+            font-weight: bold;
+            color: #fff;
+        }
+        
+        .pattern-type {
+            color: white;
+            padding: 4px 14px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+        
+        .pattern-stars {
+            font-size: 16px;
+            color: #eab308;
+            letter-spacing: 2px;
+        }
+        
+        .pattern-desc {
+            font-size: 14px;
+            color: #ccc;
+            line-height: 1.6;
+            padding: 12px;
+            background: #1e1e30;
+            border-radius: 8px;
+            margin-bottom: 14px;
+        }
+        
+        .pattern-meta {
+            display: flex;
+            gap: 20px;
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 14px;
+        }
+        
+        .levels-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+        
+        .level-item {
+            text-align: center;
+            background: #1e1e30;
+            border-radius: 8px;
+            padding: 10px 8px;
+        }
+        
+        .level-label {
+            font-size: 11px;
+            color: #888;
+            margin-bottom: 4px;
+        }
+        
+        .level-value {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .additional-patterns {
+            font-size: 13px;
+            color: #aaa;
+            margin-bottom: 10px;
+        }
+        
+        .pattern-tag {
+            background: #3a3a5a;
+            color: #ccc;
+            padding: 3px 10px;
+            border-radius: 10px;
+            font-size: 12px;
+            margin-left: 4px;
+        }
+        
+        .pattern-warning {
+            font-size: 13px;
+            color: #f97316;
+            padding: 10px 12px;
+            background: rgba(249, 115, 22, 0.1);
+            border-radius: 8px;
+            border-left: 3px solid #f97316;
+        }
+        
+        /* 威科夫供需分析样式 */
+        .sd-container {
+            background: linear-gradient(135deg, #1a1a2e 0%, #1e2a3a 100%);
+            border-radius: 16px;
+            padding: 24px;
+        }
+        
+        .sd-main-row {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .sd-phase-area {
+            text-align: center;
+            min-width: 160px;
+        }
+        
+        .sd-phase-emoji {
+            font-size: 48px;
+            margin-bottom: 8px;
+        }
+        
+        .sd-phase-name {
+            font-size: 22px;
+            font-weight: 900;
+            margin-bottom: 8px;
+        }
+        
+        .sd-balance-badge {
+            display: inline-block;
+            color: white;
+            padding: 4px 16px;
+            border-radius: 16px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+        
+        .sd-score-area {
+            flex: 1;
+            min-width: 250px;
+        }
+        
+        .sd-score-num {
+            font-size: 42px;
+            font-weight: 900;
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+        
+        .sd-score-label {
+            font-size: 14px;
+            color: #aaa;
+            margin-bottom: 12px;
+        }
+        
+        .sd-score-bar-bg {
+            position: relative;
+            height: 20px;
+            background: linear-gradient(90deg, #22c55e20 0%, #eab30820 50%, #ef444420 100%);
+            border-radius: 10px;
+            overflow: visible;
+            border: 1px solid #3a3a5a;
+        }
+        
+        .sd-score-bar-center {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            width: 2px;
+            height: 100%;
+            background: #888;
+            transform: translateX(-50%);
+        }
+        
+        .sd-score-bar-fill {
+            position: absolute;
+            top: 2px;
+            height: calc(100% - 4px);
+            border-radius: 8px;
+            opacity: 0.8;
+        }
+        
+        .sd-score-pointer {
+            position: absolute;
+            top: -4px;
+            width: 8px;
+            height: 28px;
+            background: white;
+            border-radius: 4px;
+            transform: translateX(-50%);
+            box-shadow: 0 0 8px rgba(255,255,255,0.5);
+        }
+        
+        .sd-score-bar-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+            margin-top: 4px;
+        }
+        
+        .sd-phase-ruler {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 20px;
+        }
+        
+        .sd-phase-seg {
+            flex: 1;
+            height: 28px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: white;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .sd-evidence {
+            background: rgba(255,255,255,0.03);
+            border-radius: 10px;
+            padding: 14px;
+            margin-bottom: 16px;
+        }
+        
+        .sd-evidence-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+        
+        .sd-evidence-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .sd-evidence-list li {
+            font-size: 13px;
+            color: #bbb;
+            padding: 4px 0 4px 18px;
+            position: relative;
+            line-height: 1.5;
+        }
+        
+        .sd-evidence-list li::before {
+            content: "▸";
+            position: absolute;
+            left: 2px;
+            color: #6366f1;
+        }
+        
+        .sd-vp-box {
+            background: rgba(0,0,0,0.2);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        .sd-vp-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 12px;
+        }
+        
+        .sd-vp-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+        
+        .sd-vp-item {
+            text-align: center;
+            background: rgba(255,255,255,0.03);
+            border-radius: 8px;
+            padding: 10px;
+        }
+        
+        .sd-vp-label {
+            font-size: 11px;
+            color: #888;
+            margin-bottom: 4px;
+        }
+        
+        .sd-vp-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #fff;
+        }
+        
+        .sd-vp-sub {
+            font-size: 11px;
+            color: #aaa;
+            margin-top: 2px;
+        }
+        
+        .sd-vp-interp {
+            font-size: 13px;
+            color: #ccc;
+            line-height: 1.5;
+            padding: 10px;
+            background: rgba(255,255,255,0.02);
+            border-radius: 8px;
+        }
+        
+        .sd-divergence {
+            font-size: 13px;
+            color: #ddd;
+            padding: 10px 14px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 8px;
+            border-left: 3px solid #4ade80;
+            margin-bottom: 16px;
+        }
+        
+        .sd-events-box {
+            margin-bottom: 16px;
+        }
+        
+        .sd-events-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 12px;
+        }
+        
+        .sd-events-timeline {
+            position: relative;
+            padding-left: 16px;
+        }
+        
+        .sd-events-timeline::before {
+            content: "";
+            position: absolute;
+            left: 5px;
+            top: 4px;
+            bottom: 4px;
+            width: 2px;
+            background: #3a3a5a;
+        }
+        
+        .sd-event-item {
+            position: relative;
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+            padding-left: 8px;
+        }
+        
+        .sd-event-dot {
+            position: absolute;
+            left: -16px;
+            top: 6px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            border: 2px solid #1a1a2e;
+        }
+        
+        .sd-event-content {
+            flex: 1;
+            background: rgba(255,255,255,0.03);
+            border-radius: 8px;
+            padding: 10px 14px;
+        }
+        
+        .sd-event-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+            flex-wrap: wrap;
+        }
+        
+        .sd-event-name {
+            font-size: 14px;
+            font-weight: bold;
+            color: #fff;
+        }
+        
+        .sd-event-date {
+            font-size: 12px;
+            color: #888;
+        }
+        
+        .sd-event-sig {
+            font-size: 10px;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 8px;
+        }
+        
+        .sd-event-detail {
+            font-size: 13px;
+            color: #aaa;
+            line-height: 1.5;
+        }
+        
+        .sd-zones {
+            background: rgba(255,255,255,0.03);
+            border-radius: 10px;
+            padding: 14px;
+            margin-bottom: 16px;
+        }
+        
+        .sd-zone-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 6px 0;
+            flex-wrap: wrap;
+        }
+        
+        .sd-zone-label {
+            font-size: 13px;
+            font-weight: bold;
+            min-width: 160px;
+        }
+        
+        .sd-zone-tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .sd-zone-tag {
+            padding: 4px 14px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .sd-zone-tag.supply {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        
+        .sd-zone-tag.demand {
+            background: rgba(34, 197, 94, 0.15);
+            color: #22c55e;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+        
+        .sd-zone-na {
+            font-size: 13px;
+            color: #666;
+        }
+        
+        .sd-signals-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        
+        .sd-signals-col {
+            background: rgba(255,255,255,0.02);
+            border-radius: 10px;
+            padding: 14px;
+        }
+        
+        .sd-signals-title {
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        
+        .sd-signals-col ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .sd-signal-item {
+            font-size: 12px;
+            color: #bbb;
+            padding: 4px 0 4px 16px;
+            position: relative;
+            line-height: 1.5;
+        }
+        
+        .sd-signal-item.exhaust::before {
+            content: "↓";
+            position: absolute;
+            left: 2px;
+            color: #22c55e;
+        }
+        
+        .sd-signal-item.demand::before {
+            content: "↑";
+            position: absolute;
+            left: 2px;
+            color: #ef4444;
+        }
+        
+        .sd-conclusion {
+            font-size: 14px;
+            color: #ddd;
+            padding: 14px 16px;
+            background: linear-gradient(135deg, rgba(99,102,241,0.1), rgba(139,92,246,0.05));
+            border-radius: 10px;
+            border-left: 3px solid #6366f1;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+        
+        .sd-forecast {
+            background: rgba(255,255,255,0.03);
+            border-radius: 10px;
+            padding: 14px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        .sd-forecast-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+        
+        .sd-forecast-item {
+            font-size: 13px;
+            color: #ccc;
+            padding: 6px 0;
+            line-height: 1.5;
+        }
+        
+        .sd-forecast-label {
+            font-weight: bold;
+            color: #8b5cf6;
+        }
+        
+        .sd-forecast-key {
+            margin-top: 8px;
+            font-size: 13px;
+            color: #eab308;
+            padding: 8px 12px;
+            background: rgba(234, 179, 8, 0.08);
+            border-radius: 8px;
+            border-left: 3px solid #eab308;
+        }
+        
+        .sd-forecast-key strong {
+            color: #fbbf24;
+        }
+        
+        /* 市场温度计样式 */
+        .temp-container {
+            border-radius: 16px;
+            padding: 24px;
+            position: relative;
+        }
+        
+        .temp-main-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        
+        .temp-gauge-area {
+            text-align: center;
+        }
+        
+        .temp-big-num {
+            font-size: 72px;
+            font-weight: 900;
+            line-height: 1;
+            letter-spacing: -4px;
+            text-shadow: 0 0 30px currentColor;
+        }
+        
+        .temp-phase-badge {
+            display: inline-block;
+            color: white;
+            padding: 6px 20px;
+            border-radius: 20px;
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: 8px;
+        }
+        
+        .temp-trend {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .temp-trend-arrow {
+            font-size: 20px;
+            font-weight: bold;
+        }
+        
+        .temp-yesterday {
+            font-size: 12px;
+            color: #888;
+            background: #2a2a40;
+            padding: 2px 10px;
+            border-radius: 10px;
+        }
+        
+        /* 阶段刻度条 */
+        .temp-ruler-container {
+            position: relative;
+            margin: 20px 0 30px;
+            padding: 0 4px;
+        }
+        
+        .temp-ruler {
+            display: flex;
+            height: 28px;
+            border-radius: 14px;
+            overflow: hidden;
+            gap: 2px;
+        }
+        
+        .temp-phase-seg {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+        
+        .temp-phase-seg-label {
+            font-size: 11px;
+            color: white;
+            font-weight: bold;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        }
+        
+        .temp-pointer {
+            position: absolute;
+            top: -6px;
+            transform: translateX(-50%);
+        }
+        
+        .temp-pointer-line {
+            width: 3px;
+            height: 40px;
+            margin: 0 auto;
+            border-radius: 2px;
+        }
+        
+        .temp-pointer-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin: -2px auto 0;
+            border: 2px solid white;
+        }
+        
+        /* 温度趋势折线图 */
+        .temp-chart-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #fff;
+            margin: 20px 0 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .temp-chart-container {
+            background: rgba(0,0,0,0.2);
+            border-radius: 12px;
+            padding: 12px 8px 4px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255,255,255,0.05);
+            overflow-x: auto;
+        }
+        
+        .temp-chart-container svg {
+            display: block;
+            min-width: 500px;
+        }
+        
+        /* 7维度评分 */
+        .temp-dims-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .temp-dims {
+            margin-bottom: 20px;
+        }
+        
+        .temp-dim-row {
+            display: grid;
+            grid-template-columns: 110px 1fr 36px;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 6px;
+            padding: 4px 0;
+        }
+        
+        .temp-dim-label {
+            font-size: 12px;
+            color: #ccc;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .temp-dim-weight {
+            font-size: 10px;
+            color: #666;
+            background: #2a2a40;
+            padding: 1px 5px;
+            border-radius: 6px;
+        }
+        
+        .temp-dim-bar-bg {
+            height: 16px;
+            background: #1a1a30;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .temp-dim-bar-fill {
+            height: 100%;
+            border-radius: 8px;
+            transition: width 0.5s ease;
+            min-width: 4px;
+        }
+        
+        .temp-dim-score {
+            font-size: 13px;
+            font-weight: bold;
+            color: #ddd;
+            text-align: right;
+        }
+        
+        .temp-dim-detail {
+            grid-column: 1 / -1;
+            font-size: 11px;
+            color: #666;
+            padding-left: 114px;
+            margin-top: -4px;
+            margin-bottom: 4px;
+        }
+        
+        /* 入场建议 */
+        .temp-entry {
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 14px;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        
+        .temp-entry-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .temp-entry-level {
+            font-size: 18px;
+            font-weight: bold;
+            color: #fbbf24;
+        }
+        
+        .temp-entry-position {
+            font-size: 13px;
+            color: #8b5cf6;
+            background: rgba(139,92,246,0.15);
+            padding: 4px 12px;
+            border-radius: 10px;
+        }
+        
+        .temp-entry-text {
+            font-size: 13px;
+            color: #ccc;
+            line-height: 1.6;
+        }
+        
+        .temp-entry-warning {
+            margin-top: 10px;
+            font-size: 12px;
+            color: #f97316;
+            padding: 8px 12px;
+            background: rgba(249,115,22,0.1);
+            border-radius: 8px;
+            border-left: 3px solid #f97316;
+        }
+        
+        /* 周期位置 */
+        .temp-cycle {
+            background: rgba(255,255,255,0.03);
+            border-radius: 10px;
+            padding: 12px 14px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        .temp-cycle-desc {
+            font-size: 13px;
+            color: #aaa;
+            line-height: 1.5;
+            margin-bottom: 8px;
+        }
+        
+        .temp-cycle-metrics {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            font-size: 12px;
+            color: #888;
+        }
+        
+        .temp-cycle-metrics span {
+            background: #1a1a30;
+            padding: 3px 10px;
+            border-radius: 8px;
+        }
+        
+        .core-logic-box {
+            font-size: 14px;
+            color: #fbbf24;
+            padding: 14px 16px;
+            background: linear-gradient(135deg, rgba(234, 179, 8, 0.1), rgba(245, 158, 11, 0.05));
+            border-radius: 10px;
+            border-left: 4px solid #eab308;
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+        
+        .core-logic-box strong { color: #fbbf24; }
+        
+        /* 展望样式 */
+        .outlook-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+        }
+        
+        .outlook-card {
+            background: #1e1e2e;
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid #3a3a5a;
+        }
+        
+        .outlook-card h3 {
+            font-size: 14px;
+            color: #6366f1;
+            margin-bottom: 10px;
+        }
+        
+        .outlook-card p {
+            font-size: 14px;
+            color: #ccc;
+            line-height: 1.6;
+        }
+        
+        .risks-card {
+            background: linear-gradient(135deg, #2a1a1a 0%, #1e1e2e 100%);
+            border: 1px solid #5a3a3a;
+        }
+        
+        .risks-card h3 { color: #ef4444; }
+        .risks-card ul { list-style: none; }
+        .risks-card li {
+            font-size: 14px;
+            color: #ccc;
+            padding: 6px 0 6px 20px;
+            position: relative;
+        }
+        .risks-card li::before {
+            content: "⚠️";
+            position: absolute;
+            left: 0;
+            font-size: 12px;
+        }
+        
+        /* 来源样式 */
+        .sources {
+            margin-top: 20px;
+            background: #1e1e2e;
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid #3a3a5a;
+        }
+        
+        .sources h3 {
+            font-size: 14px;
+            color: #fff;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #3a3a5a;
+        }
+        
+        .sources ul { list-style: none; }
+        .sources li {
+            padding: 8px 0;
+            border-bottom: 1px dashed #2a2a40;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .sources li:last-child { border-bottom: none; }
+        .sources a { color: #6366f1; text-decoration: none; font-size: 14px; }
+        .sources a:hover { text-decoration: underline; }
+        .source-meta { font-size: 12px; color: #666; }
+        
+        .disclaimer {
+            text-align: center;
+            color: #666;
+            font-size: 12px;
+            margin-top: 30px;
+            padding: 20px;
+            border-top: 1px solid #3a3a5a;
+        }
+        
+        @media (max-width: 600px) {
+            .stock-card { flex-direction: column; text-align: center; }
+            .stock-price-container { text-align: center; }
+            .fund-grid { grid-template-columns: 1fr; }
+            .dragon-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 个股异动分析报告</h1>
+            <div class="date">分析日期: 2026-02-27</div>
+        </div>
+        
+        <div class="stock-card">
+            <div class="stock-info">
+                <span class="stock-name">岩山科技</span>
+                <span class="stock-code">002195</span>
+                <span class="stock-sector">AI+脑机接口</span>
+            </div>
+            <div class="stock-price-container">
+                <div class="stock-price">¥10.91</div>
+                <div class="stock-change">+0.09%</div>
+                <div class="price-time">📅 2026-02-27 14:10</div>
+                <div class="market-data">成交额: 58.06亿 | 换手率: 9.46% | 振幅: 11.17-10.70</div>
+            </div>
+            <span class="anomaly-badge">连涨后滞涨</span>
+        </div>
+        
+        <div class='section'><h2>🌍 大盘环境</h2>
+        <div class="env-header-row">
+            <span class="env-score-badge" style="background:#6b7280">环境 48分 · 震荡分化</span>
+        </div>
+        <div class="idx-grid">
+            <div class="idx-item">
+                <div class="idx-name">上证指数</div>
+                <div class="idx-price">4160.8</div>
+                <div class="idx-pct" style="color: #ef4444">+0.34%</div>
+            </div>
+            <div class="idx-item">
+                <div class="idx-name">深证成指</div>
+                <div class="idx-price">14478.9</div>
+                <div class="idx-pct" style="color: #22c55e">-0.17%</div>
+            </div>
+            <div class="idx-item">
+                <div class="idx-name">创业板指</div>
+                <div class="idx-price">3311.0</div>
+                <div class="idx-pct" style="color: #22c55e">-1.02%</div>
+            </div>
+            <div class="idx-item">
+                <div class="idx-name">上证50</div>
+                <div class="idx-price">3041.7</div>
+                <div class="idx-pct" style="color: #ef4444">+0.22%</div>
+            </div>
+            <div class="idx-item">
+                <div class="idx-name">沪深300</div>
+                <div class="idx-price">4711.1</div>
+                <div class="idx-pct" style="color: #22c55e">-0.33%</div>
+            </div>
+            <div class="idx-item">
+                <div class="idx-name">中证500</div>
+                <div class="idx-price">8637.1</div>
+                <div class="idx-pct" style="color: #ef4444">+0.93%</div>
+            </div>
+            <div class="idx-item">
+                <div class="idx-name">中证1000</div>
+                <div class="idx-price">8552.1</div>
+                <div class="idx-pct" style="color: #ef4444">+0.72%</div>
+            </div></div>
+        
+            <div class="breadth-grid">
+                <div class="breadth-item up"><div class="breadth-label">涨停</div><div class="breadth-val" style="color:#ef4444">40</div></div>
+                <div class="breadth-item down"><div class="breadth-label">跌停</div><div class="breadth-val" style="color:#22c55e">15</div></div>
+                <div class="breadth-item"><div class="breadth-label">涨跌比</div><div class="breadth-val">--</div></div>
+                <div class="breadth-item"><div class="breadth-label">封板率</div><div class="breadth-val">--</div></div>
+                <div class="breadth-item"><div class="breadth-label">上涨</div><div class="breadth-val" style="color:#ef4444">--</div></div>
+                <div class="breadth-item"><div class="breadth-label">下跌</div><div class="breadth-val" style="color:#22c55e">--</div></div>
+                <div class="breadth-item"><div class="breadth-label">两市成交</div><div class="breadth-val">约2万亿</div></div>
+            </div>
+        
+            <div class="ladder-box">
+                <div class="ladder-title">连板梯队 <span class="ladder-meta">最高板: 6板 (豫能控股(电力概念)) | 梯队: 较完整，但高度板非AI方向</span></div>
+                
+                <div class="ladder-row">
+                    <span class="ladder-level">首板</span>
+                    <div class="ladder-bar-bg"><div class="ladder-bar-fill" style="width:100%"></div></div>
+                    <span class="ladder-count">40只</span>
+                </div>
+                <div class="ladder-row">
+                    <span class="ladder-level">6板</span>
+                    <div class="ladder-bar-bg"><div class="ladder-bar-fill" style="width:8%"></div></div>
+                    <span class="ladder-count">1只</span>
+                </div>
+                <div class="ladder-row">
+                    <span class="ladder-level">4板</span>
+                    <div class="ladder-bar-bg"><div class="ladder-bar-fill" style="width:8%"></div></div>
+                    <span class="ladder-count">1只</span>
+                </div>
+                <div class="ladder-row">
+                    <span class="ladder-level">3板</span>
+                    <div class="ladder-bar-bg"><div class="ladder-bar-fill" style="width:16%"></div></div>
+                    <span class="ladder-count">2只</span>
+                </div>
+                <div class="ladder-row">
+                    <span class="ladder-level">2板</span>
+                    <div class="ladder-bar-bg"><div class="ladder-bar-fill" style="width:40%"></div></div>
+                    <span class="ladder-count">5只</span>
+                </div>
+                
+            </div>
+        
+            <div class="sector-box">
+                <div class="sector-info">
+                    <span class="sector-name"></span>
+                    <span class="sector-rank">排名 </span>
+                    <span class="sector-pct" style="color:#ef4444">+0.00%</span>
+                    <span class="sector-lu">板块涨停 0只</span>
+                    <span class='sector-phase'>分化期</span>
+                </div>
+                
+            </div>
+        
+            <div class="style-box">
+                <span>风格: <strong>沪强深弱，中小票偏强</strong></span>
+                <span>上证50+0.22% vs 中证1000+0.72%，小盘略强</span>
+                <span style='color:#4ade80'>✓ 有利</span>
+            </div>
+        <div class="env-impact">💡 大盘震荡分化，上证尾盘翻红但创业板弱势，美股科技股暴跌压制开盘情绪。岩山科技低开后冲高回落，说明上方抛压较重。脑机接口概念有利好催化但整体AI板块分化，对该股影响中性偏弱。</div>
+        </div>
+        
+        <div class='section'><h2>🌡️ 市场温度计</h2>
+        <div class="temp-container" style="background: linear-gradient(135deg, #5a2a0a, #4a1a00); border: 1px solid #f9731630;">
+            <!-- 温度主显示 -->
+            <div class="temp-main-row">
+                <div class="temp-gauge-area">
+                    <div class="temp-big-num" style="color: #f97316;">57°</div>
+                    <div class="temp-phase-badge" style="background: #f97316;">☀️ 升温期→高潮分歧</div>
+                    <div class="temp-trend">
+                        <span class="temp-trend-arrow" style="color: #22c55e;">↓</span>
+                        <span style="color: #22c55e;">降温</span>
+                        <span class='temp-yesterday'>昨日 66° (-9)</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 阶段刻度条 -->
+            <div class="temp-ruler-container">
+                <div class="temp-ruler"><div class="temp-phase-seg" style="width:15%; background:#3b82f6; opacity:0.35; "><span class="temp-phase-seg-label">冰点</span></div><div class="temp-phase-seg" style="width:20%; background:#06b6d4; opacity:0.35; "><span class="temp-phase-seg-label">回暖</span></div><div class="temp-phase-seg" style="width:20%; background:#eab308; opacity:0.35; "><span class="temp-phase-seg-label">升温</span></div><div class="temp-phase-seg" style="width:20%; background:#f97316; opacity:1; border: 2px solid #f97316; box-shadow: 0 0 8px #f9731640;"><span class="temp-phase-seg-label">高潮</span></div><div class="temp-phase-seg" style="width:15%; background:#ef4444; opacity:0.35; "><span class="temp-phase-seg-label">疯狂</span></div><div class="temp-phase-seg" style="width:10%; background:#dc2626; opacity:0.35; "><span class="temp-phase-seg-label">崩溃</span></div></div>
+                <div class="temp-pointer" style="left: 57%;">
+                    <div class="temp-pointer-line" style="background: #f97316;"></div>
+                    <div class="temp-pointer-dot" style="background: #f97316; box-shadow: 0 0 10px #f97316;"></div>
+                </div>
+            </div>
+            
+            <!-- 温度趋势折线图 -->
+            
+            <div class="temp-chart-title">近期温度趋势 <span style="font-size:12px;color:#888;font-weight:normal;">（近1个月 14个交易日）</span></div>
+            <div class="temp-chart-container">
+                <svg viewBox="0 0 780 240" width="100%" height="240" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="tempAreaGrad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="#f97316" stop-opacity="0.25"/>
+                            <stop offset="100%" stop-color="#f97316" stop-opacity="0.01"/>
+                        </linearGradient>
+                        <linearGradient id="tempLineGrad" x1="0" y1="0" x2="1" y2="0">
+                            <stop offset="0%" stop-color="#f97316"/>
+                            <stop offset="40%" stop-color="#eab308"/>
+                            <stop offset="70%" stop-color="#06b6d4"/>
+                            <stop offset="100%" stop-color="#f97316"/>
+                        </linearGradient>
+                    </defs>
+                    <!-- 阶段色带 -->
+                    <rect x="48" y="114.0" width="712" height="86.0" fill="#eab308" opacity="0.07"/><text x="762" y="157.0" text-anchor="start" fill="#eab308" font-size="9" dominant-baseline="middle" opacity="0.6">升温</text><rect x="48" y="28.0" width="712" height="86.0" fill="#f97316" opacity="0.07"/><text x="762" y="71.0" text-anchor="start" fill="#f97316" font-size="9" dominant-baseline="middle" opacity="0.6">高潮</text>
+                    <!-- Y轴网格 -->
+                    <line x1="48" y1="200.0" x2="760" y2="200.0" stroke="#3a3a5a" stroke-width="0.5" stroke-dasharray="4,4"/><text x="40" y="200.0" text-anchor="end" fill="#888" font-size="10" dominant-baseline="middle">35°</text><line x1="48" y1="157.0" x2="760" y2="157.0" stroke="#3a3a5a" stroke-width="0.5" stroke-dasharray="4,4"/><text x="40" y="157.0" text-anchor="end" fill="#888" font-size="10" dominant-baseline="middle">45°</text><line x1="48" y1="114.0" x2="760" y2="114.0" stroke="#3a3a5a" stroke-width="0.5" stroke-dasharray="4,4"/><text x="40" y="114.0" text-anchor="end" fill="#888" font-size="10" dominant-baseline="middle">55°</text><line x1="48" y1="71.0" x2="760" y2="71.0" stroke="#3a3a5a" stroke-width="0.5" stroke-dasharray="4,4"/><text x="40" y="71.0" text-anchor="end" fill="#888" font-size="10" dominant-baseline="middle">65°</text><line x1="48" y1="28.0" x2="760" y2="28.0" stroke="#3a3a5a" stroke-width="0.5" stroke-dasharray="4,4"/><text x="40" y="28.0" text-anchor="end" fill="#888" font-size="10" dominant-baseline="middle">75°</text>
+                    <!-- 填充区域 -->
+                    <path d="M48.0,148.4 C75.4,148.4 75.4,58.1 102.8,58.1 C130.2,58.1 130.2,135.5 157.5,135.5 C184.9,135.5 184.9,157.0 212.3,157.0 C239.7,157.0 239.7,165.6 267.1,165.6 C294.5,165.6 294.5,75.3 321.8,75.3 C349.2,75.3 349.2,144.1 376.6,144.1 C404.0,144.1 404.0,139.8 431.4,139.8 C458.8,139.8 458.8,109.7 486.2,109.7 C513.5,109.7 513.5,174.2 540.9,174.2 C568.3,174.2 568.3,96.8 595.7,96.8 C623.1,96.8 623.1,62.4 650.5,62.4 C677.8,62.4 677.8,66.7 705.2,66.7 C732.6,66.7 732.6,105.4 760.0,105.4 L760.0,200.0 L48.0,200.0 Z" fill="url(#tempAreaGrad)"/>
+                    <!-- 平滑折线 -->
+                    <path d="M48.0,148.4 C75.4,148.4 75.4,58.1 102.8,58.1 C130.2,58.1 130.2,135.5 157.5,135.5 C184.9,135.5 184.9,157.0 212.3,157.0 C239.7,157.0 239.7,165.6 267.1,165.6 C294.5,165.6 294.5,75.3 321.8,75.3 C349.2,75.3 349.2,144.1 376.6,144.1 C404.0,144.1 404.0,139.8 431.4,139.8 C458.8,139.8 458.8,109.7 486.2,109.7 C513.5,109.7 513.5,174.2 540.9,174.2 C568.3,174.2 568.3,96.8 595.7,96.8 C623.1,96.8 623.1,62.4 650.5,62.4 C677.8,62.4 677.8,66.7 705.2,66.7 C732.6,66.7 732.6,105.4 760.0,105.4" fill="none" stroke="url(#tempLineGrad)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <!-- 数据点与标签 -->
+                    <text x="48.0" y="216" text-anchor="middle" fill="#888" font-size="9">02-02</text><line x1="48.0" y1="148.4" x2="48.0" y2="200.0" stroke="#eab308" stroke-width="0.5" stroke-dasharray="3,3" opacity="0.3"/><circle cx="48.0" cy="148.4" r="4.5" fill="#eab308" stroke="#1e1e2e" stroke-width="2"/><text x="48.0" y="134.4" text-anchor="middle" fill="#ccc" font-size="10" font-weight="normal">47°</text><text x="48.0" y="124.4" text-anchor="middle" fill="#aaa" font-size="9">大盘暴跌</text><text x="102.8" y="216" text-anchor="middle" fill="#888" font-size="9">02-03</text><line x1="102.8" y1="58.1" x2="102.8" y2="200.0" stroke="#f97316" stroke-width="0.5" stroke-dasharray="3,3" opacity="0.3"/><circle cx="102.8" cy="58.1" r="4.5" fill="#f97316" stroke="#1e1e2e" stroke-width="2"/><text x="102.8" y="44.1" text-anchor="middle" fill="#ccc" font-size="10" font-weight="normal">68°</text><text x="102.8" y="76.1" text-anchor="middle" fill="#aaa" font-size="9">大盘反弹</text><text x="157.5" y="216" text-anchor="middle" fill="#888" font-size="9">02-04</text><circle cx="157.5" cy="135.5" r="3" fill="#eab308" stroke="#1e1e2e" stroke-width="1.5"/><text x="212.3" y="216" text-anchor="middle" fill="#888" font-size="9">02-05</text><circle cx="212.3" cy="157.0" r="3" fill="#eab308" stroke="#1e1e2e" stroke-width="1.5"/><text x="267.1" y="216" text-anchor="middle" fill="#888" font-size="9">02-06</text><circle cx="267.1" cy="165.6" r="3" fill="#eab308" stroke="#1e1e2e" stroke-width="1.5"/><text x="267.1" y="151.6" text-anchor="middle" fill="#ccc" font-size="10" font-weight="normal">43°</text><text x="321.8" y="216" text-anchor="middle" fill="#888" font-size="9">02-09</text><line x1="321.8" y1="75.3" x2="321.8" y2="200.0" stroke="#f97316" stroke-width="0.5" stroke-dasharray="3,3" opacity="0.3"/><circle cx="321.8" cy="75.3" r="4.5" fill="#f97316" stroke="#1e1e2e" stroke-width="2"/><text x="321.8" y="61.3" text-anchor="middle" fill="#ccc" font-size="10" font-weight="normal">64°</text><text x="321.8" y="93.3" text-anchor="middle" fill="#aaa" font-size="9">大盘反弹</text><text x="376.6" y="216" text-anchor="middle" fill="#888" font-size="9">02-10</text><circle cx="376.6" cy="144.1" r="3" fill="#eab308" stroke="#1e1e2e" stroke-width="1.5"/><text x="376.6" y="130.1" text-anchor="middle" fill="#ccc" font-size="10" font-weight="normal">48°</text><text x="431.4" y="216" text-anchor="middle" fill="#888" font-size="9">02-11</text><circle cx="431.4" cy="139.8" r="3" fill="#eab308" stroke="#1e1e2e" stroke-width="1.5"/><text x="486.2" y="216" text-anchor="middle" fill="#888" font-size="9">02-12</text><circle cx="486.2" cy="109.7" r="3" fill="#f97316" stroke="#1e1e2e" stroke-width="1.5"/><text x="486.2" y="95.7" text-anchor="middle" fill="#ccc" font-size="10" font-weight="normal">56°</text><text x="540.9" y="216" text-anchor="middle" fill="#888" font-size="9">02-13</text><circle cx="540.9" cy="174.2" r="3" fill="#eab308" stroke="#1e1e2e" stroke-width="1.5"/><text x="540.9" y="160.2" text-anchor="middle" fill="#ccc" font-size="10" font-weight="normal">41°</text><text x="595.7" y="216" text-anchor="middle" fill="#888" font-size="9">02-24</text><line x1="595.7" y1="96.8" x2="595.7" y2="200.0" stroke="#f97316" stroke-width="0.5" stroke-dasharray="3,3" opacity="0.3"/><circle cx="595.7" cy="96.8" r="4.5" fill="#f97316" stroke="#1e1e2e" stroke-width="2"/><text x="595.7" y="82.8" text-anchor="middle" fill="#ccc" font-size="10" font-weight="normal">59°</text><text x="595.7" y="114.8" text-anchor="middle" fill="#aaa" font-size="9">春节后开盘</text><text x="650.5" y="216" text-anchor="middle" fill="#888" font-size="9">02-25</text><line x1="650.5" y1="62.4" x2="650.5" y2="200.0" stroke="#f97316" stroke-width="0.5" stroke-dasharray="3,3" opacity="0.3"/><circle cx="650.5" cy="62.4" r="4.5" fill="#f97316" stroke="#1e1e2e" stroke-width="2"/><text x="650.5" y="48.4" text-anchor="middle" fill="#ccc" font-size="10" font-weight="normal">67°</text><text x="650.5" y="80.4" text-anchor="middle" fill="#aaa" font-size="9">连涨放量</text><text x="705.2" y="216" text-anchor="middle" fill="#888" font-size="9">02-26</text><line x1="705.2" y1="66.7" x2="705.2" y2="200.0" stroke="#f97316" stroke-width="0.5" stroke-dasharray="3,3" opacity="0.3"/><circle cx="705.2" cy="66.7" r="4.5" fill="#f97316" stroke="#1e1e2e" stroke-width="2"/><text x="705.2" y="52.7" text-anchor="middle" fill="#ccc" font-size="10" font-weight="normal">66°</text><text x="705.2" y="84.7" text-anchor="middle" fill="#aaa" font-size="9">继续上攻</text><text x="760.0" y="216" text-anchor="middle" fill="#888" font-size="9">02-27</text><line x1="760.0" y1="105.4" x2="760.0" y2="200.0" stroke="#f97316" stroke-width="0.5" stroke-dasharray="3,3" opacity="0.3"/><circle cx="760.0" cy="105.4" r="12" fill="#f97316" opacity="0.2"/><circle cx="760.0" cy="105.4" r="7" fill="#f97316" stroke="#fff" stroke-width="2.5"/><text x="760.0" y="91.4" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">57°</text><text x="760.0" y="123.4" text-anchor="middle" fill="#aaa" font-size="9">冲高回落滞涨</text>
+                </svg>
+            </div>
+            
+            <!-- 7维度评分 -->
+            <div class="temp-dims-title">七维度评分</div>
+            <div class="temp-dims">
+            <div class="temp-dim-row">
+                <div class="temp-dim-label">赚钱效应<span class="temp-dim-weight">25%</span></div>
+                <div class="temp-dim-bar-bg">
+                    <div class="temp-dim-bar-fill" style="width:45%; background:#eab308"></div>
+                </div>
+                <div class="temp-dim-score">45</div>
+                <div class="temp-dim-detail">涨停约40家，跌停约15家，赚钱效应一般</div>
+            </div>
+            <div class="temp-dim-row">
+                <div class="temp-dim-label">连板高度<span class="temp-dim-weight">20%</span></div>
+                <div class="temp-dim-bar-bg">
+                    <div class="temp-dim-bar-fill" style="width:55%; background:#f97316"></div>
+                </div>
+                <div class="temp-dim-score">55</div>
+                <div class="temp-dim-detail">最高板6板(豫能控股)，梯队较完整但非AI方向</div>
+            </div>
+            <div class="temp-dim-row">
+                <div class="temp-dim-label">市场广度<span class="temp-dim-weight">15%</span></div>
+                <div class="temp-dim-bar-bg">
+                    <div class="temp-dim-bar-fill" style="width:40%; background:#eab308"></div>
+                </div>
+                <div class="temp-dim-score">40</div>
+                <div class="temp-dim-detail">三大指数分化，创业板跌1%</div>
+            </div>
+            <div class="temp-dim-row">
+                <div class="temp-dim-label">量能水平<span class="temp-dim-weight">10%</span></div>
+                <div class="temp-dim-bar-bg">
+                    <div class="temp-dim-bar-fill" style="width:55%; background:#f97316"></div>
+                </div>
+                <div class="temp-dim-score">55</div>
+                <div class="temp-dim-detail">两市成交约2万亿，量能充裕</div>
+            </div>
+            <div class="temp-dim-row">
+                <div class="temp-dim-label">情绪极端度<span class="temp-dim-weight">10%</span></div>
+                <div class="temp-dim-bar-bg">
+                    <div class="temp-dim-bar-fill" style="width:45%; background:#eab308"></div>
+                </div>
+                <div class="temp-dim-score">45</div>
+                <div class="temp-dim-detail">散户偏乐观但未狂热</div>
+            </div>
+            <div class="temp-dim-row">
+                <div class="temp-dim-label">龙头状态<span class="temp-dim-weight">10%</span></div>
+                <div class="temp-dim-bar-bg">
+                    <div class="temp-dim-bar-fill" style="width:35%; background:#eab308"></div>
+                </div>
+                <div class="temp-dim-score">35</div>
+                <div class="temp-dim-detail">科技龙头(英伟达)暴跌压制情绪</div>
+            </div>
+            <div class="temp-dim-row">
+                <div class="temp-dim-label">资金趋势<span class="temp-dim-weight">10%</span></div>
+                <div class="temp-dim-bar-bg">
+                    <div class="temp-dim-bar-fill" style="width:30%; background:#eab308"></div>
+                </div>
+                <div class="temp-dim-score">30</div>
+                <div class="temp-dim-detail">主力资金净流出，北向资金数据不明</div>
+            </div></div>
+            
+            <!-- 入场建议 -->
+            
+            <div class="temp-entry">
+                <div class="temp-entry-header">
+                    <span class="temp-entry-level">★★ 谨慎参与</span>
+                    <span class='temp-entry-position'>建议3-5成仓位，不宜加仓追高</span>
+                </div>
+                <div class="temp-entry-text">个股温度从67降至57(连降2日)，处于降温初期。大盘震荡分化+美股科技暴跌+主力资金外流，短期追涨风险较大。已持有可适当减仓，空仓观望为主。</div>
+                <div class='temp-entry-warning'>⚠️ 温度连续2日下降(67→66→57)，若明日继续下降至50以下，需进一步减仓</div>
+            </div>
+            
+            <!-- 周期位置 -->
+            
+            <div class="temp-cycle">
+                <div class="temp-cycle-desc">个股温度从升温期高点(67)开始回落，进入分歧降温阶段</div>
+                <div class="temp-cycle-metrics">
+                    <span>距高潮: 距离1月高潮期(87)约30°</span>
+                    <span>距冰点: 距离2月初低点(43)约14°</span>
+                    <span>阶段进度: 降温刚开始</span>
+                    <span>持续天数: 1天</span>
+                </div>
+            </div>
+        </div>
+        </div>
+        
+        <div class="section">
+            <h2>🔥 近期触发因素</h2>
+            
+        <div class="trigger-card">
+            <div class="trigger-header">
+                <span class="trigger-type">外围利空</span>
+                <span class="freshness-badge today">今日</span>
+                <span class="trigger-impact" style="background: #ef4444">利空</span>
+                <span class="trigger-weight">权重 35%</span>
+            </div>
+            <h4 class="trigger-title">隔夜美股科技股暴跌，英伟达跌超5%</h4>
+            <p class="trigger-detail">2月26日夜间美股大幅回调，英伟达跌超5%创去年4月以来最大单日跌幅，AMD、博通跌超3%，费城半导体指数跌3.2%。中概股普跌，纳斯达克中国金龙指数跌1.81%。</p>
+            <div class="trigger-source"><span class="info-date">📅 2026-02-27</span> <a href="https://finance.sina.com.cn/headline/2026-02-27/doc-inhpfamu3921044.shtml" target="_blank" class="info-source">🔗 新浪财经</a></div>
+        </div>
+        
+        <div class="trigger-card">
+            <div class="trigger-header">
+                <span class="trigger-type">板块催化</span>
+                <span class="freshness-badge today">今日</span>
+                <span class="trigger-impact" style="background: #22c55e">利好</span>
+                <span class="trigger-weight">权重 30%</span>
+            </div>
+            <h4 class="trigger-title">脑机接口赛道升温，机构密集调研</h4>
+            <p class="trigger-detail">同花顺2月27日报道，截至2月26日今年已有80家医药生物公司接受机构调研，脑机接口概念股备受关注。翔宇医疗获208家次调研，预计2026年底推出近100种脑机接口产品。脑机接口被列为'十五五'期间未来产业之一。</p>
+            <div class="trigger-source"><span class="info-date">📅 2026-02-27</span> <a href="https://m.10jqka.com.cn/20260227/c674951834.shtml" target="_blank" class="info-source">🔗 同花顺</a></div>
+        </div>
+        
+        <div class="trigger-card">
+            <div class="trigger-header">
+                <span class="trigger-type">公司基本面</span>
+                <span class="freshness-badge recent">近3日</span>
+                <span class="trigger-impact" style="background: #22c55e">利好</span>
+                <span class="trigger-weight">权重 25%</span>
+            </div>
+            <h4 class="trigger-title">岩山科技2026年脑机接口量产计划明确</h4>
+            <p class="trigger-detail">截至2026年2月5日，公司已公布2026年多项脑机接口产品量产计划：非侵入式癫痫诊断设备已获二类医疗器械注册证，LumiMind助眠头环在CES2026首发并已获订单，游戏意念操控外设2026年量产。</p>
+            <div class="trigger-source"><span class="info-date">📅 2026-02-05</span> <a href="https://caifuhao.eastmoney.com/news/20260205170447752185550" target="_blank" class="info-source">🔗 东方财富</a></div>
+        </div>
+        
+        <div class="trigger-card">
+            <div class="trigger-header">
+                <span class="trigger-type">节后效应</span>
+                <span class="freshness-badge recent">近3日</span>
+                <span class="trigger-impact" style="background: #22c55e">利好</span>
+                <span class="trigger-weight">权重 20%</span>
+            </div>
+            <h4 class="trigger-title">春节后AI概念集体反弹</h4>
+            <p class="trigger-detail">春节假期2月14-23日休市，节后首个交易日2月24日AI板块整体反弹，DeepSeek相关概念受关注。岩山科技2月24日+2.22%，25日+4.14%，26日+3.12%，连续3天走强。</p>
+            <div class="trigger-source"><span class="info-date">📅 2026-02-24</span> <a href="https://quote.eastmoney.com/sz002195.html" target="_blank" class="info-source">🔗 市场行情</a></div>
+        </div>
+        
+        </div>
+        
+        <div class='section'><h2>⚔️ 多方博弈分析</h2>
+        <div class="participants-grid">
+            
+            <div class="participant-card">
+                <div class="participant-header">
+                    <span class="participant-icon">🔥</span>
+                    <div class="participant-name-group">
+                        <span class="participant-name">游资</span>
+                        <span class="participant-desc">短线热钱</span>
+                    </div>
+                    <span class="participant-stance" style="background: #6b7280">中性偏弱</span>
+                </div>
+                <div class="participant-summary">今日无龙虎榜数据，近期也无游资席位明显介入痕迹。股吧有散户提到'游资已入场'(2/26)，但缺乏龙虎榜数据佐证。该股自1月中旬暴涨暴跌后，游资关注度下降，目前更多是存量资金博弈。</div>
+                <ul class="participant-details"><li>2月27日未上龙虎榜（涨幅不足7%）</li><li>最近一次上榜为1月19日，当时净卖出2.80亿，游资出货明显</li><li>1月14日上榜时净买入6.84亿（当时连续3日涨幅20%触发）</li><li>股吧有人提到游资入场但无硬数据支撑</li></ul>
+            </div>
+            
+            <div class="participant-card">
+                <div class="participant-header">
+                    <span class="participant-icon">🐋</span>
+                    <div class="participant-name-group">
+                        <span class="participant-name">主力</span>
+                        <span class="participant-desc">控盘大资金</span>
+                    </div>
+                    <span class="participant-stance" style="background: #22c55e">看空</span>
+                </div>
+                <div class="participant-summary">今日主力资金大幅净流出1.70亿元，其中超大单净流出1.15亿、大单净流出0.55亿。在股价仅微涨0.09%的情况下，主力资金加速撤退，这是典型的'边拉边出'手法，利用早盘冲高吸引散户接盘。</div>
+                <ul class="participant-details"><li>主力(超大单+大单)净流出1.70亿元</li><li>散户(小单)净流入1.27亿元 — 散户在接盘</li><li>成交量从昨日8325万股缩减至5301万股(-36%)</li><li>换手率从14.86%降至9.46%，追涨意愿减弱</li><li>冲高至11.17后回落，尾盘仅守住10.91</li></ul>
+            </div>
+            
+            <div class="participant-card">
+                <div class="participant-header">
+                    <span class="participant-icon">🏦</span>
+                    <div class="participant-name-group">
+                        <span class="participant-name">机构</span>
+                        <span class="participant-desc">基金/保险/QFII</span>
+                    </div>
+                    <span class="participant-stance" style="background: #6b7280">中性偏多</span>
+                </div>
+                <div class="participant-summary">机构层面对脑机接口赛道整体看好，密集调研相关公司，但对岩山科技个股缺乏最新明确的研报评级。公司脑机接口业务尚未产生收入，机构对其转型的看法存在分歧。</div>
+                <ul class="participant-details"><li>2月27日同花顺报道脑机接口赛道升温，年内80家医药生物公司获机构调研</li><li>脑机接口被列为'十五五'未来产业，政策面利好</li><li>公司获上海人工智能专项扶持(最高500万元模型券)</li><li>但证券时报提示：公司脑机接口业务仍处起步阶段，尚未产生收入</li><li>近期无针对岩山科技的新研报发布</li></ul>
+            </div>
+            
+            <div class="participant-card">
+                <div class="participant-header">
+                    <span class="participant-icon">🏛️</span>
+                    <div class="participant-name-group">
+                        <span class="participant-name">监管层</span>
+                        <span class="participant-desc">政策/合规</span>
+                    </div>
+                    <span class="participant-stance" style="background: #ef4444">利好</span>
+                </div>
+                <div class="participant-summary">政策面持续利好脑机接口产业。脑机接口被列为'十五五'期间重点未来产业，工信部发布算力互联互通政策。公司未收到任何监管问询或处罚。</div>
+                <ul class="participant-details"><li>脑机接口被列为'十五五'期间未来产业重点方向</li><li>工信部2月发布算力互联互通政策利好公司液冷算力业务</li><li>公司入选上海人工智能专项</li><li>无监管风险事项(问询函/关注函等)</li></ul>
+            </div>
+            
+            <div class="participant-card">
+                <div class="participant-header">
+                    <span class="participant-icon">👥</span>
+                    <div class="participant-name-group">
+                        <span class="participant-name">散户</span>
+                        <span class="participant-desc">市场情绪</span>
+                    </div>
+                    <span class="participant-stance" style="background: #f97316">乐观</span>
+                </div>
+                <div class="participant-summary">股吧讨论热度较高，散户情绪偏乐观。有人喊'试试涨停板'、'快资已入场'，隔夜挂单委买远大于委卖(1287万股 vs 258万股)。但今日小单净流入1.27亿说明散户在追涨接盘，需警惕反向信号。</div>
+                <ul class="participant-details"><li>东方财富股吧2月27日有人喊'今天试试涨停板'</li><li>有人认为'岩山应走自己行情了，游资已入场'</li><li>隔夜挂单委买1287万股远大于委卖258万股</li><li>小单今日净流入1.27亿元(散户追涨)</li><li>也有理性声音质疑'哪来的人气'</li></ul>
+            </div>
+            
+        </div>
+        
+            <div class="battle-summary">
+                <div class="battle-header">
+                    <span class="battle-icon">⚔️</span>
+                    博弈格局
+                    <span class="battle-pattern" style="background: #22c55e">空方占优</span>
+                </div>
+                <div class="battle-bar-container">
+                    <div class="battle-bar">
+                        <div class="battle-bar-bull" style="width: 40.0%">多 2</div>
+                        <div class="battle-bar-neutral" style="width: 20.0%">1</div>
+                        <div class="battle-bar-bear" style="width: 40.0%">空 2</div>
+                    </div>
+                    <div class="battle-bar-labels">
+                        <span style="color: #ef4444">多方</span>
+                        <span style="color: #22c55e">空方</span>
+                    </div>
+                </div>
+                <div class="battle-conclusion">主力看空(大幅流出1.7亿) + 游资中性偏弱(无明显介入) → 聪明钱在撤退；散户乐观(追涨接盘) + 监管利好 + 机构中性偏多 → 但缺乏真金白银支持。核心矛盾是：散户的乐观情绪与主力的实际出货行为形成背离，这是短期见顶的经典信号。</div>
+                <div class='battle-signal'>💡 <strong>关键信号:</strong> 主力大幅流出+散户接盘的'大出小进'格局是最关键的空头信号</div>
+            </div>
+            
+        </div>
+        
+        
+        
+        <div class='section'><h2>📐 技术形态分析</h2>
+        <div class="pattern-card">
+            <div class="pattern-header">
+                <span class="pattern-name">冲高受阻+上影线</span>
+                <span class="pattern-type" style="background: #6b7280">偏空</span>
+                <span class="pattern-stars">★★★☆☆</span>
+            </div>
+            <div class="pattern-desc">今日冲高至11.17后回落至10.91收盘，留下较长上影线(上影0.26元 vs 实体0.01元)。连涨4日后在11.09-11.17区域形成明显阻力，与1月26日高点10.68和2月25日高点10.95相呼应，形成密集压力区。</div>
+            <div class="pattern-meta">
+                <span>趋势背景: 上升趋势中的滞涨</span>
+                <span>量价配合: ✗ 否</span>
+            </div>
+            <div class="levels-grid">
+                    <div class="level-item">
+                        <div class="level-label">支撑位</div>
+                        <div class="level-value" style="color: #22c55e">¥10.50</div>
+                    </div>
+                    <div class="level-item">
+                        <div class="level-label">压力位</div>
+                        <div class="level-value" style="color: #ef4444">¥11.17</div>
+                    </div>
+                    <div class="level-item">
+                        <div class="level-label">止损位</div>
+                        <div class="level-value" style="color: #f97316">¥9.81</div>
+                    </div></div>
+            <div class="additional-patterns">同时出现: <span class="pattern-tag">上影线射击之星(偏空信号)</span> <span class="pattern-tag">缩量滞涨(追涨动力不足)</span> <span class="pattern-tag">箱体上沿压力(9.5-11.4区间)</span></div>
+            <div class="pattern-warning">⚠️ 若明日跌破10.50(昨日开盘价)，短期回调确认。若跌破10.15(MA20)，则中期趋势可能转弱。</div>
+        </div>
+        </div>
+        
+        <div class="section">
+            <h2>💰 资金动向</h2>
+            
+            <div class="fund-flow">
+                <div class="fund-header">今日资金流向 <span class="fund-date">📅 2026-02-27 14:10</span></div>
+                <div class="fund-grid" style="grid-template-columns: repeat(5, 1fr);">
+                    <div class="fund-item">
+                        <div class="fund-label">主力净额</div>
+                        <div class="fund-value" style="color: #22c55e">-1.70亿</div>
+                    </div>
+                    <div class="fund-item">
+                        <div class="fund-label">超大单</div>
+                        <div class="fund-value" style="color: #22c55e">-1.15亿</div>
+                    </div>
+                    <div class="fund-item">
+                        <div class="fund-label">大单</div>
+                        <div class="fund-value" style="color: #22c55e">-0.55亿</div>
+                    </div>
+                    <div class="fund-item">
+                        <div class="fund-label">中单</div>
+                        <div class="fund-value" style="color: #ef4444">+0.43亿</div>
+                    </div>
+                    <div class="fund-item">
+                        <div class="fund-label">小单(散户)</div>
+                        <div class="fund-value" style="color: #ef4444">+1.27亿</div>
+                    </div>
+                </div>
+            </div>
+            
+            
+            
+        <div class="dragon-tiger">
+            <div class="dragon-header">
+                龙虎榜 <span class="dragon-date">📅 2026-02-27</span>
+                <span class="dragon-reason"></span>
+            </div>
+            <div class="dragon-grid">
+                <div class="dragon-col">
+                    <div class="dragon-title buy">买入前三</div>
+                    
+                </div>
+                <div class="dragon-col">
+                    <div class="dragon-title sell">卖出前三</div>
+                    
+                </div>
+            </div>
+        </div>
+        
+            
+        </div>
+        
+        <div class="section">
+            <h2>📜 历史背景</h2>
+            <div class="bg-timeline">
+                
+        <div class="bg-item">
+            <div class="bg-date">2026-02</div>
+            <div class="bg-content">
+                <div class="bg-title">岩山科技转型硬科技，AI+脑机接口双轮驱动</div>
+                <div class="bg-detail">公司从互联网企业(原名二三四五)转型硬科技，通过全资子公司岩思类脑研究院深耕脑机接口赛道，同时拥有Yan系列自研大模型。2025年1-9月营收4.66亿元，归母净利润1.83亿元(同比+331.09%)。</div>
+                <a href="https://jg-static.eeo.com.cn/article/info?channelUuid=&id=0cfb604db0924d50b9b63877347f6952" target="_blank" class="bg-source">🔗 经济观察报</a>
+            </div>
+        </div>
+        
+        <div class="bg-item">
+            <div class="bg-date">2026-01</div>
+            <div class="bg-content">
+                <div class="bg-title">2026年1月曾连续4涨停后暴跌</div>
+                <div class="bg-detail">1月5-8日连续4涨停(7.09→10.38)，1月14日涨至13.19高点后连续3跌停(1/15-1/19跌至9.62)。目前股价10.91仍在高位震荡区间(9.5-11.4)运行。</div>
+                <a href="https://quote.eastmoney.com/sz002195.html" target="_blank" class="bg-source">🔗 K线数据</a>
+            </div>
+        </div>
+        
+        <div class="bg-item">
+            <div class="bg-date">2026-02</div>
+            <div class="bg-content">
+                <div class="bg-title">脑机接口业务仍处起步阶段，尚未产生收入</div>
+                <div class="bg-detail">证券时报报道，公司脑机接口及类脑智能业务商业化仍处起步阶段，具体产品尚未开始销售，未来存在不确定性。</div>
+                <a href="https://www.stcn.com/article/detail/3592927.html" target="_blank" class="bg-source">🔗 证券时报</a>
+            </div>
+        </div>
+        
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>🎯 走势预判</h2>
+            <div class='core-logic-box'>💡 <strong>核心逻辑:</strong> 本次连涨2天主要由春节后效应+脑机接口概念催化驱动。今日涨不动的核心原因是：①隔夜美股科技股暴跌(英伟达-5%)压制开盘情绪；②主力资金大幅流出1.7亿(聪明钱在撤退)；③连涨4天后短期获利盘堆积，11.0-11.2区域套牢盘+获利盘双重压力；④量能萎缩说明追涨意愿衰减。</div>
+            
+            <div class='core-logic-box' style='border-left-color:#8b5cf6; background:linear-gradient(135deg,rgba(139,92,246,0.1),rgba(139,92,246,0.03));'>🌡️ <strong>温度指引:</strong> 个股温度从67降至57(降温中)，市场温度约48(震荡)。温度+个股双降发出减仓信号。建议：已持有减仓至5成以下，空仓不追高。若温度继续降至50以下，清仓观望。</div>
+            <div class="outlook-grid">
+                <div class="outlook-card">
+                    <h3>📈 短期展望</h3>
+                    <p>短期(1-3日)偏空震荡概率大。今日冲高11.17回落收十字星，留长上影线，主力净流出1.7亿，散户接盘。连涨4天后动能衰竭(量能缩减36%)，11.0-11.2区域形成短期天花板。明日大概率回踩10.5-10.7支撑区。若美股继续下跌，可能测试10.15(MA20)。</p>
+                </div>
+                <div class="outlook-card">
+                    <h3>📊 中期展望</h3>
+                    <p>中期(1-3月)维持震荡偏强格局。脑机接口政策催化持续(十五五重点产业)，公司2026年多款产品量产预期提供基本面支撑。但需注意：1)业务尚未产生收入，估值偏高(PE 358)；2)1月见顶13.19后处于下降通道高位震荡区。中期核心区间9.5-11.4。</p>
+                </div>
+                <div class="outlook-card risks-card">
+                    <h3>风险提示</h3>
+                    <ul><li>美股科技股持续下跌可能引发A股AI板块共振下跌</li><li>主力资金持续流出，短期回调压力大</li><li>脑机接口业务尚未产生收入，高PE(358)估值存泡沫风险</li><li>1月曾出现4涨停后连续3跌停的极端波动，需防范类似风险</li><li>温度连续降温，若跌破50进入弱势区间</li><li>散户追涨情绪较高，可能成为反向指标</li></ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="sources">
+            <h3>📚 信息来源</h3>
+            <ul>
+        <li>
+            <a href="https://quote.eastmoney.com/sz002195.html" target="_blank">API实时行情</a>
+            <span class="source-meta"> </span>
+        </li>
+        
+        <li>
+            <a href="https://data.eastmoney.com/zjlx/002195.html" target="_blank">API资金流向</a>
+            <span class="source-meta"> </span>
+        </li>
+        
+        <li>
+            <a href="https://quote.eastmoney.com/sz002195.html" target="_blank">API K线数据</a>
+            <span class="source-meta"> </span>
+        </li>
+        
+        <li>
+            <a href="https://m.10jqka.com.cn/20260227/c674951834.shtml" target="_blank">脑机接口赛道升温-同花顺</a>
+            <span class="source-meta"> </span>
+        </li>
+        
+        <li>
+            <a href="https://caifuhao.eastmoney.com/news/20260205170447752185550" target="_blank">岩山科技脑机接口量产计划</a>
+            <span class="source-meta"> </span>
+        </li>
+        
+        <li>
+            <a href="https://www.stcn.com/article/detail/3592927.html" target="_blank">公司脑机接口业务起步阶段-证券时报</a>
+            <span class="source-meta"> </span>
+        </li>
+        
+        <li>
+            <a href="https://finance.sina.com.cn/headline/2026-02-27/doc-inhpfamu3921044.shtml" target="_blank">今日A股快讯-新浪财经</a>
+            <span class="source-meta"> </span>
+        </li>
+        
+        <li>
+            <a href="https://www.chinanews.com.cn/cj/2026/02-27/10577346.shtml" target="_blank">A股开盘集体低开-中新网</a>
+            <span class="source-meta"> </span>
+        </li>
+        
+        <li>
+            <a href="https://data.10jqka.com.cn/market/lhbgg/code/002195/" target="_blank">龙虎榜数据-同花顺</a>
+            <span class="source-meta"> </span>
+        </li>
+        
+        <li>
+            <a href="https://k.sina.com.cn/article_3240851740_c12b791c00101iau8.html" target="_blank">2月25日涨停复盘-新浪</a>
+            <span class="source-meta"> </span>
+        </li>
+        
+        <li>
+            <a href="https://52daban.com/" target="_blank">连板梯队数据-52打板网</a>
+            <span class="source-meta"> </span>
+        </li>
+        
+        <li>
+            <a href="https://jg-static.eeo.com.cn/article/info?channelUuid=&id=0cfb604db0924d50b9b63877347f6952" target="_blank">岩山科技转型硬科技-经济观察报</a>
+            <span class="source-meta"> </span>
+        </li>
+        </ul>
+        </div>
+        
+        <div class="disclaimer">
+            ⚠️ 免责声明：本报告仅供参考，不构成任何投资建议。投资有风险，入市需谨慎。<br>
+            数据来源于公开信息，请以官方公告为准。
+        </div>
+    </div>
+</body>
+</html>

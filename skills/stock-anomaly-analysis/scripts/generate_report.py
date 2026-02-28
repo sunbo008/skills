@@ -3746,6 +3746,10 @@ def main():
     
     html = generate_html(data)
     
+    output_dir = os.path.dirname(args.output)
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
+    
     with open(args.output, "w", encoding="utf-8") as f:
         f.write(html)
     

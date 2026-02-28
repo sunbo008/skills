@@ -1,0 +1,2413 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>南网能源(003035) 异动分析报告</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #1e1e2e 0%, #2d2d44 100%);
+            min-height: 100vh;
+            color: #e0e0e0;
+            padding: 20px;
+        }
+        
+        .container { max-width: 1000px; margin: 0 auto; }
+        
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h1 { font-size: 28px; color: #fff; margin-bottom: 10px; }
+        .header .date { color: #888; font-size: 14px; }
+        
+        .stock-card {
+            background: linear-gradient(135deg, #2a2a40 0%, #1a1a2e 100%);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 1px solid #3a3a5a;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        
+        .stock-info { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+        .stock-name { font-size: 24px; font-weight: bold; color: #fff; }
+        .stock-code { font-size: 14px; color: #888; background: #3a3a5a; padding: 4px 12px; border-radius: 20px; }
+        .stock-sector { font-size: 14px; color: #888; }
+        
+        .stock-price-container { text-align: right; }
+        .stock-price { font-size: 32px; font-weight: bold; color: #ef4444; }
+        .stock-change { font-size: 18px; color: #ef4444; }
+        .price-time { font-size: 12px; color: #666; margin-top: 4px; }
+        .market-data { font-size: 12px; color: #888; margin-top: 4px; }
+        
+        .anomaly-badge {
+            background: #dc2626;
+            color: white;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .section {
+            background: #2a2a40;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 1px solid #3a3a5a;
+        }
+        
+        .section h2 {
+            font-size: 18px;
+            color: #fff;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #4a4a6a;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section h2::before {
+            content: "";
+            display: inline-block;
+            width: 4px;
+            height: 20px;
+            background: linear-gradient(to bottom, #6366f1, #8b5cf6);
+            border-radius: 2px;
+        }
+        
+        /* 触发因素样式 */
+        .trigger-card {
+            background: #1e1e2e;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            border: 1px solid #3a3a5a;
+        }
+        
+        .trigger-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .trigger-type {
+            background: #4a4a6a;
+            color: #fff;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+        
+        .freshness-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        
+        .freshness-badge.today {
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            color: white;
+            animation: pulse 2s infinite;
+        }
+        
+        .freshness-badge.recent {
+            background: #6366f1;
+            color: white;
+        }
+        
+        .freshness-badge.week {
+            background: #4a4a6a;
+            color: #ccc;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .trigger-impact {
+            color: #fff;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+        
+        .trigger-weight {
+            color: #888;
+            font-size: 12px;
+            margin-left: auto;
+        }
+        
+        .trigger-title { font-size: 16px; color: #fff; margin-bottom: 8px; }
+        .trigger-detail { font-size: 14px; color: #aaa; line-height: 1.6; }
+        
+        .trigger-source {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed #3a3a5a;
+            font-size: 12px;
+            display: flex;
+            gap: 16px;
+        }
+        
+        .info-date { color: #888; }
+        .info-source { color: #6366f1; text-decoration: none; }
+        .info-source:hover { text-decoration: underline; }
+        
+        /* 资金流向样式 */
+        .fund-flow {
+            background: #1e1e2e;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            border: 1px solid #3a3a5a;
+        }
+        
+        .fund-header {
+            font-size: 14px;
+            color: #fff;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .fund-date { font-size: 12px; color: #888; }
+        
+        .fund-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+        
+        .fund-item { text-align: center; }
+        .fund-label { font-size: 12px; color: #888; margin-bottom: 4px; }
+        .fund-value { font-size: 18px; font-weight: bold; }
+        
+        /* 大盘环境样式 */
+        .env-header-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .env-score-badge {
+            color: white;
+            padding: 6px 18px;
+            border-radius: 16px;
+            font-size: 15px;
+            font-weight: bold;
+        }
+        
+        .idx-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .idx-item {
+            background: #1e1e2e;
+            border-radius: 8px;
+            padding: 10px 8px;
+            text-align: center;
+            border: 1px solid #3a3a5a;
+        }
+        
+        .idx-name { font-size: 11px; color: #888; margin-bottom: 4px; }
+        .idx-price { font-size: 14px; color: #ddd; font-weight: bold; }
+        .idx-pct { font-size: 13px; font-weight: bold; }
+        
+        .breadth-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .breadth-item {
+            background: #1e1e2e;
+            border-radius: 8px;
+            padding: 8px;
+            text-align: center;
+            border: 1px solid #3a3a5a;
+        }
+        
+        .breadth-label { font-size: 11px; color: #888; margin-bottom: 2px; }
+        .breadth-val { font-size: 16px; font-weight: bold; color: #ddd; }
+        
+        .ladder-box {
+            background: #1e1e2e;
+            border-radius: 10px;
+            padding: 14px;
+            margin-bottom: 16px;
+            border: 1px solid #3a3a5a;
+        }
+        
+        .ladder-title {
+            font-size: 14px;
+            color: #fff;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        
+        .ladder-meta { font-size: 12px; color: #888; font-weight: normal; margin-left: 8px; }
+        
+        .ladder-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+        
+        .ladder-level { font-size: 12px; color: #aaa; width: 40px; text-align: right; }
+        
+        .ladder-bar-bg {
+            flex: 1;
+            height: 14px;
+            background: #2a2a40;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .ladder-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #6366f1, #8b5cf6);
+            border-radius: 4px;
+        }
+        
+        .ladder-count { font-size: 11px; color: #888; width: 36px; }
+        
+        .ladder-target {
+            margin-top: 8px;
+            font-size: 13px;
+            color: #eab308;
+            padding: 6px 10px;
+            background: rgba(234, 179, 8, 0.1);
+            border-radius: 6px;
+        }
+        
+        .sector-box {
+            background: #1e1e2e;
+            border-radius: 10px;
+            padding: 12px 14px;
+            margin-bottom: 12px;
+            border: 1px solid #3a3a5a;
+        }
+        
+        .sector-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .sector-name { font-size: 15px; font-weight: bold; color: #fff; }
+        .sector-rank { font-size: 13px; color: #6366f1; background: rgba(99,102,241,0.15); padding: 2px 10px; border-radius: 10px; }
+        .sector-pct { font-size: 15px; font-weight: bold; }
+        .sector-lu { font-size: 12px; color: #888; }
+        .sector-phase { font-size: 12px; color: #fbbf24; background: rgba(251,191,36,0.15); padding: 2px 10px; border-radius: 10px; }
+        
+        .related-sectors {
+            margin-top: 8px;
+            font-size: 12px;
+            color: #888;
+        }
+        
+        .related-tag {
+            background: #3a3a5a;
+            color: #ccc;
+            padding: 2px 8px;
+            border-radius: 8px;
+            font-size: 11px;
+            margin-left: 4px;
+        }
+        
+        .style-box {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            font-size: 13px;
+            color: #aaa;
+            padding: 10px 14px;
+            background: #1e1e2e;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            border: 1px solid #3a3a5a;
+        }
+        
+        .style-box strong { color: #fff; }
+        
+        .env-impact {
+            font-size: 14px;
+            color: #ddd;
+            padding: 12px 14px;
+            background: linear-gradient(135deg, rgba(99,102,241,0.1), rgba(139,92,246,0.05));
+            border-radius: 8px;
+            border-left: 3px solid #6366f1;
+            line-height: 1.5;
+        }
+        
+        /* 多方博弈分析样式 */
+        .participants-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        
+        .participant-card {
+            background: #1e1e2e;
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid #3a3a5a;
+            transition: transform 0.2s;
+        }
+        
+        .participant-card:hover {
+            transform: translateY(-2px);
+        }
+        
+        .participant-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        
+        .participant-icon { font-size: 24px; }
+        
+        .participant-name-group {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+        
+        .participant-name {
+            font-size: 15px;
+            font-weight: bold;
+            color: #fff;
+        }
+        
+        .participant-desc {
+            font-size: 11px;
+            color: #666;
+        }
+        
+        .participant-stance {
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+        
+        .participant-summary {
+            font-size: 13px;
+            color: #ccc;
+            line-height: 1.5;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: #252540;
+            border-radius: 8px;
+        }
+        
+        .participant-details {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .participant-details li {
+            font-size: 12px;
+            color: #999;
+            padding: 4px 0 4px 16px;
+            position: relative;
+            line-height: 1.5;
+        }
+        
+        .participant-details li::before {
+            content: "•";
+            position: absolute;
+            left: 4px;
+            color: #6366f1;
+        }
+        
+        .battle-summary {
+            background: linear-gradient(135deg, #1a1a30 0%, #2a2040 100%);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #4a3a6a;
+        }
+        
+        .battle-header {
+            font-size: 16px;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .battle-icon { font-size: 20px; }
+        
+        .battle-pattern {
+            color: white;
+            padding: 4px 14px;
+            border-radius: 14px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+        
+        .battle-bar-container {
+            margin-bottom: 16px;
+        }
+        
+        .battle-bar {
+            display: flex;
+            height: 32px;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 4px;
+        }
+        
+        .battle-bar-bull {
+            background: linear-gradient(90deg, #dc2626, #ef4444);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: bold;
+            min-width: 40px;
+        }
+        
+        .battle-bar-neutral {
+            background: #6b7280;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            min-width: 20px;
+        }
+        
+        .battle-bar-bear {
+            background: linear-gradient(90deg, #22c55e, #16a34a);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: bold;
+            min-width: 40px;
+        }
+        
+        .battle-bar-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+        }
+        
+        .battle-conclusion {
+            font-size: 14px;
+            color: #ddd;
+            line-height: 1.6;
+            padding: 12px;
+            background: #1e1e30;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        
+        .battle-signal {
+            font-size: 13px;
+            color: #eab308;
+            padding: 10px 12px;
+            background: rgba(234, 179, 8, 0.1);
+            border-radius: 8px;
+            border-left: 3px solid #eab308;
+        }
+        
+        .battle-signal strong { color: #fbbf24; }
+        
+        /* 主力吸筹分析样式 */
+        .chip-analysis {
+            background: linear-gradient(135deg, #1a2a1a 0%, #1e2e1e 100%);
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 16px;
+            border: 1px solid #2a4a2a;
+        }
+        
+        .chip-header {
+            font-size: 16px;
+            font-weight: bold;
+            color: #4ade80;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .chip-icon { font-size: 20px; }
+        
+        .chip-conclusion {
+            background: #2a3a2a;
+            padding: 10px 14px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            color: #fff;
+        }
+        
+        .chip-conclusion strong {
+            color: #4ade80;
+        }
+        
+        .chip-features {
+            margin-bottom: 12px;
+        }
+        
+        .chip-subtitle {
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 8px;
+        }
+        
+        .chip-features ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .chip-features li {
+            padding: 6px 0;
+            padding-left: 20px;
+            position: relative;
+            font-size: 13px;
+            color: #d0d0d0;
+        }
+        
+        .chip-features li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #4ade80;
+        }
+        
+        .chip-pattern {
+            background: #1e2e1e;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+        }
+        
+        .chip-pattern p {
+            color: #a0a0a0;
+            line-height: 1.6;
+        }
+        
+        /* 龙虎榜样式 */
+        .dragon-tiger {
+            background: #1e1e2e;
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid #3a3a5a;
+        }
+        
+        .dragon-header {
+            font-size: 14px;
+            color: #fff;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .dragon-date { font-size: 12px; color: #888; }
+        .dragon-reason { font-size: 12px; color: #666; }
+        
+        .dragon-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        
+        .dragon-title {
+            font-size: 13px;
+            padding: 6px;
+            border-radius: 6px;
+            text-align: center;
+            margin-bottom: 8px;
+        }
+        
+        .dragon-title.buy { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+        .dragon-title.sell { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+        
+        .seat-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 8px;
+            border-radius: 6px;
+            margin-bottom: 4px;
+            font-size: 12px;
+        }
+        
+        .seat-item.buy { background: rgba(239, 68, 68, 0.1); }
+        .seat-item.sell { background: rgba(34, 197, 94, 0.1); }
+        .seat-name { color: #ccc; }
+        .seat-amount { color: #888; }
+        
+        /* 背景信息样式 */
+        .bg-timeline {
+            position: relative;
+            padding-left: 20px;
+        }
+        
+        .bg-timeline::before {
+            content: "";
+            position: absolute;
+            left: 6px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #3a3a5a;
+        }
+        
+        .bg-item {
+            position: relative;
+            padding: 12px 0 12px 20px;
+            border-bottom: 1px dashed #3a3a5a;
+        }
+        
+        .bg-item:last-child { border-bottom: none; }
+        
+        .bg-item::before {
+            content: "";
+            position: absolute;
+            left: -17px;
+            top: 18px;
+            width: 10px;
+            height: 10px;
+            background: #6366f1;
+            border-radius: 50%;
+        }
+        
+        .bg-date {
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 4px;
+        }
+        
+        .bg-title {
+            font-size: 14px;
+            color: #fff;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+        
+        .bg-detail {
+            font-size: 13px;
+            color: #aaa;
+            line-height: 1.5;
+            margin-bottom: 6px;
+        }
+        
+        .bg-source {
+            font-size: 12px;
+            color: #6366f1;
+            text-decoration: none;
+        }
+        
+        /* 技术形态分析样式 */
+        .pattern-card {
+            background: linear-gradient(135deg, #1a1a2e 0%, #1e2a3a 100%);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #2a4a6a;
+        }
+        
+        .pattern-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+        }
+        
+        .pattern-name {
+            font-size: 20px;
+            font-weight: bold;
+            color: #fff;
+        }
+        
+        .pattern-type {
+            color: white;
+            padding: 4px 14px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+        
+        .pattern-stars {
+            font-size: 16px;
+            color: #eab308;
+            letter-spacing: 2px;
+        }
+        
+        .pattern-desc {
+            font-size: 14px;
+            color: #ccc;
+            line-height: 1.6;
+            padding: 12px;
+            background: #1e1e30;
+            border-radius: 8px;
+            margin-bottom: 14px;
+        }
+        
+        .pattern-meta {
+            display: flex;
+            gap: 20px;
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 14px;
+        }
+        
+        .levels-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+        
+        .level-item {
+            text-align: center;
+            background: #1e1e30;
+            border-radius: 8px;
+            padding: 10px 8px;
+        }
+        
+        .level-label {
+            font-size: 11px;
+            color: #888;
+            margin-bottom: 4px;
+        }
+        
+        .level-value {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .additional-patterns {
+            font-size: 13px;
+            color: #aaa;
+            margin-bottom: 10px;
+        }
+        
+        .pattern-tag {
+            background: #3a3a5a;
+            color: #ccc;
+            padding: 3px 10px;
+            border-radius: 10px;
+            font-size: 12px;
+            margin-left: 4px;
+        }
+        
+        .pattern-warning {
+            font-size: 13px;
+            color: #f97316;
+            padding: 10px 12px;
+            background: rgba(249, 115, 22, 0.1);
+            border-radius: 8px;
+            border-left: 3px solid #f97316;
+        }
+        
+        /* 威科夫供需分析样式 */
+        .sd-container {
+            background: linear-gradient(135deg, #1a1a2e 0%, #1e2a3a 100%);
+            border-radius: 16px;
+            padding: 24px;
+        }
+        
+        .sd-main-row {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .sd-phase-area {
+            text-align: center;
+            min-width: 160px;
+        }
+        
+        .sd-phase-emoji {
+            font-size: 48px;
+            margin-bottom: 8px;
+        }
+        
+        .sd-phase-name {
+            font-size: 22px;
+            font-weight: 900;
+            margin-bottom: 8px;
+        }
+        
+        .sd-balance-badge {
+            display: inline-block;
+            color: white;
+            padding: 4px 16px;
+            border-radius: 16px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+        
+        .sd-score-area {
+            flex: 1;
+            min-width: 250px;
+        }
+        
+        .sd-score-num {
+            font-size: 42px;
+            font-weight: 900;
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+        
+        .sd-score-label {
+            font-size: 14px;
+            color: #aaa;
+            margin-bottom: 12px;
+        }
+        
+        .sd-score-bar-bg {
+            position: relative;
+            height: 20px;
+            background: linear-gradient(90deg, #22c55e20 0%, #eab30820 50%, #ef444420 100%);
+            border-radius: 10px;
+            overflow: visible;
+            border: 1px solid #3a3a5a;
+        }
+        
+        .sd-score-bar-center {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            width: 2px;
+            height: 100%;
+            background: #888;
+            transform: translateX(-50%);
+        }
+        
+        .sd-score-bar-fill {
+            position: absolute;
+            top: 2px;
+            height: calc(100% - 4px);
+            border-radius: 8px;
+            opacity: 0.8;
+        }
+        
+        .sd-score-pointer {
+            position: absolute;
+            top: -4px;
+            width: 8px;
+            height: 28px;
+            background: white;
+            border-radius: 4px;
+            transform: translateX(-50%);
+            box-shadow: 0 0 8px rgba(255,255,255,0.5);
+        }
+        
+        .sd-score-bar-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+            margin-top: 4px;
+        }
+        
+        .sd-phase-ruler {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 20px;
+        }
+        
+        .sd-phase-seg {
+            flex: 1;
+            height: 28px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: white;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .sd-evidence {
+            background: rgba(255,255,255,0.03);
+            border-radius: 10px;
+            padding: 14px;
+            margin-bottom: 16px;
+        }
+        
+        .sd-evidence-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+        
+        .sd-evidence-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .sd-evidence-list li {
+            font-size: 13px;
+            color: #bbb;
+            padding: 4px 0 4px 18px;
+            position: relative;
+            line-height: 1.5;
+        }
+        
+        .sd-evidence-list li::before {
+            content: "▸";
+            position: absolute;
+            left: 2px;
+            color: #6366f1;
+        }
+        
+        .sd-vp-box {
+            background: rgba(0,0,0,0.2);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        .sd-vp-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 12px;
+        }
+        
+        .sd-vp-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+        
+        .sd-vp-item {
+            text-align: center;
+            background: rgba(255,255,255,0.03);
+            border-radius: 8px;
+            padding: 10px;
+        }
+        
+        .sd-vp-label {
+            font-size: 11px;
+            color: #888;
+            margin-bottom: 4px;
+        }
+        
+        .sd-vp-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #fff;
+        }
+        
+        .sd-vp-sub {
+            font-size: 11px;
+            color: #aaa;
+            margin-top: 2px;
+        }
+        
+        .sd-vp-interp {
+            font-size: 13px;
+            color: #ccc;
+            line-height: 1.5;
+            padding: 10px;
+            background: rgba(255,255,255,0.02);
+            border-radius: 8px;
+        }
+        
+        .sd-divergence {
+            font-size: 13px;
+            color: #ddd;
+            padding: 10px 14px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 8px;
+            border-left: 3px solid #4ade80;
+            margin-bottom: 16px;
+        }
+        
+        .sd-events-box {
+            margin-bottom: 16px;
+        }
+        
+        .sd-events-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 12px;
+        }
+        
+        .sd-events-timeline {
+            position: relative;
+            padding-left: 16px;
+        }
+        
+        .sd-events-timeline::before {
+            content: "";
+            position: absolute;
+            left: 5px;
+            top: 4px;
+            bottom: 4px;
+            width: 2px;
+            background: #3a3a5a;
+        }
+        
+        .sd-event-item {
+            position: relative;
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+            padding-left: 8px;
+        }
+        
+        .sd-event-dot {
+            position: absolute;
+            left: -16px;
+            top: 6px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            border: 2px solid #1a1a2e;
+        }
+        
+        .sd-event-content {
+            flex: 1;
+            background: rgba(255,255,255,0.03);
+            border-radius: 8px;
+            padding: 10px 14px;
+        }
+        
+        .sd-event-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+            flex-wrap: wrap;
+        }
+        
+        .sd-event-name {
+            font-size: 14px;
+            font-weight: bold;
+            color: #fff;
+        }
+        
+        .sd-event-date {
+            font-size: 12px;
+            color: #888;
+        }
+        
+        .sd-event-sig {
+            font-size: 10px;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 8px;
+        }
+        
+        .sd-event-detail {
+            font-size: 13px;
+            color: #aaa;
+            line-height: 1.5;
+        }
+        
+        .sd-zones {
+            background: rgba(255,255,255,0.03);
+            border-radius: 10px;
+            padding: 14px;
+            margin-bottom: 16px;
+        }
+        
+        .sd-zone-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 6px 0;
+            flex-wrap: wrap;
+        }
+        
+        .sd-zone-label {
+            font-size: 13px;
+            font-weight: bold;
+            min-width: 160px;
+        }
+        
+        .sd-zone-tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .sd-zone-tag {
+            padding: 4px 14px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .sd-zone-tag.supply {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        
+        .sd-zone-tag.demand {
+            background: rgba(34, 197, 94, 0.15);
+            color: #22c55e;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+        
+        .sd-zone-na {
+            font-size: 13px;
+            color: #666;
+        }
+        
+        .sd-signals-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        
+        .sd-signals-col {
+            background: rgba(255,255,255,0.02);
+            border-radius: 10px;
+            padding: 14px;
+        }
+        
+        .sd-signals-title {
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        
+        .sd-signals-col ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .sd-signal-item {
+            font-size: 12px;
+            color: #bbb;
+            padding: 4px 0 4px 16px;
+            position: relative;
+            line-height: 1.5;
+        }
+        
+        .sd-signal-item.exhaust::before {
+            content: "↓";
+            position: absolute;
+            left: 2px;
+            color: #22c55e;
+        }
+        
+        .sd-signal-item.demand::before {
+            content: "↑";
+            position: absolute;
+            left: 2px;
+            color: #ef4444;
+        }
+        
+        .sd-conclusion {
+            font-size: 14px;
+            color: #ddd;
+            padding: 14px 16px;
+            background: linear-gradient(135deg, rgba(99,102,241,0.1), rgba(139,92,246,0.05));
+            border-radius: 10px;
+            border-left: 3px solid #6366f1;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+        
+        .sd-forecast {
+            background: rgba(255,255,255,0.03);
+            border-radius: 10px;
+            padding: 14px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        .sd-forecast-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+        
+        .sd-forecast-item {
+            font-size: 13px;
+            color: #ccc;
+            padding: 6px 0;
+            line-height: 1.5;
+        }
+        
+        .sd-forecast-label {
+            font-weight: bold;
+            color: #8b5cf6;
+        }
+        
+        .sd-forecast-key {
+            margin-top: 8px;
+            font-size: 13px;
+            color: #eab308;
+            padding: 8px 12px;
+            background: rgba(234, 179, 8, 0.08);
+            border-radius: 8px;
+            border-left: 3px solid #eab308;
+        }
+        
+        .sd-forecast-key strong {
+            color: #fbbf24;
+        }
+        
+        /* 市场温度计样式 */
+        .temp-container {
+            border-radius: 16px;
+            padding: 24px;
+            position: relative;
+        }
+        
+        .temp-main-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        
+        .temp-gauge-area {
+            text-align: center;
+        }
+        
+        .temp-big-num {
+            font-size: 72px;
+            font-weight: 900;
+            line-height: 1;
+            letter-spacing: -4px;
+            text-shadow: 0 0 30px currentColor;
+        }
+        
+        .temp-phase-badge {
+            display: inline-block;
+            color: white;
+            padding: 6px 20px;
+            border-radius: 20px;
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: 8px;
+        }
+        
+        .temp-trend {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .temp-trend-arrow {
+            font-size: 20px;
+            font-weight: bold;
+        }
+        
+        .temp-yesterday {
+            font-size: 12px;
+            color: #888;
+            background: #2a2a40;
+            padding: 2px 10px;
+            border-radius: 10px;
+        }
+        
+        /* 阶段刻度条 */
+        .temp-ruler-container {
+            position: relative;
+            margin: 20px 0 30px;
+            padding: 0 4px;
+        }
+        
+        .temp-ruler {
+            display: flex;
+            height: 28px;
+            border-radius: 14px;
+            overflow: hidden;
+            gap: 2px;
+        }
+        
+        .temp-phase-seg {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+        
+        .temp-phase-seg-label {
+            font-size: 11px;
+            color: white;
+            font-weight: bold;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        }
+        
+        .temp-pointer {
+            position: absolute;
+            top: -6px;
+            transform: translateX(-50%);
+        }
+        
+        .temp-pointer-line {
+            width: 3px;
+            height: 40px;
+            margin: 0 auto;
+            border-radius: 2px;
+        }
+        
+        .temp-pointer-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin: -2px auto 0;
+            border: 2px solid white;
+        }
+        
+        /* 温度趋势折线图 */
+        .temp-chart-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #fff;
+            margin: 20px 0 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .temp-chart-container {
+            background: rgba(0,0,0,0.2);
+            border-radius: 12px;
+            padding: 12px 8px 4px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255,255,255,0.05);
+            overflow-x: auto;
+        }
+        
+        .temp-chart-container svg {
+            display: block;
+            min-width: 500px;
+        }
+        
+        /* 7维度评分 */
+        .temp-dims-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .temp-dims {
+            margin-bottom: 20px;
+        }
+        
+        .temp-dim-row {
+            display: grid;
+            grid-template-columns: 110px 1fr 36px;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 6px;
+            padding: 4px 0;
+        }
+        
+        .temp-dim-label {
+            font-size: 12px;
+            color: #ccc;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .temp-dim-weight {
+            font-size: 10px;
+            color: #666;
+            background: #2a2a40;
+            padding: 1px 5px;
+            border-radius: 6px;
+        }
+        
+        .temp-dim-bar-bg {
+            height: 16px;
+            background: #1a1a30;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .temp-dim-bar-fill {
+            height: 100%;
+            border-radius: 8px;
+            transition: width 0.5s ease;
+            min-width: 4px;
+        }
+        
+        .temp-dim-score {
+            font-size: 13px;
+            font-weight: bold;
+            color: #ddd;
+            text-align: right;
+        }
+        
+        .temp-dim-detail {
+            grid-column: 1 / -1;
+            font-size: 11px;
+            color: #666;
+            padding-left: 114px;
+            margin-top: -4px;
+            margin-bottom: 4px;
+        }
+        
+        /* 入场建议 */
+        .temp-entry {
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 14px;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        
+        .temp-entry-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .temp-entry-level {
+            font-size: 18px;
+            font-weight: bold;
+            color: #fbbf24;
+        }
+        
+        .temp-entry-position {
+            font-size: 13px;
+            color: #8b5cf6;
+            background: rgba(139,92,246,0.15);
+            padding: 4px 12px;
+            border-radius: 10px;
+        }
+        
+        .temp-entry-text {
+            font-size: 13px;
+            color: #ccc;
+            line-height: 1.6;
+        }
+        
+        .temp-entry-warning {
+            margin-top: 10px;
+            font-size: 12px;
+            color: #f97316;
+            padding: 8px 12px;
+            background: rgba(249,115,22,0.1);
+            border-radius: 8px;
+            border-left: 3px solid #f97316;
+        }
+        
+        /* 周期位置 */
+        .temp-cycle {
+            background: rgba(255,255,255,0.03);
+            border-radius: 10px;
+            padding: 12px 14px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        .temp-cycle-desc {
+            font-size: 13px;
+            color: #aaa;
+            line-height: 1.5;
+            margin-bottom: 8px;
+        }
+        
+        .temp-cycle-metrics {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            font-size: 12px;
+            color: #888;
+        }
+        
+        .temp-cycle-metrics span {
+            background: #1a1a30;
+            padding: 3px 10px;
+            border-radius: 8px;
+        }
+        
+        .core-logic-box {
+            font-size: 14px;
+            color: #fbbf24;
+            padding: 14px 16px;
+            background: linear-gradient(135deg, rgba(234, 179, 8, 0.1), rgba(245, 158, 11, 0.05));
+            border-radius: 10px;
+            border-left: 4px solid #eab308;
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+        
+        .core-logic-box strong { color: #fbbf24; }
+        
+        /* 展望样式 */
+        .outlook-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+        }
+        
+        .outlook-card {
+            background: #1e1e2e;
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid #3a3a5a;
+        }
+        
+        .outlook-card h3 {
+            font-size: 14px;
+            color: #6366f1;
+            margin-bottom: 10px;
+        }
+        
+        .outlook-card p {
+            font-size: 14px;
+            color: #ccc;
+            line-height: 1.6;
+        }
+        
+        .risks-card {
+            background: linear-gradient(135deg, #2a1a1a 0%, #1e1e2e 100%);
+            border: 1px solid #5a3a3a;
+        }
+        
+        .risks-card h3 { color: #ef4444; }
+        .risks-card ul { list-style: none; }
+        .risks-card li {
+            font-size: 14px;
+            color: #ccc;
+            padding: 6px 0 6px 20px;
+            position: relative;
+        }
+        .risks-card li::before {
+            content: "⚠️";
+            position: absolute;
+            left: 0;
+            font-size: 12px;
+        }
+        
+        /* 来源样式 */
+        .sources {
+            margin-top: 20px;
+            background: #1e1e2e;
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid #3a3a5a;
+        }
+        
+        .sources h3 {
+            font-size: 14px;
+            color: #fff;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #3a3a5a;
+        }
+        
+        .sources ul { list-style: none; }
+        .sources li {
+            padding: 8px 0;
+            border-bottom: 1px dashed #2a2a40;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .sources li:last-child { border-bottom: none; }
+        .sources a { color: #6366f1; text-decoration: none; font-size: 14px; }
+        .sources a:hover { text-decoration: underline; }
+        .source-meta { font-size: 12px; color: #666; }
+        
+        .disclaimer {
+            text-align: center;
+            color: #666;
+            font-size: 12px;
+            margin-top: 30px;
+            padding: 20px;
+            border-top: 1px solid #3a3a5a;
+        }
+        
+        @media (max-width: 600px) {
+            .stock-card { flex-direction: column; text-align: center; }
+            .stock-price-container { text-align: center; }
+            .fund-grid { grid-template-columns: 1fr; }
+            .dragon-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 个股异动分析报告</h1>
+            <div class="date">分析日期: 2026-02-27</div>
+        </div>
+        
+        <div class="stock-card">
+            <div class="stock-info">
+                <span class="stock-name">南网能源</span>
+                <span class="stock-code">003035</span>
+                <span class="stock-sector">电力+综合能源+虚拟电厂</span>
+            </div>
+            <div class="stock-price-container">
+                <div class="stock-price">¥8.22</div>
+                <div class="stock-change">+10.04%</div>
+                <div class="price-time">📅 2026-02-27 14:10</div>
+                <div class="market-data">成交额: 15.27亿 | 换手率: 5.08% | 振幅: 8.22-7.45</div>
+            </div>
+            <span class="anomaly-badge">涨停</span>
+        </div>
+        
+        <div class='section'><h2>🌍 大盘环境</h2>
+        <div class="env-header-row">
+            <span class="env-score-badge" style="background:#6b7280">环境 48分 · 震荡分化</span>
+        </div>
+        <div class="idx-grid">
+            <div class="idx-item">
+                <div class="idx-name">上证指数</div>
+                <div class="idx-price">4160.8</div>
+                <div class="idx-pct" style="color: #ef4444">+0.34%</div>
+            </div>
+            <div class="idx-item">
+                <div class="idx-name">深证成指</div>
+                <div class="idx-price">14478.9</div>
+                <div class="idx-pct" style="color: #22c55e">-0.17%</div>
+            </div>
+            <div class="idx-item">
+                <div class="idx-name">创业板指</div>
+                <div class="idx-price">3311.0</div>
+                <div class="idx-pct" style="color: #22c55e">-1.02%</div>
+            </div>
+            <div class="idx-item">
+                <div class="idx-name">上证50</div>
+                <div class="idx-price">3041.7</div>
+                <div class="idx-pct" style="color: #ef4444">+0.22%</div>
+            </div>
+            <div class="idx-item">
+                <div class="idx-name">沪深300</div>
+                <div class="idx-price">4711.1</div>
+                <div class="idx-pct" style="color: #22c55e">-0.33%</div>
+            </div>
+            <div class="idx-item">
+                <div class="idx-name">中证500</div>
+                <div class="idx-price">8637.1</div>
+                <div class="idx-pct" style="color: #ef4444">+0.93%</div>
+            </div>
+            <div class="idx-item">
+                <div class="idx-name">中证1000</div>
+                <div class="idx-price">8552.1</div>
+                <div class="idx-pct" style="color: #ef4444">+0.72%</div>
+            </div></div>
+        
+            <div class="breadth-grid">
+                <div class="breadth-item up"><div class="breadth-label">涨停</div><div class="breadth-val" style="color:#ef4444">40</div></div>
+                <div class="breadth-item down"><div class="breadth-label">跌停</div><div class="breadth-val" style="color:#22c55e">15</div></div>
+                <div class="breadth-item"><div class="breadth-label">涨跌比</div><div class="breadth-val">--</div></div>
+                <div class="breadth-item"><div class="breadth-label">封板率</div><div class="breadth-val">--</div></div>
+                <div class="breadth-item"><div class="breadth-label">上涨</div><div class="breadth-val" style="color:#ef4444">--</div></div>
+                <div class="breadth-item"><div class="breadth-label">下跌</div><div class="breadth-val" style="color:#22c55e">--</div></div>
+                <div class="breadth-item"><div class="breadth-label">两市成交</div><div class="breadth-val">约2万亿</div></div>
+            </div>
+        
+            <div class="ladder-box">
+                <div class="ladder-title">连板梯队 <span class="ladder-meta">最高板: 6板 (豫能控股(电力概念)) | 梯队: 较完整，电力概念占据最高板</span></div>
+                
+                <div class="ladder-row">
+                    <span class="ladder-level">首板</span>
+                    <div class="ladder-bar-bg"><div class="ladder-bar-fill" style="width:100%"></div></div>
+                    <span class="ladder-count">40只</span>
+                </div>
+                <div class="ladder-row">
+                    <span class="ladder-level">6板</span>
+                    <div class="ladder-bar-bg"><div class="ladder-bar-fill" style="width:8%"></div></div>
+                    <span class="ladder-count">1只</span>
+                </div>
+                <div class="ladder-row">
+                    <span class="ladder-level">4板</span>
+                    <div class="ladder-bar-bg"><div class="ladder-bar-fill" style="width:8%"></div></div>
+                    <span class="ladder-count">1只</span>
+                </div>
+                <div class="ladder-row">
+                    <span class="ladder-level">3板</span>
+                    <div class="ladder-bar-bg"><div class="ladder-bar-fill" style="width:16%"></div></div>
+                    <span class="ladder-count">2只</span>
+                </div>
+                <div class="ladder-row">
+                    <span class="ladder-level">2板</span>
+                    <div class="ladder-bar-bg"><div class="ladder-bar-fill" style="width:40%"></div></div>
+                    <span class="ladder-count">5只</span>
+                </div>
+                <div class='ladder-target'>📍 该股位置: 首板（本次涨停为2月以来第2次涨停）</div>
+            </div>
+        
+            <div class="sector-box">
+                <div class="sector-info">
+                    <span class="sector-name"></span>
+                    <span class="sector-rank">排名 </span>
+                    <span class="sector-pct" style="color:#ef4444">+0.00%</span>
+                    <span class="sector-lu">板块涨停 0只</span>
+                    <span class='sector-phase'>主升期(政策催化+板块梯队完整)</span>
+                </div>
+                
+            </div>
+        
+            <div class="style-box">
+                <span>风格: <strong>上证50微涨+中证1000偏强，价值与成长共存</strong></span>
+                <span></span>
+                <span style='color:#4ade80'>✓ 有利</span>
+            </div>
+        <div class="env-impact">💡 大盘震荡分化但电力板块成为今日主线，赣能股份6板领涨+豫能控股高位带动，板块情绪高涨。南网能源作为南方电网旗下综合能源龙头，在板块强势氛围下获得资金追捧。</div>
+        </div>
+        
+        <div class='section'><h2>🌡️ 市场温度计</h2>
+        <div class="temp-container" style="background: linear-gradient(135deg, #5a1a1a, #4a0a0a); border: 1px solid #ef444430;">
+            <!-- 温度主显示 -->
+            <div class="temp-main-row">
+                <div class="temp-gauge-area">
+                    <div class="temp-big-num" style="color: #ef4444;">84°</div>
+                    <div class="temp-phase-badge" style="background: #ef4444;">🌋 疯狂期</div>
+                    <div class="temp-trend">
+                        <span class="temp-trend-arrow" style="color: #ef4444;">↑</span>
+                        <span style="color: #ef4444;">持续升温</span>
+                        <span class='temp-yesterday'>昨日 70° (+14)</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 阶段刻度条 -->
+            <div class="temp-ruler-container">
+                <div class="temp-ruler"><div class="temp-phase-seg" style="width:15%; background:#3b82f6; opacity:0.35; "><span class="temp-phase-seg-label">冰点</span></div><div class="temp-phase-seg" style="width:20%; background:#06b6d4; opacity:0.35; "><span class="temp-phase-seg-label">回暖</span></div><div class="temp-phase-seg" style="width:20%; background:#eab308; opacity:0.35; "><span class="temp-phase-seg-label">升温</span></div><div class="temp-phase-seg" style="width:20%; background:#f97316; opacity:0.35; "><span class="temp-phase-seg-label">高潮</span></div><div class="temp-phase-seg" style="width:15%; background:#ef4444; opacity:1; border: 2px solid #ef4444; box-shadow: 0 0 8px #ef444440;"><span class="temp-phase-seg-label">疯狂</span></div><div class="temp-phase-seg" style="width:10%; background:#dc2626; opacity:0.35; "><span class="temp-phase-seg-label">崩溃</span></div></div>
+                <div class="temp-pointer" style="left: 84%;">
+                    <div class="temp-pointer-line" style="background: #ef4444;"></div>
+                    <div class="temp-pointer-dot" style="background: #ef4444; box-shadow: 0 0 10px #ef4444;"></div>
+                </div>
+            </div>
+            
+            <!-- 温度趋势折线图 -->
+            
+            <div class="temp-chart-title">近期温度趋势 <span style="font-size:12px;color:#888;font-weight:normal;">（近1个月 14个交易日）</span></div>
+            <div class="temp-chart-container">
+                <svg viewBox="0 0 780 240" width="100%" height="240" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="tempAreaGrad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="#ef4444" stop-opacity="0.25"/>
+                            <stop offset="100%" stop-color="#ef4444" stop-opacity="0.01"/>
+                        </linearGradient>
+                        <linearGradient id="tempLineGrad" x1="0" y1="0" x2="1" y2="0">
+                            <stop offset="0%" stop-color="#f97316"/>
+                            <stop offset="40%" stop-color="#eab308"/>
+                            <stop offset="70%" stop-color="#06b6d4"/>
+                            <stop offset="100%" stop-color="#ef4444"/>
+                        </linearGradient>
+                    </defs>
+                    <!-- 阶段色带 -->
+                    <rect x="48" y="175.4" width="712" height="24.6" fill="#06b6d4" opacity="0.07"/><text x="762" y="187.7" text-anchor="start" fill="#06b6d4" font-size="9" dominant-baseline="middle" opacity="0.6">回暖</text><rect x="48" y="126.3" width="712" height="49.1" fill="#eab308" opacity="0.07"/><text x="762" y="150.9" text-anchor="start" fill="#eab308" font-size="9" dominant-baseline="middle" opacity="0.6">升温</text><rect x="48" y="77.1" width="712" height="49.1" fill="#f97316" opacity="0.07"/><text x="762" y="101.7" text-anchor="start" fill="#f97316" font-size="9" dominant-baseline="middle" opacity="0.6">高潮</text><rect x="48" y="40.3" width="712" height="36.9" fill="#ef4444" opacity="0.07"/><text x="762" y="58.7" text-anchor="start" fill="#ef4444" font-size="9" dominant-baseline="middle" opacity="0.6">疯狂</text><rect x="48" y="28.0" width="712" height="12.3" fill="#dc2626" opacity="0.07"/>
+                    <!-- Y轴网格 -->
+                    <line x1="48" y1="200.0" x2="760" y2="200.0" stroke="#3a3a5a" stroke-width="0.5" stroke-dasharray="4,4"/><text x="40" y="200.0" text-anchor="end" fill="#888" font-size="10" dominant-baseline="middle">25°</text><line x1="48" y1="175.4" x2="760" y2="175.4" stroke="#3a3a5a" stroke-width="0.5" stroke-dasharray="4,4"/><text x="40" y="175.4" text-anchor="end" fill="#888" font-size="10" dominant-baseline="middle">35°</text><line x1="48" y1="150.9" x2="760" y2="150.9" stroke="#3a3a5a" stroke-width="0.5" stroke-dasharray="4,4"/><text x="40" y="150.9" text-anchor="end" fill="#888" font-size="10" dominant-baseline="middle">45°</text><line x1="48" y1="126.3" x2="760" y2="126.3" stroke="#3a3a5a" stroke-width="0.5" stroke-dasharray="4,4"/><text x="40" y="126.3" text-anchor="end" fill="#888" font-size="10" dominant-baseline="middle">55°</text><line x1="48" y1="101.7" x2="760" y2="101.7" stroke="#3a3a5a" stroke-width="0.5" stroke-dasharray="4,4"/><text x="40" y="101.7" text-anchor="end" fill="#888" font-size="10" dominant-baseline="middle">65°</text><line x1="48" y1="77.1" x2="760" y2="77.1" stroke="#3a3a5a" stroke-width="0.5" stroke-dasharray="4,4"/><text x="40" y="77.1" text-anchor="end" fill="#888" font-size="10" dominant-baseline="middle">75°</text><line x1="48" y1="52.6" x2="760" y2="52.6" stroke="#3a3a5a" stroke-width="0.5" stroke-dasharray="4,4"/><text x="40" y="52.6" text-anchor="end" fill="#888" font-size="10" dominant-baseline="middle">85°</text><line x1="48" y1="28.0" x2="760" y2="28.0" stroke="#3a3a5a" stroke-width="0.5" stroke-dasharray="4,4"/><text x="40" y="28.0" text-anchor="end" fill="#888" font-size="10" dominant-baseline="middle">95°</text>
+                    <!-- 填充区域 -->
+                    <path d="M48.0,138.6 C75.4,138.6 75.4,79.6 102.8,79.6 C130.2,79.6 130.2,153.3 157.5,153.3 C184.9,153.3 184.9,165.6 212.3,165.6 C239.7,165.6 239.7,165.6 267.1,165.6 C294.5,165.6 294.5,123.8 321.8,123.8 C349.2,123.8 349.2,138.6 376.6,138.6 C404.0,138.6 404.0,109.1 431.4,109.1 C458.8,109.1 458.8,131.2 486.2,131.2 C513.5,131.2 513.5,165.6 540.9,165.6 C568.3,165.6 568.3,77.1 595.7,77.1 C623.1,77.1 623.1,99.3 650.5,99.3 C677.8,99.3 677.8,89.4 705.2,89.4 C732.6,89.4 732.6,55.0 760.0,55.0 L760.0,200.0 L48.0,200.0 Z" fill="url(#tempAreaGrad)"/>
+                    <!-- 平滑折线 -->
+                    <path d="M48.0,138.6 C75.4,138.6 75.4,79.6 102.8,79.6 C130.2,79.6 130.2,153.3 157.5,153.3 C184.9,153.3 184.9,165.6 212.3,165.6 C239.7,165.6 239.7,165.6 267.1,165.6 C294.5,165.6 294.5,123.8 321.8,123.8 C349.2,123.8 349.2,138.6 376.6,138.6 C404.0,138.6 404.0,109.1 431.4,109.1 C458.8,109.1 458.8,131.2 486.2,131.2 C513.5,131.2 513.5,165.6 540.9,165.6 C568.3,165.6 568.3,77.1 595.7,77.1 C623.1,77.1 623.1,99.3 650.5,99.3 C677.8,99.3 677.8,89.4 705.2,89.4 C732.6,89.4 732.6,55.0 760.0,55.0" fill="none" stroke="url(#tempLineGrad)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <!-- 数据点与标签 -->
+                    <text x="48.0" y="216" text-anchor="middle" fill="#888" font-size="9">02-02</text><line x1="48.0" y1="138.6" x2="48.0" y2="200.0" stroke="#eab308" stroke-width="0.5" stroke-dasharray="3,3" opacity="0.3"/><circle cx="48.0" cy="138.6" r="3" fill="#eab308" stroke="#1e1e2e" stroke-width="1.5"/><text x="48.0" y="124.6" text-anchor="middle" fill="#ccc" font-size="10" font-weight="normal">50°</text><text x="102.8" y="216" text-anchor="middle" fill="#888" font-size="9">02-03</text><line x1="102.8" y1="79.6" x2="102.8" y2="200.0" stroke="#f97316" stroke-width="0.5" stroke-dasharray="3,3" opacity="0.3"/><circle cx="102.8" cy="79.6" r="4.5" fill="#f97316" stroke="#1e1e2e" stroke-width="2"/><text x="102.8" y="65.6" text-anchor="middle" fill="#ccc" font-size="10" font-weight="normal">74°</text><text x="102.8" y="97.6" text-anchor="middle" fill="#aaa" font-size="9">涨停</text><text x="157.5" y="216" text-anchor="middle" fill="#888" font-size="9">02-04</text><circle cx="157.5" cy="153.3" r="3" fill="#eab308" stroke="#1e1e2e" stroke-width="1.5"/><text x="212.3" y="216" text-anchor="middle" fill="#888" font-size="9">02-05</text><line x1="212.3" y1="165.6" x2="212.3" y2="200.0" stroke="#eab308" stroke-width="0.5" stroke-dasharray="3,3" opacity="0.3"/><circle cx="212.3" cy="165.6" r="4.5" fill="#eab308" stroke="#1e1e2e" stroke-width="2"/><text x="212.3" y="151.6" text-anchor="middle" fill="#ccc" font-size="10" font-weight="normal">39°</text><text x="212.3" y="141.6" text-anchor="middle" fill="#aaa" font-size="9">缩量下跌</text><text x="267.1" y="216" text-anchor="middle" fill="#888" font-size="9">02-06</text><circle cx="267.1" cy="165.6" r="3" fill="#eab308" stroke="#1e1e2e" stroke-width="1.5"/><text x="267.1" y="151.6" text-anchor="middle" fill="#ccc" font-size="10" font-weight="normal">39°</text><text x="321.8" y="216" text-anchor="middle" fill="#888" font-size="9">02-09</text><circle cx="321.8" cy="123.8" r="3" fill="#f97316" stroke="#1e1e2e" stroke-width="1.5"/><text x="321.8" y="109.8" text-anchor="middle" fill="#ccc" font-size="10" font-weight="normal">56°</text><text x="376.6" y="216" text-anchor="middle" fill="#888" font-size="9">02-10</text><circle cx="376.6" cy="138.6" r="3" fill="#eab308" stroke="#1e1e2e" stroke-width="1.5"/><text x="376.6" y="124.6" text-anchor="middle" fill="#ccc" font-size="10" font-weight="normal">50°</text><text x="431.4" y="216" text-anchor="middle" fill="#888" font-size="9">02-11</text><circle cx="431.4" cy="109.1" r="3" fill="#f97316" stroke="#1e1e2e" stroke-width="1.5"/><text x="431.4" y="95.1" text-anchor="middle" fill="#ccc" font-size="10" font-weight="normal">62°</text><text x="486.2" y="216" text-anchor="middle" fill="#888" font-size="9">02-12</text><circle cx="486.2" cy="131.2" r="3" fill="#eab308" stroke="#1e1e2e" stroke-width="1.5"/><text x="540.9" y="216" text-anchor="middle" fill="#888" font-size="9">02-13</text><circle cx="540.9" cy="165.6" r="3" fill="#eab308" stroke="#1e1e2e" stroke-width="1.5"/><text x="540.9" y="151.6" text-anchor="middle" fill="#ccc" font-size="10" font-weight="normal">39°</text><text x="595.7" y="216" text-anchor="middle" fill="#888" font-size="9">02-24</text><line x1="595.7" y1="77.1" x2="595.7" y2="200.0" stroke="#f97316" stroke-width="0.5" stroke-dasharray="3,3" opacity="0.3"/><circle cx="595.7" cy="77.1" r="4.5" fill="#f97316" stroke="#1e1e2e" stroke-width="2"/><text x="595.7" y="63.1" text-anchor="middle" fill="#ccc" font-size="10" font-weight="normal">75°</text><text x="595.7" y="95.1" text-anchor="middle" fill="#aaa" font-size="9">涨停</text><text x="650.5" y="216" text-anchor="middle" fill="#888" font-size="9">02-25</text><circle cx="650.5" cy="99.3" r="3" fill="#f97316" stroke="#1e1e2e" stroke-width="1.5"/><text x="650.5" y="85.3" text-anchor="middle" fill="#ccc" font-size="10" font-weight="normal">66°</text><text x="705.2" y="216" text-anchor="middle" fill="#888" font-size="9">02-26</text><circle cx="705.2" cy="89.4" r="3" fill="#f97316" stroke="#1e1e2e" stroke-width="1.5"/><text x="760.0" y="216" text-anchor="middle" fill="#888" font-size="9">02-27</text><line x1="760.0" y1="55.0" x2="760.0" y2="200.0" stroke="#ef4444" stroke-width="0.5" stroke-dasharray="3,3" opacity="0.3"/><circle cx="760.0" cy="55.0" r="12" fill="#ef4444" opacity="0.2"/><circle cx="760.0" cy="55.0" r="7" fill="#ef4444" stroke="#fff" stroke-width="2.5"/><text x="760.0" y="41.0" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">84°</text><text x="760.0" y="73.0" text-anchor="middle" fill="#aaa" font-size="9">涨停</text>
+                </svg>
+            </div>
+            
+            <!-- 7维度评分 -->
+            <div class="temp-dims-title">七维度评分</div>
+            <div class="temp-dims">
+            <div class="temp-dim-row">
+                <div class="temp-dim-label">赚钱效应<span class="temp-dim-weight">25%</span></div>
+                <div class="temp-dim-bar-bg">
+                    <div class="temp-dim-bar-fill" style="width:45%; background:#eab308"></div>
+                </div>
+                <div class="temp-dim-score">45</div>
+                <div class="temp-dim-detail">涨停约40家，跌停约15家，赚钱效应一般</div>
+            </div>
+            <div class="temp-dim-row">
+                <div class="temp-dim-label">连板高度<span class="temp-dim-weight">20%</span></div>
+                <div class="temp-dim-bar-bg">
+                    <div class="temp-dim-bar-fill" style="width:60%; background:#f97316"></div>
+                </div>
+                <div class="temp-dim-score">60</div>
+                <div class="temp-dim-detail">最高板6板(豫能控股)，电力梯队完整</div>
+            </div>
+            <div class="temp-dim-row">
+                <div class="temp-dim-label">市场广度<span class="temp-dim-weight">15%</span></div>
+                <div class="temp-dim-bar-bg">
+                    <div class="temp-dim-bar-fill" style="width:40%; background:#eab308"></div>
+                </div>
+                <div class="temp-dim-score">40</div>
+                <div class="temp-dim-detail">三大指数分化，创业板跌1%</div>
+            </div>
+            <div class="temp-dim-row">
+                <div class="temp-dim-label">量能水平<span class="temp-dim-weight">10%</span></div>
+                <div class="temp-dim-bar-bg">
+                    <div class="temp-dim-bar-fill" style="width:55%; background:#f97316"></div>
+                </div>
+                <div class="temp-dim-score">55</div>
+                <div class="temp-dim-detail">两市成交约2万亿，量能充裕</div>
+            </div>
+            <div class="temp-dim-row">
+                <div class="temp-dim-label">情绪极端度<span class="temp-dim-weight">10%</span></div>
+                <div class="temp-dim-bar-bg">
+                    <div class="temp-dim-bar-fill" style="width:50%; background:#f97316"></div>
+                </div>
+                <div class="temp-dim-score">50</div>
+                <div class="temp-dim-detail">电力板块情绪亢奋，但整体市场分化</div>
+            </div>
+            <div class="temp-dim-row">
+                <div class="temp-dim-label">龙头状态<span class="temp-dim-weight">10%</span></div>
+                <div class="temp-dim-bar-bg">
+                    <div class="temp-dim-bar-fill" style="width:65%; background:#f97316"></div>
+                </div>
+                <div class="temp-dim-score">65</div>
+                <div class="temp-dim-detail">电力龙头封板稳定，赣能3连板无分歧</div>
+            </div>
+            <div class="temp-dim-row">
+                <div class="temp-dim-label">资金趋势<span class="temp-dim-weight">10%</span></div>
+                <div class="temp-dim-bar-bg">
+                    <div class="temp-dim-bar-fill" style="width:45%; background:#eab308"></div>
+                </div>
+                <div class="temp-dim-score">45</div>
+                <div class="temp-dim-detail">主力资金分化，电力板块明显流入</div>
+            </div></div>
+            
+            <!-- 入场建议 -->
+            
+            <div class="temp-entry">
+                <div class="temp-entry-header">
+                    <span class="temp-entry-level">★★ 谨慎参与</span>
+                    <span class='temp-entry-position'>已持有减至5-7成并设止盈线，空仓观望等回调</span>
+                </div>
+                <div class="temp-entry-text">个股温度84°处于疯狂区间，虽有政策强催化支撑，但20日涨幅已达46.79%，短期获利盘巨大。已持有可继续持有但应设止盈，空仓不宜追涨停。</div>
+                <div class='temp-entry-warning'>⚠️ 温度84°处于疯狂期，涨停板追入风险极大。需关注明日是否开板或高开低走。</div>
+            </div>
+            
+            <!-- 周期位置 -->
+            
+            <div class="temp-cycle">
+                <div class="temp-cycle-desc">个股温度从升温快速进入疯狂区间(70→84)，短期涨速过快</div>
+                <div class="temp-cycle-metrics">
+                    
+                    
+                    <span>阶段进度: 高潮→疯狂过渡期</span>
+                    <span>持续天数: 4天</span>
+                </div>
+            </div>
+        </div>
+        </div>
+        
+        <div class="section">
+            <h2>🔥 近期触发因素</h2>
+            
+        <div class="trigger-card">
+            <div class="trigger-header">
+                <span class="trigger-type">重大政策</span>
+                <span class="freshness-badge recent">近3日</span>
+                <span class="trigger-impact" style="background: #22c55e">利好</span>
+                <span class="trigger-weight">权重 40%</span>
+            </div>
+            <h4 class="trigger-title">国务院印发《关于完善全国统一电力市场体系的实施意见》</h4>
+            <p class="trigger-detail">2月11日国务院办公厅印发国办发〔2026〕4号文件，部署5方面19项重点任务：推动电力资源全国优化配置、现货市场2027年前正式运行、建立容量市场、支持虚拟电厂和新型储能参与市场、逐步实现电力用户全面直接参与。目标到2030年市场化交易电量占全社会用电量70%。</p>
+            <div class="trigger-source"><span class="info-date">📅 2026-02-11</span> <a href="https://www.cnr.cn/jingji/cjtt/yw/20260211/t20260211_527523505.shtml" target="_blank" class="info-source">🔗 央广网/国脉电子政务网</a></div>
+        </div>
+        
+        <div class="trigger-card">
+            <div class="trigger-header">
+                <span class="trigger-type">板块联动</span>
+                <span class="freshness-badge today">今日</span>
+                <span class="trigger-impact" style="background: #22c55e">利好</span>
+                <span class="trigger-weight">权重 30%</span>
+            </div>
+            <h4 class="trigger-title">电力板块午后涨幅扩大，赣能股份3连板+华银电力涨停</h4>
+            <p class="trigger-detail">2月27日电力板块反复活跃，赣能股份实现3连板(涨幅10.02%)，华银电力触及涨停(9.97%)，晋控电力、闽东电力、乐山电力等跟涨。港股电力股午后也大幅走强(华能国际+6.54%)。电力概念占据今日连板梯队最高板(豫能控股6板)。</p>
+            <div class="trigger-source"><span class="info-date">📅 2026-02-27</span> <a href="http://field.10jqka.com.cn/20260227/c674960781.shtml" target="_blank" class="info-source">🔗 同花顺/财联社</a></div>
+        </div>
+        
+        <div class="trigger-card">
+            <div class="trigger-header">
+                <span class="trigger-type">行业催化</span>
+                <span class="freshness-badge recent">近3日</span>
+                <span class="trigger-impact" style="background: #22c55e">利好</span>
+                <span class="trigger-weight">权重 15%</span>
+            </div>
+            <h4 class="trigger-title">国家能源局公布新型电力系统建设试点名单(第一批)</h4>
+            <p class="trigger-detail">2026年1月8日公示，共43个项目+10个试点城市，涵盖虚拟电厂、智能微电网、新型储能等七大方向。南方电网为参与主体之一。广东省广州市入选试点城市(南网能源总部所在地)。</p>
+            <div class="trigger-source"><span class="info-date">📅 2026-01-08</span> <a href="http://www.nea.gov.cn/20260108/00e0f970795f4e8fb267cbb402460ccb/c.html" target="_blank" class="info-source">🔗 国家能源局</a></div>
+        </div>
+        
+        <div class="trigger-card">
+            <div class="trigger-header">
+                <span class="trigger-type">研报催化</span>
+                <span class="freshness-badge today">今日</span>
+                <span class="trigger-impact" style="background: #22c55e">利好</span>
+                <span class="trigger-weight">权重 15%</span>
+            </div>
+            <h4 class="trigger-title">券商看好电力板块盈利改善和价值重估</h4>
+            <p class="trigger-detail">国盛证券、东方证券、中信建投等多家券商发布研报看好电力板块。国盛证券称全国统一电力市场顶层设计出台后板块有望迎来盈利改善和价值重估。中信建投指出AIDC建设带来巨大电力需求(2025-2028年CAGR约55%)。</p>
+            <div class="trigger-source"><span class="info-date">📅 2026-02-27</span> <a href="http://stock.10jqka.com.cn/20260227/c674965260.shtml" target="_blank" class="info-source">🔗 同花顺/智通财经</a></div>
+        </div>
+        
+        </div>
+        
+        <div class='section'><h2>⚔️ 多方博弈分析</h2>
+        <div class="participants-grid">
+            
+            <div class="participant-card">
+                <div class="participant-header">
+                    <span class="participant-icon">🔥</span>
+                    <div class="participant-name-group">
+                        <span class="participant-name">游资</span>
+                        <span class="participant-desc">短线热钱</span>
+                    </div>
+                    <span class="participant-stance" style="background: #ef4444">看多</span>
+                </div>
+                <div class="participant-summary">电力板块成为今日市场主线之一，赣能股份3连板+豫能控股6板领涨，游资对电力概念持续炒作。南网能源作为南方电网旗下综合能源平台，具有央企+虚拟电厂+储能等多重概念加持，吸引短线资金跟风涨停。</div>
+                <ul class="participant-details"><li>电力概念占据今日连板梯队最高板(豫能控股6板)</li><li>赣能股份3连板+华银电力涨停，板块赚钱效应明显</li><li>南网能源涨停封板，成交额15.27亿换手率5.08%，参与度适中</li><li>涨停价8.22元即为涨停板(涨停价=前收7.47×1.1=8.217→8.22)，一字到顶</li></ul>
+            </div>
+            
+            <div class="participant-card">
+                <div class="participant-header">
+                    <span class="participant-icon">🐋</span>
+                    <div class="participant-name-group">
+                        <span class="participant-name">主力</span>
+                        <span class="participant-desc">控盘大资金</span>
+                    </div>
+                    <span class="participant-stance" style="background: #dc2626">强烈看多</span>
+                </div>
+                <div class="participant-summary">主力资金今日大幅净流入3.27亿元，其中超大单净流入3.58亿元，显示机构/大资金强力抢筹。在涨停板上主力仍在大量买入而非出货，说明看好后续空间。</div>
+                <ul class="participant-details"><li>超大单(>100万)净流入3.58亿元 — 大资金强力买入</li><li>大单(20-100万)净流出0.30亿元 — 可忽略</li><li>中单净流出1.27亿元 — 中等资金部分获利了结</li><li>小单(散户)净流出2.01亿元 — 散户在涨停板卖出</li><li>主力买入占绝对主导(净流入3.27亿)，'大进小出'格局非常健康</li></ul>
+            </div>
+            
+            <div class="participant-card">
+                <div class="participant-header">
+                    <span class="participant-icon">🏦</span>
+                    <div class="participant-name-group">
+                        <span class="participant-name">机构</span>
+                        <span class="participant-desc">基金/保险/QFII</span>
+                    </div>
+                    <span class="participant-stance" style="background: #ef4444">看多</span>
+                </div>
+                <div class="participant-summary">中航证券和东吴证券均给出'买入'评级，预测2026年净利润约5.6-5.9亿元。机构看好公司在电力市场化改革中的受益逻辑：综合能源服务+虚拟电厂+工商业储能+零碳园区。</div>
+                <ul class="participant-details"><li>中航证券维持'买入'评级，2025-2027年归母净利润预测4.8/5.9/7.2亿元</li><li>东吴证券给出'买入'评级，预测4.77/5.57/6.75亿元</li><li>看好节能降碳转型+零碳园区建设+工商业储能+虚拟电厂</li><li>公司2025年前三季度利润同比增长125.08%，基本面改善明确</li></ul>
+            </div>
+            
+            <div class="participant-card">
+                <div class="participant-header">
+                    <span class="participant-icon">🏛️</span>
+                    <div class="participant-name-group">
+                        <span class="participant-name">监管层</span>
+                        <span class="participant-desc">政策/合规</span>
+                    </div>
+                    <span class="participant-stance" style="background: #dc2626">强利好</span>
+                </div>
+                <div class="participant-summary">多层级重磅政策叠加形成强催化：①国务院印发全国统一电力市场实施意见(国办发〔2026〕4号)；②国家能源局公布新型电力系统试点名单(含虚拟电厂、储能等方向)；③发改委完善容量电价机制。政策面对电力行业形成系统性长期利好。</div>
+                <ul class="participant-details"><li>国务院《关于完善全国统一电力市场体系的实施意见》— 最重磅，19项任务+2030年目标</li><li>支持虚拟电厂、智能微电网、新型储能等新型主体参与市场</li><li>建立容量市场保障调节性电源收益</li><li>国家能源局新型电力系统试点(第一批) — 43个项目+10个试点城市</li><li>发改委完善容量电价机制 — 火电和储能直接受益</li><li>南网能源未收到任何监管问询或负面信息</li></ul>
+            </div>
+            
+            <div class="participant-card">
+                <div class="participant-header">
+                    <span class="participant-icon">👥</span>
+                    <div class="participant-name-group">
+                        <span class="participant-name">散户</span>
+                        <span class="participant-desc">市场情绪</span>
+                    </div>
+                    <span class="participant-stance" style="background: #f97316">乐观</span>
+                </div>
+                <div class="participant-summary">散户对电力板块热情高涨，涨停板上散户出现分歧(小单净流出2亿)。但整体讨论热度上升，股吧有人喊'涨停吃到开门红'，看多情绪占主导。散户净卖出主要是涨停获利了结而非看空。</div>
+                <ul class="participant-details"><li>股吧2月初就有人讨论'涨停吃到开门红'</li><li>小单今日净流出2.01亿元(涨停板获利了结)</li><li>但委买>委卖，涨停封单量较大</li><li>散户对电力改革政策解读偏正面</li></ul>
+            </div>
+            
+        </div>
+        
+            <div class="battle-summary">
+                <div class="battle-header">
+                    <span class="battle-icon">⚔️</span>
+                    博弈格局
+                    <span class="battle-pattern" style="background: #dc2626">多方碾压</span>
+                </div>
+                <div class="battle-bar-container">
+                    <div class="battle-bar">
+                        <div class="battle-bar-bull" style="width: 80.0%">多 4</div>
+                        <div class="battle-bar-neutral" style="width: 20.0%">1</div>
+                        <div class="battle-bar-bear" style="width: 0.0%">空 0</div>
+                    </div>
+                    <div class="battle-bar-labels">
+                        <span style="color: #ef4444">多方</span>
+                        <span style="color: #22c55e">空方</span>
+                    </div>
+                </div>
+                <div class="battle-conclusion">主力(强烈看多)+游资(看多)+机构(看多)+监管(强利好)四维共振看多，散户乐观但涨停板有获利了结。超大单净流入3.58亿元是最强信号，说明机构大资金在涨停板强力抢筹。政策面形成系统性长期利好(国务院+能源局+发改委三重催化)，叠加公司基本面扭亏为盈，多方碾压格局。</div>
+                <div class='battle-signal'>💡 <strong>关键信号:</strong> 超大单净流入3.58亿+国务院级政策催化，大资金+政策共振是最强组合</div>
+            </div>
+            
+        </div>
+        
+        <div class='section'><h2>⚖️ 威科夫供需分析</h2>
+        <div class="sd-container" style="border: 1px solid #ef444430;">
+            <!-- 阶段+得分主显示 -->
+            <div class="sd-main-row">
+                <div class="sd-phase-area">
+                    <div class="sd-phase-emoji">🔴</div>
+                    <div class="sd-phase-name" style="color: #ef4444;">上涨期(Markup)</div>
+                    <div class="sd-balance-badge" style="background: #ef4444;">需求强力占优</div>
+                </div>
+                <div class="sd-score-area">
+                    <div class="sd-score-num" style="color: #ef4444;">+75</div>
+                    <div class="sd-score-label">需求强力占优</div>
+                    <div class="sd-score-bar-bg">
+                        <div class="sd-score-bar-center"></div>
+                        <div class="sd-score-bar-fill" style="left: 50.0%; width: 37.5%; background: #ef4444;"></div>
+                        <div class="sd-score-pointer" style="left: 87.5%;"></div>
+                    </div>
+                    <div class="sd-score-bar-labels">
+                        <span style="color:#22c55e">供应占优 -100</span>
+                        <span style="color:#888">均衡 0</span>
+                        <span style="color:#ef4444">需求占优 +100</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 阶段刻度条 -->
+            <div class="sd-phase-ruler"><div class="sd-phase-seg" style="background:#3b82f6; opacity:0.3; "><span>吸筹</span></div><div class="sd-phase-seg" style="background:#ef4444; opacity:1; border: 2px solid #ef4444; box-shadow: 0 0 8px #ef444440;"><span>上涨</span></div><div class="sd-phase-seg" style="background:#f97316; opacity:0.3; "><span>派发</span></div><div class="sd-phase-seg" style="background:#22c55e; opacity:0.3; "><span>下跌</span></div></div>
+            
+            <!-- 阶段证据 -->
+            <div class="sd-evidence">
+                <div class="sd-evidence-title">📋 阶段判断依据</div>
+                <ul class="sd-evidence-list"><li>股价从2025年12月底约3.7元底部持续上涨至今日8.22元，涨幅超120%</li><li>近4日连续上涨(+9.97%,+0.98%,+3.18%,+10.04%)，需求强劲</li><li>上涨日放量(换手率4-5%)，调整日缩量(2-3%)，需求>供应的典型特征</li><li>均线多头排列，不断创出新高(8.22为近期新高)</li></ul>
+            </div>
+            
+            <!-- 量价分析 -->
+            
+            <div class="sd-vp-box">
+                <div class="sd-vp-title">📊 量价供需分析</div>
+                <div class="sd-vp-grid">
+                    <div class="sd-vp-item">
+                        <div class="sd-vp-label">量价模式</div>
+                        <div class="sd-vp-value">放量涨停</div>
+                    </div>
+                    <div class="sd-vp-item">
+                        <div class="sd-vp-label">量比(涨/跌)</div>
+                        <div class="sd-vp-value" style="color:#ef4444">2.10x</div>
+                        <div class="sd-vp-sub">需求>供应</div>
+                    </div>
+                    
+                    
+                </div>
+                <div class="sd-vp-interp">涨停日成交量适中(5.08%)，封板坚决。上涨日平均换手率高于下跌日，需求力量持续大于供应。超大单净流入3.58亿显示大资金需求强劲。</div>
+            </div>
+            
+            <!-- 量价背离 -->
+            
+            <div class="sd-divergence" style="border-left-color: #4ade80;">
+                ✅ <strong>无背离</strong>: 量价配合良好，价格创新高伴随成交量适度放大，无顶背离信号
+            </div>
+            
+            <!-- 威科夫事件 -->
+            
+            <div class="sd-events-box">
+                <div class="sd-events-title">🔑 关键威科夫事件</div>
+                <div class="sd-events-timeline">
+                <div class="sd-event-item">
+                    <div class="sd-event-dot" style="background: #ef4444;"></div>
+                    <div class="sd-event-content">
+                        <div class="sd-event-header">
+                            <span class="sd-event-name">SOS(强势信号)</span>
+                            <span class="sd-event-date">2026-02-24</span>
+                            <span class="sd-event-sig" style="background: #ef4444;">高</span>
+                        </div>
+                        <div class="sd-event-detail">节后首日涨停(+9.97%)，放量突破前高7.17，需求爆发确认上涨趋势</div>
+                    </div>
+                </div>
+                <div class="sd-event-item">
+                    <div class="sd-event-dot" style="background: #eab308;"></div>
+                    <div class="sd-event-content">
+                        <div class="sd-event-header">
+                            <span class="sd-event-name">BU(回踩确认)</span>
+                            <span class="sd-event-date">2026-02-25</span>
+                            <span class="sd-event-sig" style="background: #eab308;">中</span>
+                        </div>
+                        <div class="sd-event-detail">涨停次日仅涨0.98%消化获利盘，但未回调，低位获得支撑确认</div>
+                    </div>
+                </div>
+                <div class="sd-event-item">
+                    <div class="sd-event-dot" style="background: #ef4444;"></div>
+                    <div class="sd-event-content">
+                        <div class="sd-event-header">
+                            <span class="sd-event-name">SOS(强势信号)</span>
+                            <span class="sd-event-date">2026-02-27</span>
+                            <span class="sd-event-sig" style="background: #ef4444;">高</span>
+                        </div>
+                        <div class="sd-event-detail">再次涨停(+10.04%)创新高8.22，超大单净流入3.58亿，需求再度爆发</div>
+                    </div>
+                </div></div>
+            </div>
+            
+            <!-- 供应区/需求区 -->
+            
+            <div class="sd-zones">
+                <div class="sd-zone-row">
+                    <span class="sd-zone-label" style="color:#ef4444">▲ 供应密集区(压力)</span>
+                    <div class="sd-zone-tags"><span class="sd-zone-tag supply">¥8.2</span> <span class="sd-zone-tag supply">¥9.0</span></div>
+                </div>
+                <div class="sd-zone-row">
+                    <span class="sd-zone-label" style="color:#22c55e">▼ 需求支撑区(支撑)</span>
+                    <div class="sd-zone-tags"><span class="sd-zone-tag demand">¥7.2</span> <span class="sd-zone-tag demand">¥6.5</span></div>
+                </div>
+            </div>
+            
+            <!-- 供应枯竭/需求增强信号 -->
+            
+            
+            <!-- 结论 -->
+            <div class="sd-conclusion">💡 处于威科夫上涨期(Markup)的加速阶段。需求持续强于供应(超大单大幅净流入)，供应在涨停板被充分吸收。短期仍看需求主导，但涨幅过大需关注供应释放信号。</div>
+            
+            <!-- 供需预判 -->
+            
+            <div class="sd-forecast">
+                <div class="sd-forecast-title">🔮 供需趋势预判</div>
+                <div class='sd-forecast-item'><span class='sd-forecast-label'>短期:</span> 需求仍占优(政策催化+主力持续流入)，但短期获利盘(20日涨46%)可能成为供应来源</div>
+                <div class='sd-forecast-item'><span class='sd-forecast-label'>中期:</span> 政策面系统性利好支撑中期需求，若公司虚拟电厂/储能业务落地则打开长期空间</div>
+                <div class='sd-forecast-key'>💡 <strong>关键观察:</strong> 关注涨停打开后的量价关系：缩量回调=供应不足仍看多，放量滞涨=供应涌出需警惕</div>
+            </div>
+        </div>
+        </div>
+        
+        <div class='section'><h2>📐 技术形态分析</h2>
+        <div class="pattern-card">
+            <div class="pattern-header">
+                <span class="pattern-name">放量涨停突破</span>
+                <span class="pattern-type" style="background: #ef4444">看涨</span>
+                <span class="pattern-stars">★★★★☆</span>
+            </div>
+            <div class="pattern-desc">今日低开后快速拉涨停(开7.48→封8.22)，放量5.08%换手。均线多头排列(MA5=7.32>MA10=7.13>MA20=6.79>MA60=5.46)，连涨4天，5日涨19.83%，20日涨46.79%，处于强势上升趋势中。2月24日曾涨停(+9.97%)打开上升空间后持续走强。</div>
+            <div class="pattern-meta">
+                <span>趋势背景: 主升浪中的加速上攻</span>
+                <span>量价配合: ✓ 是</span>
+            </div>
+            <div class="levels-grid">
+                    <div class="level-item">
+                        <div class="level-label">支撑位</div>
+                        <div class="level-value" style="color: #22c55e">¥7.47</div>
+                    </div>
+                    <div class="level-item">
+                        <div class="level-label">压力位</div>
+                        <div class="level-value" style="color: #ef4444">¥8.22</div>
+                    </div>
+                    <div class="level-item">
+                        <div class="level-label">止损位</div>
+                        <div class="level-value" style="color: #f97316">¥6.72</div>
+                    </div></div>
+            <div class="additional-patterns">同时出现: <span class="pattern-tag">红三兵(2/25+2/26+2/27连阳)</span> <span class="pattern-tag">涨停突破前高</span></div>
+            <div class="pattern-warning">⚠️ 短期涨幅过大(5日+19.83%，20日+46.79%)，需警惕获利回吐。若明日无法继续涨停或大幅高开，可能进入震荡消化。</div>
+        </div>
+        </div>
+        
+        <div class="section">
+            <h2>💰 资金动向</h2>
+            
+            <div class="fund-flow">
+                <div class="fund-header">今日资金流向 <span class="fund-date">📅 2026-02-27 14:10</span></div>
+                <div class="fund-grid" style="grid-template-columns: repeat(5, 1fr);">
+                    <div class="fund-item">
+                        <div class="fund-label">主力净额</div>
+                        <div class="fund-value" style="color: #ef4444">+3.27亿</div>
+                    </div>
+                    <div class="fund-item">
+                        <div class="fund-label">超大单</div>
+                        <div class="fund-value" style="color: #ef4444">+3.58亿</div>
+                    </div>
+                    <div class="fund-item">
+                        <div class="fund-label">大单</div>
+                        <div class="fund-value" style="color: #22c55e">-0.30亿</div>
+                    </div>
+                    <div class="fund-item">
+                        <div class="fund-label">中单</div>
+                        <div class="fund-value" style="color: #22c55e">-1.27亿</div>
+                    </div>
+                    <div class="fund-item">
+                        <div class="fund-label">小单(散户)</div>
+                        <div class="fund-value" style="color: #22c55e">-2.01亿</div>
+                    </div>
+                </div>
+            </div>
+            
+            
+            
+        <div class="dragon-tiger">
+            <div class="dragon-header">
+                龙虎榜 <span class="dragon-date">📅 2026-02-27</span>
+                <span class="dragon-reason"></span>
+            </div>
+            <div class="dragon-grid">
+                <div class="dragon-col">
+                    <div class="dragon-title buy">买入前三</div>
+                    
+                </div>
+                <div class="dragon-col">
+                    <div class="dragon-title sell">卖出前三</div>
+                    
+                </div>
+            </div>
+        </div>
+        
+            
+        </div>
+        
+        <div class="section">
+            <h2>📜 历史背景</h2>
+            <div class="bg-timeline">
+                
+        <div class="bg-item">
+            <div class="bg-date">2026-01</div>
+            <div class="bg-content">
+                <div class="bg-title">南网能源2025年业绩扭亏为盈</div>
+                <div class="bg-detail">预计2025年全年归母净利润3.0-3.6亿元(上年同期亏损5812万)，扣非净利润3.07-3.67亿元。前三季度营收262.88亿元(+15.37%)，归母净利润3.42亿元(+125.08%)。节能业务稳增长+低效资产治理成效显著。</div>
+                <a href="https://stock.stockstar.com/RB2026012000001134.shtml" target="_blank" class="bg-source">🔗 证券之星</a>
+            </div>
+        </div>
+        
+        <div class="bg-item">
+            <div class="bg-date">2025-11</div>
+            <div class="bg-content">
+                <div class="bg-title">机构给予'买入'评级，预测2026年净利润约5.6-5.9亿</div>
+                <div class="bg-detail">中航证券(2025年11月)预测2025-2027年归母净利润4.8/5.9/7.2亿元，对应PE 41/33/27倍。东吴证券预测4.77/5.57/6.75亿元。看好公司节能降碳转型、零碳园区建设、工商业储能和虚拟电厂业务。</div>
+                <a href="https://4g.stockstar.com/detail/RB2026012000018668" target="_blank" class="bg-source">🔗 新浪财经/证券之星</a>
+            </div>
+        </div>
+        
+        <div class="bg-item">
+            <div class="bg-date">2025-11</div>
+            <div class="bg-content">
+                <div class="bg-title">南方电网虚拟电厂规模全国领先</div>
+                <div class="bg-detail">截至2025年11月，南方电网全网虚拟电厂聚合容量达1794万千瓦，覆盖广东、广西、云南、贵州、海南五省区。虚拟电厂可参与电力辅助服务市场二次调频。南网能源作为南方电网综合能源平台，直接受益于虚拟电厂市场化推进。</div>
+                <a href="https://www.cpem.cn/list/3/17930.html" target="_blank" class="bg-source">🔗 电力人工智能大会</a>
+            </div>
+        </div>
+        
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>🎯 走势预判</h2>
+            <div class='core-logic-box'>💡 <strong>核心逻辑:</strong> 本次涨停核心驱动力是'政策催化+板块共振+资金推动'三力合一：①国务院级电力市场改革政策(最强催化)——虚拟电厂、容量市场、新型储能主体全面进入市场，南网能源作为南方电网综合能源平台直接受益；②电力板块处于主升期(赣能6板带动情绪)；③超大单净流入3.58亿(主力强力抢筹)。</div>
+            <div class='core-logic-box' style='border-left-color:#3b82f6; background:linear-gradient(135deg,rgba(59,130,246,0.1),rgba(59,130,246,0.03));'>⚖️ <strong>供需逻辑:</strong> 威科夫视角：处于上涨期(Markup)加速阶段。需求(政策催化+主力买入)持续大于供应(涨停封板吸收卖盘)。超大单净流入3.58亿说明大资金需求极度旺盛。但短期涨幅46.79%意味着累积了大量获利盘(潜在供应)，一旦涨停打开或政策预期落地，这些获利盘可能转为供应涌出。</div>
+            <div class='core-logic-box' style='border-left-color:#8b5cf6; background:linear-gradient(135deg,rgba(139,92,246,0.1),rgba(139,92,246,0.03));'>🌡️ <strong>温度指引:</strong> 个股温度84°(疯狂期↑)，市场温度48°(震荡)。个股温度远高于市场温度，属于个股独立行情。温度处于疯狂区间意味着追涨风险极大——历史上该股1月也曾在高温区间后出现剧烈回调(1月5-8日4连板后1月15-19日连续3跌停)。</div>
+            <div class="outlook-grid">
+                <div class="outlook-card">
+                    <h3>📈 短期展望</h3>
+                    <p>短期(1-3日)惯性看多但需防高位波动。今日涨停+超大单净流入3.58亿显示主力态度坚决，电力板块梯队完整(赣能6板)提供情绪支撑。明日大概率高开，关注高开幅度：①高开3-5%后持续走强→板块继续发酵；②高开回落→短线资金获利了结，注意7.47(今日开盘价)支撑。</p>
+                </div>
+                <div class="outlook-card">
+                    <h3>📊 中期展望</h3>
+                    <p>中期(1-3月)偏多但警惕超涨回调。核心逻辑：①政策面系统性利好(国务院电力市场改革)将持续发酵；②公司基本面扭亏(2025年净利润3-3.6亿)+2026年机构预期5.6-5.9亿；③虚拟电厂+储能+零碳园区业务打开成长空间。但20日涨幅46.79%+PE235倍说明短期透支严重，中期可能经历15-20%的回调洗盘后再启动。</p>
+                </div>
+                <div class="outlook-card risks-card">
+                    <h3>风险提示</h3>
+                    <ul><li>短期涨幅过大(20日+46.79%)，获利盘回吐压力巨大</li><li>1月曾出现4涨停后连续3跌停的历史，暴涨暴跌特征明显</li><li>PE 235倍估值偏高，基本面难以支撑当前股价</li><li>电力板块热度若退潮，补涨标的首当其冲回调</li><li>个股温度84°处于疯狂期，历史上疯狂期后往往伴随剧烈回调</li><li>若赣能股份等龙头股炸板或见顶，板块情绪将迅速降温</li></ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="sources">
+            <h3>📚 信息来源</h3>
+            <ul>
+        <li>
+            <a href="https://quote.eastmoney.com/sz003035.html" target="_blank">API实时行情</a>
+            <span class="source-meta"> </span>
+        </li>
+        
+        <li>
+            <a href="https://data.eastmoney.com/zjlx/003035.html" target="_blank">API资金流向</a>
+            <span class="source-meta"> </span>
+        </li>
+        
+        <li>
+            <a href="https://www.cnr.cn/jingji/cjtt/yw/20260211/t20260211_527523505.shtml" target="_blank">国务院电力市场实施意见-央广网</a>
+            <span class="source-meta"> </span>
+        </li>
+        
+        <li>
+            <a href="https://www.ndrc.gov.cn/xxgk/jd/jd/202602/t20260211_1403695.html" target="_blank">发改委负责人谈电力市场意见</a>
+            <span class="source-meta"> </span>
+        </li>
+        
+        <li>
+            <a href="http://field.10jqka.com.cn/20260227/c674960781.shtml" target="_blank">电力板块反复活跃-同花顺</a>
+            <span class="source-meta"> </span>
+        </li>
+        
+        <li>
+            <a href="http://stock.10jqka.com.cn/20260227/c674965260.shtml" target="_blank">电力股午后涨幅扩大-智通财经</a>
+            <span class="source-meta"> </span>
+        </li>
+        
+        <li>
+            <a href="http://www.nea.gov.cn/20260108/00e0f970795f4e8fb267cbb402460ccb/c.html" target="_blank">国家能源局试点名单</a>
+            <span class="source-meta"> </span>
+        </li>
+        
+        <li>
+            <a href="https://stock.stockstar.com/RB2026012000001134.shtml" target="_blank">南网能源业绩预告</a>
+            <span class="source-meta"> </span>
+        </li>
+        
+        <li>
+            <a href="https://4g.stockstar.com/detail/RB2026012000018668" target="_blank">东吴证券买入评级</a>
+            <span class="source-meta"> </span>
+        </li>
+        
+        <li>
+            <a href="https://www.cpem.cn/list/3/17930.html" target="_blank">南方电网虚拟电厂发展</a>
+            <span class="source-meta"> </span>
+        </li>
+        
+        <li>
+            <a href="https://finance.sina.com.cn/roll/2026-01-09/doc-inhftipp0427043.shtml" target="_blank">新型电力系统试点-新浪财经</a>
+            <span class="source-meta"> </span>
+        </li>
+        </ul>
+        </div>
+        
+        <div class="disclaimer">
+            ⚠️ 免责声明：本报告仅供参考，不构成任何投资建议。投资有风险，入市需谨慎。<br>
+            数据来源于公开信息，请以官方公告为准。
+        </div>
+    </div>
+</body>
+</html>
