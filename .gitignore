@@ -49,4 +49,3 @@ test/
 !docs/
 !docs/*/
 !docs/**/*.html
-!docs/**/*.json
