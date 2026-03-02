@@ -1,0 +1,2355 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>岩山科技(002195) 异动分析报告</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #1e1e2e 0%, #2d2d44 100%);
+            min-height: 100vh;
+            color: #e0e0e0;
+            padding: 20px;
+        }
+        
+        .container { max-width: 1000px; margin: 0 auto; }
+        
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h1 { font-size: 28px; color: #fff; margin-bottom: 10px; }
+        .header .date { color: #888; font-size: 14px; }
+        
+        .stock-card {
+            background: linear-gradient(135deg, #2a2a40 0%, #1a1a2e 100%);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 1px solid #3a3a5a;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        
+        .stock-info { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+        .stock-name { font-size: 24px; font-weight: bold; color: #fff; }
+        .stock-code { font-size: 14px; color: #888; background: #3a3a5a; padding: 4px 12px; border-radius: 20px; }
+        .stock-sector { font-size: 14px; color: #888; }
+        
+        .stock-price-container { text-align: right; }
+        .stock-price { font-size: 32px; font-weight: bold; color: #22c55e; }
+        .stock-change { font-size: 18px; color: #22c55e; }
+        .price-time { font-size: 12px; color: #666; margin-top: 4px; }
+        .market-data { font-size: 12px; color: #888; margin-top: 4px; }
+        
+        .anomaly-badge {
+            background: #6b7280;
+            color: white;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .section {
+            background: #2a2a40;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 1px solid #3a3a5a;
+        }
+        
+        .section h2 {
+            font-size: 18px;
+            color: #fff;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #4a4a6a;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section h2::before {
+            content: "";
+            display: inline-block;
+            width: 4px;
+            height: 20px;
+            background: linear-gradient(to bottom, #6366f1, #8b5cf6);
+            border-radius: 2px;
+        }
+        
+        /* 触发因素样式 */
+        .trigger-card {
+            background: #1e1e2e;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            border: 1px solid #3a3a5a;
+        }
+        
+        .trigger-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .trigger-type {
+            background: #4a4a6a;
+            color: #fff;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+        
+        .freshness-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        
+        .freshness-badge.today {
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            color: white;
+            animation: pulse 2s infinite;
+        }
+        
+        .freshness-badge.recent {
+            background: #6366f1;
+            color: white;
+        }
+        
+        .freshness-badge.week {
+            background: #4a4a6a;
+            color: #ccc;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .trigger-impact {
+            color: #fff;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+        
+        .trigger-weight {
+            color: #888;
+            font-size: 12px;
+            margin-left: auto;
+        }
+        
+        .trigger-title { font-size: 16px; color: #fff; margin-bottom: 8px; }
+        .trigger-detail { font-size: 14px; color: #aaa; line-height: 1.6; }
+        
+        .trigger-source {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed #3a3a5a;
+            font-size: 12px;
+            display: flex;
+            gap: 16px;
+        }
+        
+        .info-date { color: #888; }
+        .info-source { color: #6366f1; text-decoration: none; }
+        .info-source:hover { text-decoration: underline; }
+        
+        /* 资金流向样式 */
+        .fund-flow {
+            background: #1e1e2e;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            border: 1px solid #3a3a5a;
+        }
+        
+        .fund-header {
+            font-size: 14px;
+            color: #fff;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .fund-date { font-size: 12px; color: #888; }
+        
+        .fund-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+        
+        .fund-item { text-align: center; }
+        .fund-label { font-size: 12px; color: #888; margin-bottom: 4px; }
+        .fund-value { font-size: 18px; font-weight: bold; }
+        
+        /* 大盘环境样式 */
+        .env-header-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .env-score-badge {
+            color: white;
+            padding: 6px 18px;
+            border-radius: 16px;
+            font-size: 15px;
+            font-weight: bold;
+        }
+        
+        .idx-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .idx-item {
+            background: #1e1e2e;
+            border-radius: 8px;
+            padding: 10px 8px;
+            text-align: center;
+            border: 1px solid #3a3a5a;
+        }
+        
+        .idx-name { font-size: 11px; color: #888; margin-bottom: 4px; }
+        .idx-price { font-size: 14px; color: #ddd; font-weight: bold; }
+        .idx-pct { font-size: 13px; font-weight: bold; }
+        
+        .breadth-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .breadth-item {
+            background: #1e1e2e;
+            border-radius: 8px;
+            padding: 8px;
+            text-align: center;
+            border: 1px solid #3a3a5a;
+        }
+        
+        .breadth-label { font-size: 11px; color: #888; margin-bottom: 2px; }
+        .breadth-val { font-size: 16px; font-weight: bold; color: #ddd; }
+        
+        .ladder-box {
+            background: #1e1e2e;
+            border-radius: 10px;
+            padding: 14px;
+            margin-bottom: 16px;
+            border: 1px solid #3a3a5a;
+        }
+        
+        .ladder-title {
+            font-size: 14px;
+            color: #fff;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        
+        .ladder-meta { font-size: 12px; color: #888; font-weight: normal; margin-left: 8px; }
+        
+        .ladder-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+        
+        .ladder-level { font-size: 12px; color: #aaa; width: 40px; text-align: right; }
+        
+        .ladder-bar-bg {
+            flex: 1;
+            height: 14px;
+            background: #2a2a40;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .ladder-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #6366f1, #8b5cf6);
+            border-radius: 4px;
+        }
+        
+        .ladder-count { font-size: 11px; color: #888; width: 36px; }
+        
+        .ladder-target {
+            margin-top: 8px;
+            font-size: 13px;
+            color: #eab308;
+            padding: 6px 10px;
+            background: rgba(234, 179, 8, 0.1);
+            border-radius: 6px;
+        }
+        
+        .sector-box {
+            background: #1e1e2e;
+            border-radius: 10px;
+            padding: 12px 14px;
+            margin-bottom: 12px;
+            border: 1px solid #3a3a5a;
+        }
+        
+        .sector-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .sector-name { font-size: 15px; font-weight: bold; color: #fff; }
+        .sector-rank { font-size: 13px; color: #6366f1; background: rgba(99,102,241,0.15); padding: 2px 10px; border-radius: 10px; }
+        .sector-pct { font-size: 15px; font-weight: bold; }
+        .sector-lu { font-size: 12px; color: #888; }
+        .sector-phase { font-size: 12px; color: #fbbf24; background: rgba(251,191,36,0.15); padding: 2px 10px; border-radius: 10px; }
+        
+        .related-sectors {
+            margin-top: 8px;
+            font-size: 12px;
+            color: #888;
+        }
+        
+        .related-tag {
+            background: #3a3a5a;
+            color: #ccc;
+            padding: 2px 8px;
+            border-radius: 8px;
+            font-size: 11px;
+            margin-left: 4px;
+        }
+        
+        .style-box {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            font-size: 13px;
+            color: #aaa;
+            padding: 10px 14px;
+            background: #1e1e2e;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            border: 1px solid #3a3a5a;
+        }
+        
+        .style-box strong { color: #fff; }
+        
+        .env-impact {
+            font-size: 14px;
+            color: #ddd;
+            padding: 12px 14px;
+            background: linear-gradient(135deg, rgba(99,102,241,0.1), rgba(139,92,246,0.05));
+            border-radius: 8px;
+            border-left: 3px solid #6366f1;
+            line-height: 1.5;
+        }
+        
+        /* 多方博弈分析样式 */
+        .participants-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        
+        .participant-card {
+            background: #1e1e2e;
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid #3a3a5a;
+            transition: transform 0.2s;
+        }
+        
+        .participant-card:hover {
+            transform: translateY(-2px);
+        }
+        
+        .participant-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        
+        .participant-icon { font-size: 24px; }
+        
+        .participant-name-group {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+        
+        .participant-name {
+            font-size: 15px;
+            font-weight: bold;
+            color: #fff;
+        }
+        
+        .participant-desc {
+            font-size: 11px;
+            color: #666;
+        }
+        
+        .participant-stance {
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+        
+        .participant-summary {
+            font-size: 13px;
+            color: #ccc;
+            line-height: 1.5;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: #252540;
+            border-radius: 8px;
+        }
+        
+        .participant-details {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .participant-details li {
+            font-size: 12px;
+            color: #999;
+            padding: 4px 0 4px 16px;
+            position: relative;
+            line-height: 1.5;
+        }
+        
+        .participant-details li::before {
+            content: "•";
+            position: absolute;
+            left: 4px;
+            color: #6366f1;
+        }
+        
+        .battle-summary {
+            background: linear-gradient(135deg, #1a1a30 0%, #2a2040 100%);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #4a3a6a;
+        }
+        
+        .battle-header {
+            font-size: 16px;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .battle-icon { font-size: 20px; }
+        
+        .battle-pattern {
+            color: white;
+            padding: 4px 14px;
+            border-radius: 14px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+        
+        .battle-bar-container {
+            margin-bottom: 16px;
+        }
+        
+        .battle-bar {
+            display: flex;
+            height: 32px;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 4px;
+        }
+        
+        .battle-bar-bull {
+            background: linear-gradient(90deg, #dc2626, #ef4444);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: bold;
+            min-width: 40px;
+        }
+        
+        .battle-bar-neutral {
+            background: #6b7280;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            min-width: 20px;
+        }
+        
+        .battle-bar-bear {
+            background: linear-gradient(90deg, #22c55e, #16a34a);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: bold;
+            min-width: 40px;
+        }
+        
+        .battle-bar-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+        }
+        
+        .battle-conclusion {
+            font-size: 14px;
+            color: #ddd;
+            line-height: 1.6;
+            padding: 12px;
+            background: #1e1e30;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        
+        .battle-signal {
+            font-size: 13px;
+            color: #eab308;
+            padding: 10px 12px;
+            background: rgba(234, 179, 8, 0.1);
+            border-radius: 8px;
+            border-left: 3px solid #eab308;
+        }
+        
+        .battle-signal strong { color: #fbbf24; }
+        
+        /* 主力吸筹分析样式 */
+        .chip-analysis {
+            background: linear-gradient(135deg, #1a2a1a 0%, #1e2e1e 100%);
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 16px;
+            border: 1px solid #2a4a2a;
+        }
+        
+        .chip-header {
+            font-size: 16px;
+            font-weight: bold;
+            color: #4ade80;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .chip-icon { font-size: 20px; }
+        
+        .chip-conclusion {
+            background: #2a3a2a;
+            padding: 10px 14px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            color: #fff;
+        }
+        
+        .chip-conclusion strong {
+            color: #4ade80;
+        }
+        
+        .chip-features {
+            margin-bottom: 12px;
+        }
+        
+        .chip-subtitle {
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 8px;
+        }
+        
+        .chip-features ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .chip-features li {
+            padding: 6px 0;
+            padding-left: 20px;
+            position: relative;
+            font-size: 13px;
+            color: #d0d0d0;
+        }
+        
+        .chip-features li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #4ade80;
+        }
+        
+        .chip-pattern {
+            background: #1e2e1e;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+        }
+        
+        .chip-pattern p {
+            color: #a0a0a0;
+            line-height: 1.6;
+        }
+        
+        /* 龙虎榜样式 */
+        .dragon-tiger {
+            background: #1e1e2e;
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid #3a3a5a;
+        }
+        
+        .dragon-header {
+            font-size: 14px;
+            color: #fff;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .dragon-date { font-size: 12px; color: #888; }
+        .dragon-reason { font-size: 12px; color: #666; }
+        
+        .dragon-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        
+        .dragon-title {
+            font-size: 13px;
+            padding: 6px;
+            border-radius: 6px;
+            text-align: center;
+            margin-bottom: 8px;
+        }
+        
+        .dragon-title.buy { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+        .dragon-title.sell { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+        
+        .seat-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 8px;
+            border-radius: 6px;
+            margin-bottom: 4px;
+            font-size: 12px;
+        }
+        
+        .seat-item.buy { background: rgba(239, 68, 68, 0.1); }
+        .seat-item.sell { background: rgba(34, 197, 94, 0.1); }
+        .seat-name { color: #ccc; }
+        .seat-amount { color: #888; }
+        
+        /* 背景信息样式 */
+        .bg-timeline {
+            position: relative;
+            padding-left: 20px;
+        }
+        
+        .bg-timeline::before {
+            content: "";
+            position: absolute;
+            left: 6px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #3a3a5a;
+        }
+        
+        .bg-item {
+            position: relative;
+            padding: 12px 0 12px 20px;
+            border-bottom: 1px dashed #3a3a5a;
+        }
+        
+        .bg-item:last-child { border-bottom: none; }
+        
+        .bg-item::before {
+            content: "";
+            position: absolute;
+            left: -17px;
+            top: 18px;
+            width: 10px;
+            height: 10px;
+            background: #6366f1;
+            border-radius: 50%;
+        }
+        
+        .bg-date {
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 4px;
+        }
+        
+        .bg-title {
+            font-size: 14px;
+            color: #fff;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+        
+        .bg-detail {
+            font-size: 13px;
+            color: #aaa;
+            line-height: 1.5;
+            margin-bottom: 6px;
+        }
+        
+        .bg-source {
+            font-size: 12px;
+            color: #6366f1;
+            text-decoration: none;
+        }
+        
+        /* 技术形态分析样式 */
+        .pattern-card {
+            background: linear-gradient(135deg, #1a1a2e 0%, #1e2a3a 100%);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #2a4a6a;
+        }
+        
+        .pattern-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+        }
+        
+        .pattern-name {
+            font-size: 20px;
+            font-weight: bold;
+            color: #fff;
+        }
+        
+        .pattern-type {
+            color: white;
+            padding: 4px 14px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+        
+        .pattern-stars {
+            font-size: 16px;
+            color: #eab308;
+            letter-spacing: 2px;
+        }
+        
+        .pattern-desc {
+            font-size: 14px;
+            color: #ccc;
+            line-height: 1.6;
+            padding: 12px;
+            background: #1e1e30;
+            border-radius: 8px;
+            margin-bottom: 14px;
+        }
+        
+        .pattern-meta {
+            display: flex;
+            gap: 20px;
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 14px;
+        }
+        
+        .levels-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+        
+        .level-item {
+            text-align: center;
+            background: #1e1e30;
+            border-radius: 8px;
+            padding: 10px 8px;
+        }
+        
+        .level-label {
+            font-size: 11px;
+            color: #888;
+            margin-bottom: 4px;
+        }
+        
+        .level-value {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .additional-patterns {
+            font-size: 13px;
+            color: #aaa;
+            margin-bottom: 10px;
+        }
+        
+        .pattern-tag {
+            background: #3a3a5a;
+            color: #ccc;
+            padding: 3px 10px;
+            border-radius: 10px;
+            font-size: 12px;
+            margin-left: 4px;
+        }
+        
+        .pattern-warning {
+            font-size: 13px;
+            color: #f97316;
+            padding: 10px 12px;
+            background: rgba(249, 115, 22, 0.1);
+            border-radius: 8px;
+            border-left: 3px solid #f97316;
+        }
+        
+        /* 威科夫供需分析样式 */
+        .sd-container {
+            background: linear-gradient(135deg, #1a1a2e 0%, #1e2a3a 100%);
+            border-radius: 16px;
+            padding: 24px;
+        }
+        
+        .sd-main-row {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .sd-phase-area {
+            text-align: center;
+            min-width: 160px;
+        }
+        
+        .sd-phase-emoji {
+            font-size: 48px;
+            margin-bottom: 8px;
+        }
+        
+        .sd-phase-name {
+            font-size: 22px;
+            font-weight: 900;
+            margin-bottom: 8px;
+        }
+        
+        .sd-balance-badge {
+            display: inline-block;
+            color: white;
+            padding: 4px 16px;
+            border-radius: 16px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+        
+        .sd-score-area {
+            flex: 1;
+            min-width: 250px;
+        }
+        
+        .sd-score-num {
+            font-size: 42px;
+            font-weight: 900;
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+        
+        .sd-score-label {
+            font-size: 14px;
+            color: #aaa;
+            margin-bottom: 12px;
+        }
+        
+        .sd-score-bar-bg {
+            position: relative;
+            height: 20px;
+            background: linear-gradient(90deg, #22c55e20 0%, #eab30820 50%, #ef444420 100%);
+            border-radius: 10px;
+            overflow: visible;
+            border: 1px solid #3a3a5a;
+        }
+        
+        .sd-score-bar-center {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            width: 2px;
+            height: 100%;
+            background: #888;
+            transform: translateX(-50%);
+        }
+        
+        .sd-score-bar-fill {
+            position: absolute;
+            top: 2px;
+            height: calc(100% - 4px);
+            border-radius: 8px;
+            opacity: 0.8;
+        }
+        
+        .sd-score-pointer {
+            position: absolute;
+            top: -4px;
+            width: 8px;
+            height: 28px;
+            background: white;
+            border-radius: 4px;
+            transform: translateX(-50%);
+            box-shadow: 0 0 8px rgba(255,255,255,0.5);
+        }
+        
+        .sd-score-bar-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+            margin-top: 4px;
+        }
+        
+        .sd-phase-ruler {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 20px;
+        }
+        
+        .sd-phase-seg {
+            flex: 1;
+            height: 28px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: white;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .sd-evidence {
+            background: rgba(255,255,255,0.03);
+            border-radius: 10px;
+            padding: 14px;
+            margin-bottom: 16px;
+        }
+        
+        .sd-evidence-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+        
+        .sd-evidence-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .sd-evidence-list li {
+            font-size: 13px;
+            color: #bbb;
+            padding: 4px 0 4px 18px;
+            position: relative;
+            line-height: 1.5;
+        }
+        
+        .sd-evidence-list li::before {
+            content: "▸";
+            position: absolute;
+            left: 2px;
+            color: #6366f1;
+        }
+        
+        .sd-vp-box {
+            background: rgba(0,0,0,0.2);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        .sd-vp-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 12px;
+        }
+        
+        .sd-vp-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+        
+        .sd-vp-item {
+            text-align: center;
+            background: rgba(255,255,255,0.03);
+            border-radius: 8px;
+            padding: 10px;
+        }
+        
+        .sd-vp-label {
+            font-size: 11px;
+            color: #888;
+            margin-bottom: 4px;
+        }
+        
+        .sd-vp-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #fff;
+        }
+        
+        .sd-vp-sub {
+            font-size: 11px;
+            color: #aaa;
+            margin-top: 2px;
+        }
+        
+        .sd-vp-interp {
+            font-size: 13px;
+            color: #ccc;
+            line-height: 1.5;
+            padding: 10px;
+            background: rgba(255,255,255,0.02);
+            border-radius: 8px;
+        }
+        
+        .sd-divergence {
+            font-size: 13px;
+            color: #ddd;
+            padding: 10px 14px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 8px;
+            border-left: 3px solid #4ade80;
+            margin-bottom: 16px;
+        }
+        
+        .sd-events-box {
+            margin-bottom: 16px;
+        }
+        
+        .sd-events-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 12px;
+        }
+        
+        .sd-events-timeline {
+            position: relative;
+            padding-left: 16px;
+        }
+        
+        .sd-events-timeline::before {
+            content: "";
+            position: absolute;
+            left: 5px;
+            top: 4px;
+            bottom: 4px;
+            width: 2px;
+            background: #3a3a5a;
+        }
+        
+        .sd-event-item {
+            position: relative;
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+            padding-left: 8px;
+        }
+        
+        .sd-event-dot {
+            position: absolute;
+            left: -16px;
+            top: 6px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            border: 2px solid #1a1a2e;
+        }
+        
+        .sd-event-content {
+            flex: 1;
+            background: rgba(255,255,255,0.03);
+            border-radius: 8px;
+            padding: 10px 14px;
+        }
+        
+        .sd-event-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+            flex-wrap: wrap;
+        }
+        
+        .sd-event-name {
+            font-size: 14px;
+            font-weight: bold;
+            color: #fff;
+        }
+        
+        .sd-event-date {
+            font-size: 12px;
+            color: #888;
+        }
+        
+        .sd-event-sig {
+            font-size: 10px;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 8px;
+        }
+        
+        .sd-event-detail {
+            font-size: 13px;
+            color: #aaa;
+            line-height: 1.5;
+        }
+        
+        .sd-zones {
+            background: rgba(255,255,255,0.03);
+            border-radius: 10px;
+            padding: 14px;
+            margin-bottom: 16px;
+        }
+        
+        .sd-zone-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 6px 0;
+            flex-wrap: wrap;
+        }
+        
+        .sd-zone-label {
+            font-size: 13px;
+            font-weight: bold;
+            min-width: 160px;
+        }
+        
+        .sd-zone-tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .sd-zone-tag {
+            padding: 4px 14px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .sd-zone-tag.supply {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        
+        .sd-zone-tag.demand {
+            background: rgba(34, 197, 94, 0.15);
+            color: #22c55e;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+        
+        .sd-zone-na {
+            font-size: 13px;
+            color: #666;
+        }
+        
+        .sd-signals-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        
+        .sd-signals-col {
+            background: rgba(255,255,255,0.02);
+            border-radius: 10px;
+            padding: 14px;
+        }
+        
+        .sd-signals-title {
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        
+        .sd-signals-col ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .sd-signal-item {
+            font-size: 12px;
+            color: #bbb;
+            padding: 4px 0 4px 16px;
+            position: relative;
+            line-height: 1.5;
+        }
+        
+        .sd-signal-item.exhaust::before {
+            content: "↓";
+            position: absolute;
+            left: 2px;
+            color: #22c55e;
+        }
+        
+        .sd-signal-item.demand::before {
+            content: "↑";
+            position: absolute;
+            left: 2px;
+            color: #ef4444;
+        }
+        
+        .sd-conclusion {
+            font-size: 14px;
+            color: #ddd;
+            padding: 14px 16px;
+            background: linear-gradient(135deg, rgba(99,102,241,0.1), rgba(139,92,246,0.05));
+            border-radius: 10px;
+            border-left: 3px solid #6366f1;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+        
+        .sd-forecast {
+            background: rgba(255,255,255,0.03);
+            border-radius: 10px;
+            padding: 14px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        .sd-forecast-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+        
+        .sd-forecast-item {
+            font-size: 13px;
+            color: #ccc;
+            padding: 6px 0;
+            line-height: 1.5;
+        }
+        
+        .sd-forecast-label {
+            font-weight: bold;
+            color: #8b5cf6;
+        }
+        
+        .sd-forecast-key {
+            margin-top: 8px;
+            font-size: 13px;
+            color: #eab308;
+            padding: 8px 12px;
+            background: rgba(234, 179, 8, 0.08);
+            border-radius: 8px;
+            border-left: 3px solid #eab308;
+        }
+        
+        .sd-forecast-key strong {
+            color: #fbbf24;
+        }
+        
+        /* 市场温度计样式 */
+        .temp-container {
+            border-radius: 16px;
+            padding: 24px;
+            position: relative;
+        }
+        
+        .temp-main-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        
+        .temp-gauge-area {
+            text-align: center;
+        }
+        
+        .temp-big-num {
+            font-size: 72px;
+            font-weight: 900;
+            line-height: 1;
+            letter-spacing: -4px;
+            text-shadow: 0 0 30px currentColor;
+        }
+        
+        .temp-phase-badge {
+            display: inline-block;
+            color: white;
+            padding: 6px 20px;
+            border-radius: 20px;
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: 8px;
+        }
+        
+        .temp-trend {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .temp-trend-arrow {
+            font-size: 20px;
+            font-weight: bold;
+        }
+        
+        .temp-yesterday {
+            font-size: 12px;
+            color: #888;
+            background: #2a2a40;
+            padding: 2px 10px;
+            border-radius: 10px;
+        }
+        
+        /* 阶段刻度条 */
+        .temp-ruler-container {
+            position: relative;
+            margin: 20px 0 30px;
+            padding: 0 4px;
+        }
+        
+        .temp-ruler {
+            display: flex;
+            height: 28px;
+            border-radius: 14px;
+            overflow: hidden;
+            gap: 2px;
+        }
+        
+        .temp-phase-seg {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+        
+        .temp-phase-seg-label {
+            font-size: 11px;
+            color: white;
+            font-weight: bold;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        }
+        
+        .temp-pointer {
+            position: absolute;
+            top: -6px;
+            transform: translateX(-50%);
+        }
+        
+        .temp-pointer-line {
+            width: 3px;
+            height: 40px;
+            margin: 0 auto;
+            border-radius: 2px;
+        }
+        
+        .temp-pointer-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin: -2px auto 0;
+            border: 2px solid white;
+        }
+        
+        /* 温度趋势折线图 */
+        .temp-chart-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #fff;
+            margin: 20px 0 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .temp-chart-container {
+            background: rgba(0,0,0,0.2);
+            border-radius: 12px;
+            padding: 12px 8px 4px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255,255,255,0.05);
+            overflow-x: auto;
+        }
+        
+        .temp-chart-container svg {
+            display: block;
+            min-width: 500px;
+        }
+        
+        /* 7维度评分 */
+        .temp-dims-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .temp-dims {
+            margin-bottom: 20px;
+        }
+        
+        .temp-dim-row {
+            display: grid;
+            grid-template-columns: 110px 1fr 36px;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 6px;
+            padding: 4px 0;
+        }
+        
+        .temp-dim-label {
+            font-size: 12px;
+            color: #ccc;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .temp-dim-weight {
+            font-size: 10px;
+            color: #666;
+            background: #2a2a40;
+            padding: 1px 5px;
+            border-radius: 6px;
+        }
+        
+        .temp-dim-bar-bg {
+            height: 16px;
+            background: #1a1a30;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .temp-dim-bar-fill {
+            height: 100%;
+            border-radius: 8px;
+            transition: width 0.5s ease;
+            min-width: 4px;
+        }
+        
+        .temp-dim-score {
+            font-size: 13px;
+            font-weight: bold;
+            color: #ddd;
+            text-align: right;
+        }
+        
+        .temp-dim-detail {
+            grid-column: 1 / -1;
+            font-size: 11px;
+            color: #666;
+            padding-left: 114px;
+            margin-top: -4px;
+            margin-bottom: 4px;
+        }
+        
+        /* 入场建议 */
+        .temp-entry {
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 14px;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        
+        .temp-entry-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .temp-entry-level {
+            font-size: 18px;
+            font-weight: bold;
+            color: #fbbf24;
+        }
+        
+        .temp-entry-position {
+            font-size: 13px;
+            color: #8b5cf6;
+            background: rgba(139,92,246,0.15);
+            padding: 4px 12px;
+            border-radius: 10px;
+        }
+        
+        .temp-entry-text {
+            font-size: 13px;
+            color: #ccc;
+            line-height: 1.6;
+        }
+        
+        .temp-entry-warning {
+            margin-top: 10px;
+            font-size: 12px;
+            color: #f97316;
+            padding: 8px 12px;
+            background: rgba(249,115,22,0.1);
+            border-radius: 8px;
+            border-left: 3px solid #f97316;
+        }
+        
+        /* 周期位置 */
+        .temp-cycle {
+            background: rgba(255,255,255,0.03);
+            border-radius: 10px;
+            padding: 12px 14px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        .temp-cycle-desc {
+            font-size: 13px;
+            color: #aaa;
+            line-height: 1.5;
+            margin-bottom: 8px;
+        }
+        
+        .temp-cycle-metrics {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            font-size: 12px;
+            color: #888;
+        }
+        
+        .temp-cycle-metrics span {
+            background: #1a1a30;
+            padding: 3px 10px;
+            border-radius: 8px;
+        }
+        
+        .core-logic-box {
+            font-size: 14px;
+            color: #fbbf24;
+            padding: 14px 16px;
+            background: linear-gradient(135deg, rgba(234, 179, 8, 0.1), rgba(245, 158, 11, 0.05));
+            border-radius: 10px;
+            border-left: 4px solid #eab308;
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+        
+        .core-logic-box strong { color: #fbbf24; }
+        
+        /* 展望样式 */
+        .outlook-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+        }
+        
+        .outlook-card {
+            background: #1e1e2e;
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid #3a3a5a;
+        }
+        
+        .outlook-card h3 {
+            font-size: 14px;
+            color: #6366f1;
+            margin-bottom: 10px;
+        }
+        
+        .outlook-card p {
+            font-size: 14px;
+            color: #ccc;
+            line-height: 1.6;
+        }
+        
+        .risks-card {
+            background: linear-gradient(135deg, #2a1a1a 0%, #1e1e2e 100%);
+            border: 1px solid #5a3a3a;
+        }
+        
+        .risks-card h3 { color: #ef4444; }
+        .risks-card ul { list-style: none; }
+        .risks-card li {
+            font-size: 14px;
+            color: #ccc;
+            padding: 6px 0 6px 20px;
+            position: relative;
+        }
+        .risks-card li::before {
+            content: "⚠️";
+            position: absolute;
+            left: 0;
+            font-size: 12px;
+        }
+        
+        /* 来源样式 */
+        .sources {
+            margin-top: 20px;
+            background: #1e1e2e;
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid #3a3a5a;
+        }
+        
+        .sources h3 {
+            font-size: 14px;
+            color: #fff;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #3a3a5a;
+        }
+        
+        .sources ul { list-style: none; }
+        .sources li {
+            padding: 8px 0;
+            border-bottom: 1px dashed #2a2a40;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .sources li:last-child { border-bottom: none; }
+        .sources a { color: #6366f1; text-decoration: none; font-size: 14px; }
+        .sources a:hover { text-decoration: underline; }
+        .source-meta { font-size: 12px; color: #666; }
+        
+        .disclaimer {
+            text-align: center;
+            color: #666;
+            font-size: 12px;
+            margin-top: 30px;
+            padding: 20px;
+            border-top: 1px solid #3a3a5a;
+        }
+        
+        @media (max-width: 600px) {
+            .stock-card { flex-direction: column; text-align: center; }
+            .stock-price-container { text-align: center; }
+            .fund-grid { grid-template-columns: 1fr; }
+            .dragon-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 个股异动分析报告</h1>
+            <div class="date">分析日期: 2026-03-02</div>
+        </div>
+        
+        <div class="stock-card">
+            <div class="stock-info">
+                <span class="stock-name">岩山科技</span>
+                <span class="stock-code">002195</span>
+                <span class="stock-sector">AI+互联网+脑机接口+智能驾驶</span>
+            </div>
+            <div class="stock-price-container">
+                <div class="stock-price">¥10.76</div>
+                <div class="stock-change">-2.80%</div>
+                <div class="price-time">📅 2026-03-02 15:00</div>
+                <div class="market-data">成交额: 5.89亿 | 换手率: 9.68% | 振幅: 11.08-10.72</div>
+            </div>
+            <span class="anomaly-badge">下跌</span>
+        </div>
+        
+        <div class='section'><h2>🌍 大盘环境</h2>
+        <div class="env-header-row">
+            <span class="env-score-badge" style="background:#6b7280">环境 40分 · 震荡偏弱</span>
+        </div>
+        <div class="idx-grid">
+            <div class="idx-item">
+                <div class="idx-name">上证指数</div>
+                <div class="idx-price">4182.6</div>
+                <div class="idx-pct" style="color: #ef4444">+0.47%</div>
+            </div>
+            <div class="idx-item">
+                <div class="idx-name">深证成指</div>
+                <div class="idx-price">14465.8</div>
+                <div class="idx-pct" style="color: #22c55e">-0.20%</div>
+            </div>
+            <div class="idx-item">
+                <div class="idx-name">创业板指</div>
+                <div class="idx-price">3294.2</div>
+                <div class="idx-pct" style="color: #22c55e">-0.49%</div>
+            </div>
+            <div class="idx-item">
+                <div class="idx-name">上证50</div>
+                <div class="idx-price">3046.5</div>
+                <div class="idx-pct" style="color: #ef4444">+0.23%</div>
+            </div>
+            <div class="idx-item">
+                <div class="idx-name">沪深300</div>
+                <div class="idx-price">4728.7</div>
+                <div class="idx-pct" style="color: #ef4444">+0.38%</div>
+            </div>
+            <div class="idx-item">
+                <div class="idx-name">中证500</div>
+                <div class="idx-price">8658.3</div>
+                <div class="idx-pct" style="color: #ef4444">+0.00%</div>
+            </div>
+            <div class="idx-item">
+                <div class="idx-name">中证1000</div>
+                <div class="idx-price">8477.0</div>
+                <div class="idx-pct" style="color: #22c55e">-0.98%</div>
+            </div></div>
+        
+            <div class="breadth-grid">
+                <div class="breadth-item up"><div class="breadth-label">涨停</div><div class="breadth-val" style="color:#ef4444">53</div></div>
+                <div class="breadth-item down"><div class="breadth-label">跌停</div><div class="breadth-val" style="color:#22c55e">8</div></div>
+                <div class="breadth-item"><div class="breadth-label">涨跌比</div><div class="breadth-val">0.19:1</div></div>
+                <div class="breadth-item"><div class="breadth-label">封板率</div><div class="breadth-val">72%</div></div>
+                <div class="breadth-item"><div class="breadth-label">上涨</div><div class="breadth-val" style="color:#ef4444">800</div></div>
+                <div class="breadth-item"><div class="breadth-label">下跌</div><div class="breadth-val" style="color:#22c55e">4300</div></div>
+                <div class="breadth-item"><div class="breadth-label">两市成交</div><div class="breadth-val">2万亿(半日)</div></div>
+            </div>
+        
+            <div class="ladder-box">
+                <div class="ladder-title">连板梯队 <span class="ladder-meta">最高板: 7板 (法尔胜(光纤概念)6天5板) | 梯队: 偏弱，以油气化工为主</span></div>
+                
+                <div class="ladder-row">
+                    <span class="ladder-level">首板</span>
+                    <div class="ladder-bar-bg"><div class="ladder-bar-fill" style="width:100%"></div></div>
+                    <span class="ladder-count">38只</span>
+                </div>
+                <div class="ladder-row">
+                    <span class="ladder-level">5板以上</span>
+                    <div class="ladder-bar-bg"><div class="ladder-bar-fill" style="width:16%"></div></div>
+                    <span class="ladder-count">2只</span>
+                </div>
+                <div class="ladder-row">
+                    <span class="ladder-level">3板</span>
+                    <div class="ladder-bar-bg"><div class="ladder-bar-fill" style="width:24%"></div></div>
+                    <span class="ladder-count">3只</span>
+                </div>
+                <div class="ladder-row">
+                    <span class="ladder-level">2板</span>
+                    <div class="ladder-bar-bg"><div class="ladder-bar-fill" style="width:80%"></div></div>
+                    <span class="ladder-count">10只</span>
+                </div>
+                <div class='ladder-target'>📍 该股位置: 无连板，今日下跌</div>
+            </div>
+        
+            <div class="sector-box">
+                <div class="sector-info">
+                    <span class="sector-name">AI+互联网</span>
+                    <span class="sector-rank">排名 跌幅居前</span>
+                    <span class="sector-pct" style="color:#22c55e">-2.50%</span>
+                    <span class="sector-lu">板块涨停 0只</span>
+                    <span class='sector-phase'>调整期</span>
+                </div>
+                <div class='related-sectors'>关联板块: <span class="related-tag">脑机接口</span> <span class="related-tag">智能驾驶</span> <span class="related-tag">网络安全</span></div>
+            </div>
+        
+            <div class="style-box">
+                <span>风格: <strong>大盘价值</strong></span>
+                <span>沪强深弱,上证50+0.23%,中证1000-0.98%,明显大盘价值风格</span>
+                <span style='color:#ef4444'>✗ 不利</span>
+            </div>
+        <div class="env-impact">💡 中东战争引发全球避险,资金从AI/科技/成长股大幅流出转向油气/黄金/军工。大盘价值风格对岩山科技(小盘成长)极为不利。AI概念ETF开盘跌超2.5%,板块整体承压明显。岩山科技作为AI+脑机接口概念股,属于本次地缘事件的受损板块,下跌2.80%与板块整体跌幅一致。</div>
+        </div>
+        
+        <div class='section'><h2>🌡️ 市场温度计</h2>
+        <div class="temp-container" style="background: linear-gradient(135deg, #4a3a1a, #3a2a10); border: 1px solid #eab30830;">
+            <!-- 温度主显示 -->
+            <div class="temp-main-row">
+                <div class="temp-gauge-area">
+                    <div class="temp-big-num" style="color: #eab308;">38°</div>
+                    <div class="temp-phase-badge" style="background: #eab308;">🌱 回暖期(因地缘冲击降温)</div>
+                    <div class="temp-trend">
+                        <span class="temp-trend-arrow" style="color: #22c55e;">↓</span>
+                        <span style="color: #22c55e;">因地缘事件急降</span>
+                        <span class='temp-yesterday'>昨日 52° (-14)</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 阶段刻度条 -->
+            <div class="temp-ruler-container">
+                <div class="temp-ruler"><div class="temp-phase-seg" style="width:15%; background:#3b82f6; opacity:0.35; "><span class="temp-phase-seg-label">冰点</span></div><div class="temp-phase-seg" style="width:20%; background:#06b6d4; opacity:0.35; "><span class="temp-phase-seg-label">回暖</span></div><div class="temp-phase-seg" style="width:20%; background:#eab308; opacity:1; border: 2px solid #eab308; box-shadow: 0 0 8px #eab30840;"><span class="temp-phase-seg-label">升温</span></div><div class="temp-phase-seg" style="width:20%; background:#f97316; opacity:0.35; "><span class="temp-phase-seg-label">高潮</span></div><div class="temp-phase-seg" style="width:15%; background:#ef4444; opacity:0.35; "><span class="temp-phase-seg-label">疯狂</span></div><div class="temp-phase-seg" style="width:10%; background:#dc2626; opacity:0.35; "><span class="temp-phase-seg-label">崩溃</span></div></div>
+                <div class="temp-pointer" style="left: 38%;">
+                    <div class="temp-pointer-line" style="background: #eab308;"></div>
+                    <div class="temp-pointer-dot" style="background: #eab308; box-shadow: 0 0 10px #eab308;"></div>
+                </div>
+            </div>
+            
+            <!-- 温度趋势折线图 -->
+            
+            
+            <!-- 7维度评分 -->
+            <div class="temp-dims-title">七维度评分</div>
+            <div class="temp-dims">
+            <div class="temp-dim-row">
+                <div class="temp-dim-label">赚钱效应<span class="temp-dim-weight">25%</span></div>
+                <div class="temp-dim-bar-bg">
+                    <div class="temp-dim-bar-fill" style="width:30%; background:#eab308"></div>
+                </div>
+                <div class="temp-dim-score">30</div>
+                <div class="temp-dim-detail">涨停53家但超4300家下跌,涨停集中在油气非主流方向,赚钱效应极差</div>
+            </div>
+            <div class="temp-dim-row">
+                <div class="temp-dim-label">连板高度<span class="temp-dim-weight">20%</span></div>
+                <div class="temp-dim-bar-bg">
+                    <div class="temp-dim-bar-fill" style="width:40%; background:#eab308"></div>
+                </div>
+                <div class="temp-dim-score">40</div>
+                <div class="temp-dim-detail">最高法尔胜6天5板,但以油气化工为主,AI科技梯队断裂</div>
+            </div>
+            <div class="temp-dim-row">
+                <div class="temp-dim-label">市场广度<span class="temp-dim-weight">15%</span></div>
+                <div class="temp-dim-bar-bg">
+                    <div class="temp-dim-bar-fill" style="width:15%; background:#3b82f6"></div>
+                </div>
+                <div class="temp-dim-score">15</div>
+                <div class="temp-dim-detail">涨跌比0.19:1(800涨4300跌),市场广度极差</div>
+            </div>
+            <div class="temp-dim-row">
+                <div class="temp-dim-label">量能水平<span class="temp-dim-weight">10%</span></div>
+                <div class="temp-dim-bar-bg">
+                    <div class="temp-dim-bar-fill" style="width:70%; background:#ef4444"></div>
+                </div>
+                <div class="temp-dim-score">70</div>
+                <div class="temp-dim-detail">半日成交2万亿放巨量,但属于恐慌性放量</div>
+            </div>
+            <div class="temp-dim-row">
+                <div class="temp-dim-label">情绪极端度<span class="temp-dim-weight">10%</span></div>
+                <div class="temp-dim-bar-bg">
+                    <div class="temp-dim-bar-fill" style="width:25%; background:#3b82f6"></div>
+                </div>
+                <div class="temp-dim-score">25</div>
+                <div class="temp-dim-detail">地缘恐慌情绪弥漫,但非基本面恶化,有反向信号可能</div>
+            </div>
+            <div class="temp-dim-row">
+                <div class="temp-dim-label">龙头状态<span class="temp-dim-weight">10%</span></div>
+                <div class="temp-dim-bar-bg">
+                    <div class="temp-dim-bar-fill" style="width:35%; background:#eab308"></div>
+                </div>
+                <div class="temp-dim-score">35</div>
+                <div class="temp-dim-detail">AI板块龙头全线调整,新易盛跌3.37%,润和软件跌5.47%</div>
+            </div>
+            <div class="temp-dim-row">
+                <div class="temp-dim-label">资金趋势<span class="temp-dim-weight">10%</span></div>
+                <div class="temp-dim-bar-bg">
+                    <div class="temp-dim-bar-fill" style="width:30%; background:#eab308"></div>
+                </div>
+                <div class="temp-dim-score">30</div>
+                <div class="temp-dim-detail">主力资金从科技股撤出流向油气黄金军工</div>
+            </div></div>
+            
+            <!-- 入场建议 -->
+            
+            <div class="temp-entry">
+                <div class="temp-entry-header">
+                    <span class="temp-entry-level">★★★ 精选介入(地缘事件恐慌往往是逆向买入机会)</span>
+                    <span class='temp-entry-position'>建议3-5成仓位观望,等待地缘局势明朗化后再加仓</span>
+                </div>
+                <div class="temp-entry-text">市场温度因地缘事件急降至38°(从52°降14°),但这种外部冲击通常为短期扰动。历史经验表明地缘冲击导致的A股调整通常在2-3%内,且恢复较快。对于AI板块基本面未受实质影响的个股,可能是逢低布局机会。</div>
+                <div class='temp-entry-warning'>⚠️ 若中东冲突持续升级(战争超4周),油价突破100美元,可能引发全球通胀预期升温,进一步打压成长股估值</div>
+            </div>
+            
+            <!-- 周期位置 -->
+            
+            <div class="temp-cycle">
+                <div class="temp-cycle-desc">原本处于升温期(52°),因地缘黑天鹅事件急降至回暖期(38°),属于情绪周期被外力打断</div>
+                <div class="temp-cycle-metrics">
+                    <span>距高潮: 距离高潮期约17-37°</span>
+                    <span>距冰点: 距离冰点约23-38°</span>
+                    <span>阶段进度: 不适用(外力打断)</span>
+                    <span>持续天数: 1天</span>
+                </div>
+            </div>
+        </div>
+        </div>
+        
+        <div class="section">
+            <h2>🔥 近期触发因素</h2>
+            
+        <div class="trigger-card">
+            <div class="trigger-header">
+                <span class="trigger-type">地缘政治</span>
+                <span class="freshness-badge recent">近3日</span>
+                <span class="trigger-impact" style="background: #ef4444">利空</span>
+                <span class="trigger-weight">权重 50%</span>
+            </div>
+            <h4 class="trigger-title">美以联合军事打击伊朗,全球避险情绪飙升</h4>
+            <p class="trigger-detail">2月28日美国和以色列对伊朗发动联合军事打击,伊朗最高领袖哈梅内伊身亡,伊朗宣布关闭霍尔木兹海峡。全球风险资产大幅承压,A股AI/科技/成长板块全线下跌,资金涌向油气、黄金、军工等避险和受益板块。AI人工智能ETF开盘跌超2.5%。</p>
+            <div class="trigger-source"><span class="info-date">📅 2026-02-28</span> <a href="https://finance.sina.com.cn/wm/2026-03-01/doc-inhpnfpu6242286.shtml" target="_blank" class="info-source">🔗 新浪财经</a></div>
+        </div>
+        
+        <div class="trigger-card">
+            <div class="trigger-header">
+                <span class="trigger-type">市场风格</span>
+                <span class="freshness-badge today">今日</span>
+                <span class="trigger-impact" style="background: #ef4444">利空</span>
+                <span class="trigger-weight">权重 30%</span>
+            </div>
+            <h4 class="trigger-title">大盘价值风格主导,小盘成长股全面承压</h4>
+            <p class="trigger-detail">今日市场风格极端分化:上证50+0.23%,中证1000-0.98%。大盘蓝筹(银行/石油)走强,小盘成长(AI/科技)走弱。超4300只个股下跌,涨少跌多,岩山科技作为中小盘AI概念股处于不利的市场风格环境中。</p>
+            <div class="trigger-source"><span class="info-date">📅 2026-03-02</span> <a href="http://news.10jqka.com.cn/20260302/c675008912.shtml" target="_blank" class="info-source">🔗 同花顺</a></div>
+        </div>
+        
+        <div class="trigger-card">
+            <div class="trigger-header">
+                <span class="trigger-type">资金面</span>
+                <span class="freshness-badge today">今日</span>
+                <span class="trigger-impact" style="background: #ef4444">利空</span>
+                <span class="trigger-weight">权重 20%</span>
+            </div>
+            <h4 class="trigger-title">主力资金大幅净流出1.94亿,散户接盘</h4>
+            <p class="trigger-detail">今日主力净流出1.94亿元(大单净卖出8964万+超大单净卖出1.04亿),中单净卖出1.09亿。散户(小单)净买入3.03亿,呈现典型的主力出货、散户接盘格局。</p>
+            <div class="trigger-source"><span class="info-date">📅 2026-03-02</span> <a href="https://data.eastmoney.com/zjlx/002195.html" target="_blank" class="info-source">🔗 东方财富API</a></div>
+        </div>
+        
+        </div>
+        
+        <div class='section'><h2>⚔️ 多方博弈分析</h2>
+        <div class="participants-grid">
+            
+            <div class="participant-card">
+                <div class="participant-header">
+                    <span class="participant-icon">🔥</span>
+                    <div class="participant-name-group">
+                        <span class="participant-name">游资</span>
+                        <span class="participant-desc">短线热钱</span>
+                    </div>
+                    <span class="participant-stance" style="background: #6b7280">观望</span>
+                </div>
+                <div class="participant-summary">今日无游资龙虎榜数据。地缘冲击导致市场避险情绪浓厚,游资注意力转向油气/化工/航运等受益板块,对AI/科技股暂时退避。从盘面看,岩山科技今日无连板、无涨停,游资短线关注度下降。</div>
+                <ul class="participant-details"><li>今日无龙虎榜数据,游资席位活动不可见</li><li>市场连板梯队以油气化工为主(洲际油气5天3板、金牛化工11天5板),AI概念不在游资视野</li><li>2月上旬游资'消闲派'和'量化打板'曾大举买入,但近期已无明显动作</li></ul>
+            </div>
+            
+            <div class="participant-card">
+                <div class="participant-header">
+                    <span class="participant-icon">🐋</span>
+                    <div class="participant-name-group">
+                        <span class="participant-name">主力</span>
+                        <span class="participant-desc">控盘大资金</span>
+                    </div>
+                    <span class="participant-stance" style="background: #22c55e">看空</span>
+                </div>
+                <div class="participant-summary">主力今日大幅净流出1.94亿元,超大单净卖出1.04亿,大单净卖出0.90亿。主力利用地缘事件冲击减仓,呈现明显出货态势。散户净买入3.03亿,形成主力出、散户接的不利格局。</div>
+                <ul class="participant-details"><li>超大单(>100万)净卖出1.04亿元</li><li>大单(20-100万)净卖出0.90亿元</li><li>散户(小单<5万)净买入3.03亿,典型散户接盘</li><li>卖量2947813大于买量2471931,卖方占优</li></ul>
+            </div>
+            
+            <div class="participant-card">
+                <div class="participant-header">
+                    <span class="participant-icon">🏦</span>
+                    <div class="participant-name-group">
+                        <span class="participant-name">机构</span>
+                        <span class="participant-desc">基金/保险/QFII</span>
+                    </div>
+                    <span class="participant-stance" style="background: #6b7280">中性偏空</span>
+                </div>
+                <div class="participant-summary">今日无机构席位龙虎榜数据。从机构研报看,目标价32-42元仍有空间,但短期地缘冲击叠加AI板块整体调整,机构可能借机调仓。高管减持计划(3月16日起)增加了不确定性。</div>
+                <ul class="participant-details"><li>今日无机构龙虎榜席位数据</li><li>机构目标价32-42元,当前价10.76元仍有理论空间</li><li>高管陈育冰3月16日起计划减持1666.95万股</li><li>2月上旬龙虎榜曾有机构净卖出1.88亿(在6天5板期间)</li></ul>
+            </div>
+            
+            <div class="participant-card">
+                <div class="participant-header">
+                    <span class="participant-icon">🏛️</span>
+                    <div class="participant-name-group">
+                        <span class="participant-name">监管层</span>
+                        <span class="participant-desc">政策/合规</span>
+                    </div>
+                    <span class="participant-stance" style="background: #6b7280">中性</span>
+                </div>
+                <div class="participant-summary">近期无针对岩山科技的监管动态。中东战争属于外部地缘政治事件,对公司监管面无直接影响。AI行业整体政策面正常,国家持续推进AI产业发展。</div>
+                <ul class="participant-details"><li>公司未收到问询函或关注函</li><li>AI行业政策面持续正面,但战争带来的短期资金流出非政策因素</li><li>网络安全领域可能因战争反而受到关注(股吧有投资者提及)</li></ul>
+            </div>
+            
+            <div class="participant-card">
+                <div class="participant-header">
+                    <span class="participant-icon">👥</span>
+                    <div class="participant-name-group">
+                        <span class="participant-name">散户</span>
+                        <span class="participant-desc">市场情绪</span>
+                    </div>
+                    <span class="participant-stance" style="background: #eab308">分歧</span>
+                </div>
+                <div class="participant-summary">股吧情绪分化明显。部分散户认为战争利好网络安全(岩山科技业务之一),但更多人关注下跌风险和重金属持仓亏损。散户今日净买入3.03亿,说明有不少散户在低位承接,但这通常是主力出货的反面信号。</div>
+                <ul class="participant-details"><li>股吧有投资者认为'这次袭击网络安全最重要,利好岩山科技'</li><li>有投资者抱怨'情绪嘎然而止',反映对地缘冲击打断行情的不满</li><li>散户小单今日净买入3.03亿,显示散户仍有买入意愿</li><li>融资余额此前达20.74亿(占流通市值3.72%),杠杆资金较重</li></ul>
+            </div>
+            
+        </div>
+        
+            <div class="battle-summary">
+                <div class="battle-header">
+                    <span class="battle-icon">⚔️</span>
+                    博弈格局
+                    <span class="battle-pattern" style="background: #22c55e">空方占优</span>
+                </div>
+                <div class="battle-bar-container">
+                    <div class="battle-bar">
+                        <div class="battle-bar-bull" style="width: 0.0%">多 0</div>
+                        <div class="battle-bar-neutral" style="width: 60.0%">3</div>
+                        <div class="battle-bar-bear" style="width: 40.0%">空 2</div>
+                    </div>
+                    <div class="battle-bar-labels">
+                        <span style="color: #ef4444">多方</span>
+                        <span style="color: #22c55e">空方</span>
+                    </div>
+                </div>
+                <div class="battle-conclusion">主力明确看空出货(净流出1.94亿)+游资退避观望+机构偏空。散户分歧但净买入(被动接盘)。监管层中性。空方占优格局,但核心驱动力是地缘事件带来的短期冲击,而非公司基本面恶化。</div>
+                <div class='battle-signal'>💡 <strong>关键信号:</strong> 主力借地缘事件大幅出货是最强空头信号,散户3亿接盘可能形成短期套牢</div>
+            </div>
+            
+        </div>
+        
+        <div class='section'><h2>⚖️ 威科夫供需分析</h2>
+        <div class="sd-container" style="border: 1px solid #f9731630;">
+            <!-- 阶段+得分主显示 -->
+            <div class="sd-main-row">
+                <div class="sd-phase-area">
+                    <div class="sd-phase-emoji">🟠</div>
+                    <div class="sd-phase-name" style="color: #f97316;">可能进入派发初期</div>
+                    <div class="sd-balance-badge" style="background: #06b6d4;">供应略占优</div>
+                </div>
+                <div class="sd-score-area">
+                    <div class="sd-score-num" style="color: #06b6d4;">-25</div>
+                    <div class="sd-score-label">供应略占优</div>
+                    <div class="sd-score-bar-bg">
+                        <div class="sd-score-bar-center"></div>
+                        <div class="sd-score-bar-fill" style="left: 37.5%; width: 12.5%; background: #06b6d4;"></div>
+                        <div class="sd-score-pointer" style="left: 37.5%;"></div>
+                    </div>
+                    <div class="sd-score-bar-labels">
+                        <span style="color:#22c55e">供应占优 -100</span>
+                        <span style="color:#888">均衡 0</span>
+                        <span style="color:#ef4444">需求占优 +100</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 阶段刻度条 -->
+            <div class="sd-phase-ruler"><div class="sd-phase-seg" style="background:#3b82f6; opacity:0.3; "><span>吸筹</span></div><div class="sd-phase-seg" style="background:#ef4444; opacity:0.3; "><span>上涨</span></div><div class="sd-phase-seg" style="background:#f97316; opacity:1; border: 2px solid #f97316; box-shadow: 0 0 8px #f9731640;"><span>派发</span></div><div class="sd-phase-seg" style="background:#22c55e; opacity:0.3; "><span>下跌</span></div></div>
+            
+            <!-- 阶段证据 -->
+            <div class="sd-evidence">
+                <div class="sd-evidence-title">📋 阶段判断依据</div>
+                <ul class="sd-evidence-list"><li>2月大幅上涨(8元→11元+)后高位震荡,今日放量下跌</li><li>主力持续净流出(今日-1.94亿),散户净买入(+3.03亿),典型派发期特征</li><li>卖量(2947813)大于买量(2471931),供应大于需求</li><li>换手率9.68%仍处高位,但股价下跌,显示高位换手(筹码从主力转移到散户)</li></ul>
+            </div>
+            
+            <!-- 量价分析 -->
+            
+            <div class="sd-vp-box">
+                <div class="sd-vp-title">📊 量价供需分析</div>
+                <div class="sd-vp-grid">
+                    <div class="sd-vp-item">
+                        <div class="sd-vp-label">量价模式</div>
+                        <div class="sd-vp-value">放量下跌(卖>买)</div>
+                    </div>
+                    <div class="sd-vp-item">
+                        <div class="sd-vp-label">量比(涨/跌)</div>
+                        <div class="sd-vp-value" style="color:#eab308">0.84x</div>
+                        <div class="sd-vp-sub">供需均衡</div>
+                    </div>
+                    
+                    
+                </div>
+                <div class="sd-vp-interp">买量/卖量=0.84,卖方力量略大于买方。在前期大涨后的高位出现放量下跌,说明供应在增加,部分获利盘和主力在释放筹码。</div>
+            </div>
+            
+            <!-- 量价背离 -->
+            
+            <div class="sd-divergence" style="border-left-color: #4ade80;">
+                ✅ <strong>需观察</strong>: 缺少完整K线数据,无法判断量价背离。但从单日数据看,高位卖量大于买量是供应增加的直接信号。
+            </div>
+            
+            <!-- 威科夫事件 -->
+            
+            <div class="sd-events-box">
+                <div class="sd-events-title">🔑 关键威科夫事件</div>
+                <div class="sd-events-timeline">
+                <div class="sd-event-item">
+                    <div class="sd-event-dot" style="background: #eab308;"></div>
+                    <div class="sd-event-content">
+                        <div class="sd-event-header">
+                            <span class="sd-event-name">PSY(初步供应)</span>
+                            <span class="sd-event-date">2026-03-02</span>
+                            <span class="sd-event-sig" style="background: #eab308;">中</span>
+                        </div>
+                        <div class="sd-event-detail">地缘冲击下高位放量下跌,主力净流出近2亿,可能是派发初期的初步供应信号</div>
+                    </div>
+                </div></div>
+            </div>
+            
+            <!-- 供应区/需求区 -->
+            
+            <div class="sd-zones">
+                <div class="sd-zone-row">
+                    <span class="sd-zone-label" style="color:#ef4444">▲ 供应密集区(压力)</span>
+                    <div class="sd-zone-tags"><span class="sd-zone-tag supply">¥11.1</span> <span class="sd-zone-tag supply">¥11.5</span></div>
+                </div>
+                <div class="sd-zone-row">
+                    <span class="sd-zone-label" style="color:#22c55e">▼ 需求支撑区(支撑)</span>
+                    <div class="sd-zone-tags"><span class="sd-zone-tag demand">¥10.7</span> <span class="sd-zone-tag demand">¥10.0</span></div>
+                </div>
+            </div>
+            
+            <!-- 供应枯竭/需求增强信号 -->
+            
+            
+            <!-- 结论 -->
+            <div class="sd-conclusion">💡 今日地缘冲击导致供应增加(主力出货1.94亿),需求主要来自散户(净买入3.03亿)。从威科夫角度看,前期大涨后高位出现主力出货散户接盘,需警惕进入派发阶段。但由于今日下跌主因是外部地缘事件而非公司基本面,供需格局可能在事件消化后回归正常。</div>
+            
+            <!-- 供需预判 -->
+            
+            <div class="sd-forecast">
+                <div class="sd-forecast-title">🔮 供需趋势预判</div>
+                <div class='sd-forecast-item'><span class='sd-forecast-label'>短期:</span> 短期供应压力较大(主力减仓+获利盘抛售+高管减持预期),11.07元(前收盘)成为新的供应区</div>
+                <div class='sd-forecast-item'><span class='sd-forecast-label'>中期:</span> 中期取决于中东局势演变和AI板块热度回升,若地缘冲击消化后资金回流科技股,需求可能重新占优</div>
+                <div class='sd-forecast-key'>💡 <strong>关键观察:</strong> 关注10.72元能否形成有效支撑(今日最低价),以及后续是否出现缩量企稳(供应减少信号)</div>
+            </div>
+        </div>
+        </div>
+        
+        <div class='section'><h2>📐 技术形态分析</h2>
+        <div class="pattern-card">
+            <div class="pattern-header">
+                <span class="pattern-name">高位调整</span>
+                <span class="pattern-type" style="background: #6b7280">偏空</span>
+                <span class="pattern-stars">★★★☆☆</span>
+            </div>
+            <div class="pattern-desc">K线数据因API连接异常未获取完整。从已有数据看:今日低开低走,开盘价即为最低价附近(10.76),盘中虽冲高至11.08但未能站稳,最终收于10.76元。长上影线(影线长度0.32,实体-0.31)显示上方抛压沉重。换手率9.68%,卖量大于买量,空方占优。</div>
+            <div class="pattern-meta">
+                <span>趋势背景: 前期大涨后的高位调整</span>
+                <span>量价配合: ✗ 否</span>
+            </div>
+            <div class="levels-grid">
+                    <div class="level-item">
+                        <div class="level-label">支撑位</div>
+                        <div class="level-value" style="color: #22c55e">¥10.72</div>
+                    </div>
+                    <div class="level-item">
+                        <div class="level-label">压力位</div>
+                        <div class="level-value" style="color: #ef4444">¥11.08</div>
+                    </div>
+                    <div class="level-item">
+                        <div class="level-label">止损位</div>
+                        <div class="level-value" style="color: #f97316">¥9.96</div>
+                    </div>
+                    <div class="level-item">
+                        <div class="level-label">目标位</div>
+                        <div class="level-value" style="color: #8b5cf6">¥11.50</div>
+                    </div></div>
+            <div class="additional-patterns">同时出现: <span class="pattern-tag">长上影线(上方抛压重)</span></div>
+            <div class="pattern-warning">⚠️ 今日K线API数据获取失败,技术分析基于有限数据。若后续继续放量下跌,可能进入调整周期。关注10.72元支撑位。</div>
+        </div>
+        </div>
+        
+        <div class="section">
+            <h2>💰 资金动向</h2>
+            
+            <div class="fund-flow">
+                <div class="fund-header">今日资金流向 <span class="fund-date">📅 2026-03-02</span></div>
+                <div class="fund-grid" style="grid-template-columns: repeat(5, 1fr);">
+                    <div class="fund-item">
+                        <div class="fund-label">主力净额</div>
+                        <div class="fund-value" style="color: #22c55e">-1.94亿</div>
+                    </div>
+                    <div class="fund-item">
+                        <div class="fund-label">超大单</div>
+                        <div class="fund-value" style="color: #22c55e">-1.04亿</div>
+                    </div>
+                    <div class="fund-item">
+                        <div class="fund-label">大单</div>
+                        <div class="fund-value" style="color: #22c55e">-0.90亿</div>
+                    </div>
+                    <div class="fund-item">
+                        <div class="fund-label">中单</div>
+                        <div class="fund-value" style="color: #22c55e">-1.09亿</div>
+                    </div>
+                    <div class="fund-item">
+                        <div class="fund-label">小单(散户)</div>
+                        <div class="fund-value" style="color: #ef4444">+3.03亿</div>
+                    </div>
+                </div>
+            </div>
+            
+            
+            
+        <div class="dragon-tiger">
+            <div class="dragon-header">
+                龙虎榜 <span class="dragon-date">📅 2026-03-02</span>
+                <span class="dragon-reason">今日无龙虎榜数据(跌幅未达龙虎榜标准)</span>
+            </div>
+            <div class="dragon-grid">
+                <div class="dragon-col">
+                    <div class="dragon-title buy">买入前三</div>
+                    
+                </div>
+                <div class="dragon-col">
+                    <div class="dragon-title sell">卖出前三</div>
+                    
+                </div>
+            </div>
+        </div>
+        
+            
+        </div>
+        
+        <div class="section">
+            <h2>📜 历史背景</h2>
+            <div class="bg-timeline">
+                
+        <div class="bg-item">
+            <div class="bg-date">2026-02</div>
+            <div class="bg-content">
+                <div class="bg-title">2月涨幅可观,前期积累获利盘</div>
+                <div class="bg-detail">岩山科技2月从约8元附近涨至11元+,月涨幅超40%。2月上旬曾出现6天5板的强势行情,深股通净买入2.58亿,游资'消闲派'和'量化打板'大举介入。但前期大幅上涨积累了大量获利盘,遇到地缘事件冲击容易引发抛售。</div>
+                <a href="https://m.163.com/dy/article/KJ3DLL830519D4UH.html" target="_blank" class="bg-source">🔗 网易财经</a>
+            </div>
+        </div>
+        
+        <div class="bg-item">
+            <div class="bg-date">2026-02-12</div>
+            <div class="bg-content">
+                <div class="bg-title">高管减持计划</div>
+                <div class="bg-detail">董事兼高管陈育冰计划于2026年3月16日至6月15日期间减持不超过1666.95万股(占总股本0.294%),对市场信心有一定压制。</div>
+                <a href="https://www.futunn.com/en/stock/002195-SZ" target="_blank" class="bg-source">🔗 富途牛牛</a>
+            </div>
+        </div>
+        
+        <div class="bg-item">
+            <div class="bg-date">2026-02-27</div>
+            <div class="bg-content">
+                <div class="bg-title">公司业务转型:AI大模型+脑机接口+智能驾驶</div>
+                <div class="bg-detail">岩山科技从传统互联网(2345.com)向硬科技转型:智能驾驶(纽劢科技)已获15万台装车订单、脑机接口(癫痫诊断准确率92.7%)、Yan大模型(目标授权1000万台)。资产负债率仅3.32%,现金超70亿元。2026年被视为业绩兑现大年。</div>
+                <a href="https://caifuhao.eastmoney.com/news/20260227104933257684490" target="_blank" class="bg-source">🔗 东方财富财富号</a>
+            </div>
+        </div>
+        
+        <div class="bg-item">
+            <div class="bg-date">2026-02-27</div>
+            <div class="bg-content">
+                <div class="bg-title">澄清与文远知行无合作关系</div>
+                <div class="bg-detail">2月27日岩山科技通过投资者关系平台澄清:截至目前公司未与文远知行有任何合作关系或业务合作关系。</div>
+                <a href="https://www.itiger.com/news/2514987911" target="_blank" class="bg-source">🔗 老虎证券</a>
+            </div>
+        </div>
+        
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>🎯 走势预判</h2>
+            <div class='core-logic-box'>💡 <strong>核心逻辑:</strong> 本次下跌的核心驱动力是美以打击伊朗引发的全球避险情绪冲击(权重50%)+大盘风格切换为大盘价值导致小盘成长承压(权重30%)+前期涨幅大获利盘回吐(权重20%)。公司基本面无实质利空,下跌属于系统性风险而非个股风险。</div>
+            <div class='core-logic-box' style='border-left-color:#3b82f6; background:linear-gradient(135deg,rgba(59,130,246,0.1),rgba(59,130,246,0.03));'>⚖️ <strong>供需逻辑:</strong> 威科夫视角:前期大涨后处于高位,今日地缘冲击导致供应急增(主力出货1.94亿),需求端散户虽在买入但属于被动接盘。短期供需天平向供应倾斜。需观察后续几日是否出现缩量企稳(供应枯竭信号),若能在10.72附近企稳并缩量,则供需可能重新平衡。</div>
+            <div class='core-logic-box' style='border-left-color:#8b5cf6; background:linear-gradient(135deg,rgba(139,92,246,0.1),rgba(139,92,246,0.03));'>🌡️ <strong>温度指引:</strong> 市场温度从52°急降至38°(回暖期),地缘恐慌导致情绪骤冷。历史上地缘冲击常制造短期恐慌低点,温度急降往往是逆向布局窗口。但需等待局势明朗(观察48小时),若温度企稳回升则可积极参与。</div>
+            <div class="outlook-grid">
+                <div class="outlook-card">
+                    <h3>📈 短期展望</h3>
+                    <p>短期偏弱,受中东战争避险情绪压制。支撑位10.72元(今日最低),若跌破则看9.96元(跌停价)。压力位11.07元(前收盘价)。主力净流出近2亿+散户接盘格局短期不利。但地缘冲击通常2-3个交易日消化,若中东局势不再升级,AI板块有望企稳回升。</p>
+                </div>
+                <div class="outlook-card">
+                    <h3>📊 中期展望</h3>
+                    <p>中期看好基本面。岩山科技转型AI三大赛道(智能驾驶15万台订单+脑机接口量产+Yan大模型)的核心逻辑未变,2026年为业绩兑现年。机构目标价32-42元距当前价有较大空间。但需关注:①高管减持压力(3月16日起)②中东局势持续时间③AI板块整体估值压力。</p>
+                </div>
+                <div class="outlook-card risks-card">
+                    <h3>风险提示</h3>
+                    <ul><li>中东战争持续升级,冲突超4周,引发全球通胀和持续风险偏好下降</li><li>油价突破100美元,打压全球成长股估值</li><li>高管减持窗口(3月16日起)进一步增加供应压力</li><li>AI板块在海外科技股(英伟达等)调整传导下持续走弱</li><li>前期获利盘集中抛售引发踩踏</li><li>融资余额20.74亿偏高,若股价持续下跌可能触发强制平仓</li></ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="sources">
+            <h3>📚 信息来源</h3>
+            <ul>
+        <li>
+            <a href="https://finance.sina.com.cn/wm/2026-03-01/doc-inhpnfpu6242286.shtml" target="_blank">中东局势骤然升级如何影响A股</a>
+            <span class="source-meta"> </span>
+        </li>
+        
+        <li>
+            <a href="https://finance.sina.com.cn/roll/2026-03-02/doc-inhppxwv1576677.shtml" target="_blank">美伊开战后投资账户影响分析</a>
+            <span class="source-meta"> </span>
+        </li>
+        
+        <li>
+            <a href="http://hkstock.cnfol.com/shichangfenxi/20260302/32036994.shtml" target="_blank">A股早评中东局势引爆避险情绪</a>
+            <span class="source-meta"> </span>
+        </li>
+        
+        <li>
+            <a href="https://m.10jqka.com.cn/20260302/c675008086.shtml" target="_blank">A股三大指数低开高走石油贵金属大涨</a>
+            <span class="source-meta"> </span>
+        </li>
+        
+        <li>
+            <a href="http://news.10jqka.com.cn/20260302/c675008912.shtml" target="_blank">A股午评沪指半日平收油气爆发</a>
+            <span class="source-meta"> </span>
+        </li>
+        
+        <li>
+            <a href="https://caifuhao.eastmoney.com/news/20260227104933257684490" target="_blank">岩山科技前景速览(截至2026-02-27)</a>
+            <span class="source-meta"> </span>
+        </li>
+        
+        <li>
+            <a href="https://m.163.com/dy/article/KJ3DLL830519D4UH.html" target="_blank">岩山科技6天5板龙虎榜</a>
+            <span class="source-meta"> </span>
+        </li>
+        
+        <li>
+            <a href="https://www.163.com/money/article/KN0N29VJ00258105.html" target="_blank">三大指数集体低开AI光伏半导体跌幅居前</a>
+            <span class="source-meta"> </span>
+        </li>
+        
+        <li>
+            <a href="https://caifuhao.eastmoney.com/news/20260228155211504265980" target="_blank">美伊冲突对AI板块影响分析</a>
+            <span class="source-meta"> </span>
+        </li>
+        
+        <li>
+            <a href="https://www.cls.cn/detail/2299439" target="_blank">财联社3月2日午间涨停分析</a>
+            <span class="source-meta"> </span>
+        </li>
+        </ul>
+        </div>
+        
+        <div class="disclaimer">
+            ⚠️ 免责声明：本报告仅供参考，不构成任何投资建议。投资有风险，入市需谨慎。<br>
+            数据来源于公开信息，请以官方公告为准。
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,33 @@
+# Skill Information
+
+Name: cpp-architect-review
+Version: 1.0.0
+Created: 2026-03-02
+Author: Based on Google-CPP-软件架构师角色定义.md
+
+## Statistics
+- Total files: 6
+- Total lines: 3,241
+- Offline capable: Yes (STANDARDS.md contains core guidelines)
+
+## File Sizes
+- STANDARDS.md: 852 lines (Core guidelines - offline)
+- EXAMPLES.md: 712 lines (5 complete review cases)
+- REFERENCE.md: 633 lines (Detailed checklists)
+- QUICK_REFERENCE.md: 396 lines (Quick lookup)
+- SKILL.md: 339 lines (Main workflow)
+- README.md: 309 lines (Documentation)
+
+## Features
+✅ 6 dimensions of review (architecture, quality, performance, security, modern C++, project standards)
+✅ Offline capable (STANDARDS.md)
+✅ Standardized report format
+✅ WPS build system support
+✅ 5 complete examples
+✅ Quick reference card
+
+## Network Independence
+- STANDARDS.md: Fully offline (852 lines of core guidelines)
+- REFERENCE.md: Fully offline
+- EXAMPLES.md: Fully offline
+- External links: Optional (Google C++ Style Guide, C++ Core Guidelines)
