@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中金黄金 紧急更新 — 美以开战金价暴涨 2026-03-02</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #1e1e2e 0%, #2d2d44 100%);
+            min-height: 100vh;
+            color: #e0e0e0;
+            padding: 20px;
+        }
+        .container { max-width: 1000px; margin: 0 auto; }
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h1 { font-size: 28px; color: #fff; margin-bottom: 10px; }
+        .header .urgent { background: #dc2626; color: white; padding: 8px 20px; border-radius: 20px; font-size: 16px; font-weight: bold; display: inline-block; margin-bottom: 10px; animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+        .header .date { color: #888; font-size: 14px; }
+
+        .alert-box {
+            background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+            border: 2px solid #ef4444;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 0 30px rgba(220,38,38,0.3);
+        }
+        .alert-box h2 { font-size: 20px; color: #fff; margin-bottom: 16px; text-align: center; }
+        .alert-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+        .alert-item { background: rgba(0,0,0,0.3); border-radius: 10px; padding: 14px; text-align: center; }
+        .alert-item .label { font-size: 11px; color: #fca5a5; margin-bottom: 4px; }
+        .alert-item .value { font-size: 20px; font-weight: bold; color: #fff; }
+        .alert-item .sub { font-size: 11px; color: #fca5a5; margin-top: 3px; }
+
+        .war-timeline {
+            background: rgba(0,0,0,0.3);
+            border-radius: 12px;
+            padding: 18px;
+            margin-top: 16px;
+        }
+        .war-timeline h3 { font-size: 15px; color: #fca5a5; margin-bottom: 12px; }
+        .war-timeline ul { list-style: none; padding: 0; }
+        .war-timeline li {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            font-size: 13px;
+            color: #fff;
+            padding-left: 18px;
+            position: relative;
+        }
+        .war-timeline li::before { content: "●"; position: absolute; left: 0; color: #ef4444; }
+
+        .stock-card {
+            background: linear-gradient(135deg, #2a2a40 0%, #1a1a2e 100%);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 1px solid #3a3a5a;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        .stock-info { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+        .stock-name { font-size: 24px; font-weight: bold; color: #fff; }
+        .stock-code { font-size: 14px; color: #888; background: #3a3a5a; padding: 4px 12px; border-radius: 20px; }
+        .stock-price-container { text-align: right; }
+        .stock-price { font-size: 32px; font-weight: bold; color: #ef4444; }
+        .stock-change { font-size: 18px; color: #ef4444; }
+        .price-time { font-size: 12px; color: #666; margin-top: 4px; }
+        .market-data { font-size: 12px; color: #888; margin-top: 4px; }
+        .limit-badge { background: #dc2626; color: white; padding: 6px 16px; border-radius: 20px; font-size: 14px; font-weight: bold; animation: blink 1s infinite; }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+        .section {
+            background: #2a2a40;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 1px solid #3a3a5a;
+        }
+        .section h2 {
+            font-size: 18px;
+            color: #fff;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #4a4a6a;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .section h2::before {
+            content: "";
+            display: inline-block;
+            width: 4px;
+            height: 20px;
+            background: linear-gradient(to bottom, #6366f1, #8b5cf6);
+            border-radius: 2px;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+        }
+        .comparison-table th {
+            background: rgba(0,0,0,0.3);
+            padding: 12px;
+            text-align: left;
+            font-size: 13px;
+            color: #888;
+            border-bottom: 2px solid #4a4a6a;
+        }
+        .comparison-table td {
+            padding: 12px;
+            font-size: 14px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .comparison-table .time { color: #888; }
+        .comparison-table .old { color: #888; text-decoration: line-through; }
+        .comparison-table .new { color: #22c55e; font-weight: bold; }
+        .comparison-table .up { color: #ef4444; }
+
+        .fund-flow {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+        .fund-item { background: rgba(0,0,0,0.2); border-radius: 10px; padding: 14px; text-align: center; }
+        .fund-item .label { font-size: 11px; color: #888; margin-bottom: 4px; }
+        .fund-item .val { font-size: 18px; font-weight: bold; }
+        .fund-item .val.in { color: #ef4444; }
+        .fund-item .val.out { color: #22c55e; }
+
+        .analysis-box {
+            background: rgba(99,102,241,0.08);
+            border: 1px solid rgba(99,102,241,0.2);
+            border-radius: 12px;
+            padding: 18px;
+            margin-top: 16px;
+        }
+        .analysis-box h3 { color: #818cf8; font-size: 15px; margin-bottom: 10px; }
+        .analysis-box p { font-size: 14px; color: #c0c0d0; line-height: 1.8; }
+
+        .strategy-box {
+            background: linear-gradient(135deg, rgba(34,197,94,0.1) 0%, rgba(99,102,241,0.1) 100%);
+            border: 1px solid rgba(34,197,94,0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 16px;
+        }
+        .strategy-box h3 { color: #22c55e; font-size: 16px; margin-bottom: 12px; text-align: center; }
+        .strategy-item { background: rgba(0,0,0,0.2); border-radius: 10px; padding: 14px; margin-bottom: 10px; }
+        .strategy-item h4 { font-size: 14px; color: #fff; margin-bottom: 8px; }
+        .strategy-item p { font-size: 13px; color: #aaa; line-height: 1.7; }
+
+        .risk-box {
+            background: rgba(239,68,68,0.06);
+            border: 1px solid rgba(239,68,68,0.15);
+            border-radius: 12px;
+            padding: 18px;
+            margin-top: 16px;
+        }
+        .risk-box h3 { color: #ef4444; font-size: 15px; margin-bottom: 10px; }
+        .risk-box ul { list-style: none; padding: 0; }
+        .risk-box li { padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 13px; color: #ccc; padding-left: 18px; position: relative; }
+        .risk-box li::before { content: "!"; position: absolute; left: 0; color: #ef4444; font-weight: bold; }
+
+        .disclaimer { text-align: center; font-size: 12px; color: #666; padding: 20px; border-top: 1px solid #3a3a5a; margin-top: 20px; }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <div class="header">
+        <div class="urgent">🚨 紧急更新 🚨</div>
+        <h1>中金黄金 — 美以开战金价暴涨</h1>
+        <div class="date">更新时间: 2026-03-02 14:13 | 距涨停仅0.54元</div>
+    </div>
+
+    <!-- 战争警报 -->
+    <div class="alert-box">
+        <h2>⚠️ 美以正式对伊朗开战 — 黄金避险需求爆发 ⚠️</h2>
+        <div class="alert-grid">
+            <div class="alert-item">
+                <div class="label">COMEX黄金期货</div>
+                <div class="value">$5,377</div>
+                <div class="sub">突破$5,400 涨2.47%</div>
+            </div>
+            <div class="alert-item">
+                <div class="label">现货黄金</div>
+                <div class="value">$5,384</div>
+                <div class="sub">涨2.00% 创历史新高</div>
+            </div>
+            <div class="alert-item">
+                <div class="label">中金黄金</div>
+                <div class="value">34.48元</div>
+                <div class="sub">涨8.29% 距涨停0.54元</div>
+            </div>
+            <div class="alert-item">
+                <div class="label">战争持续时间</div>
+                <div class="value">~4周</div>
+                <div class="sub">特朗普声明</div>
+            </div>
+            <div class="alert-item">
+                <div class="label">霍尔木兹海峡</div>
+                <div class="value">已关闭</div>
+                <div class="sub">伊朗封锁 油轮遭袭</div>
+            </div>
+            <div class="alert-item">
+                <div class="label">伊朗最高领袖</div>
+                <div class="value">哈梅内伊</div>
+                <div class="sub">在美以袭击中身亡</div>
+            </div>
+        </div>
+
+        <div class="war-timeline">
+            <h3>战争时间线 (40小时)</h3>
+            <ul>
+                <li><strong>2/28上午:</strong> 美以联合对伊朗发起大规模空袭，摧毁革命卫队总部、击沉9艘军舰、打死48名指挥官</li>
+                <li><strong>2/28-3/1:</strong> 伊朗展开9轮"真实承诺4"反击，至少27个美军基地遭袭，击落22架无人机</li>
+                <li><strong>3/1:</strong> 伊朗宣称袭击"林肯"号航母(美方否认)，霍尔木兹海峡关闭，油轮遭袭</li>
+                <li><strong>3/1:</strong> 伊朗小学遭袭165人遇难，以色列11死677伤，美军3死5重伤</li>
+                <li><strong>3/2:</strong> 特朗普称战争将持续约4周，德黑兰持续传出爆炸声</li>
+                <li><strong>3/2:</strong> 联合国秘书长谴责双方，英法德表态可能采取"防御行动"</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 股票卡片 -->
+    <div class="stock-card">
+        <div class="stock-info">
+            <span class="stock-name">中金黄金</span>
+            <span class="stock-code">600489.SH</span>
+            <span class="limit-badge">距涨停0.54元</span>
+        </div>
+        <div class="stock-price-container">
+            <div class="stock-price">34.48</div>
+            <div class="stock-change">+8.29% (+2.64)</div>
+            <div class="price-time">2026-03-02 14:13 实时</div>
+            <div class="market-data">涨停板35.02 | 换手4.02% | 成交64.3亿</div>
+        </div>
+    </div>
+
+    <!-- 对比分析 -->
+    <div class="section">
+        <h2>早盘预判 vs 实盘走势对比</h2>
+        <table class="comparison-table">
+            <thead>
+                <tr>
+                    <th>指标</th>
+                    <th>早盘预判(09:25)</th>
+                    <th>实盘走势(14:13)</th>
+                    <th>变化</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>开盘价</strong></td>
+                    <td class="old">33.80(竞价)</td>
+                    <td class="new">33.80</td>
+                    <td>符合预期</td>
+                </tr>
+                <tr>
+                    <td><strong>最高价</strong></td>
+                    <td class="old">预计34-35区间</td>
+                    <td class="new">34.55</td>
+                    <td class="up">冲击涨停未果</td>
+                </tr>
+                <tr>
+                    <td><strong>最低价</strong></td>
+                    <td class="old">支撑32.5-33</td>
+                    <td class="new">31.85</td>
+                    <td class="up">跌破支撑后反弹</td>
+                </tr>
+                <tr>
+                    <td><strong>当前价</strong></td>
+                    <td class="old">33.80(高开)</td>
+                    <td class="new">34.48</td>
+                    <td class="up">+2.01% 强势</td>
+                </tr>
+                <tr>
+                    <td><strong>涨幅</strong></td>
+                    <td class="old">6.16%(竞价)</td>
+                    <td class="new">8.29%</td>
+                    <td class="up">扩大2.13%</td>
+                </tr>
+                <tr>
+                    <td><strong>国际金价</strong></td>
+                    <td class="old">$5,170(预判)</td>
+                    <td class="new">$5,377</td>
+                    <td class="up">+$207 (+4%)</td>
+                </tr>
+                <tr>
+                    <td><strong>主力资金</strong></td>
+                    <td class="old">预计净流入</td>
+                    <td class="new">净流入33.68亿</td>
+                    <td class="up">大幅流入</td>
+                </tr>
+                <tr>
+                    <td><strong>换手率</strong></td>
+                    <td class="old">预计2-3%</td>
+                    <td class="new">4.02%</td>
+                    <td class="up">活跃度超预期</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="analysis-box">
+            <h3>走势复盘</h3>
+            <p>
+                <strong>场景验证:</strong> 实际走势介于早盘预判的"场景1(偏多)"和"场景2(偏空)"之间。<br><br>
+                <strong>09:30开盘:</strong> 高开33.80后快速冲高至34.55(距涨停0.47元)，但遭遇涨停板抛压未能封板。<br>
+                <strong>10:00-11:00:</strong> 高位震荡后回落，最低触及31.85(跌破早盘支撑32.5)，引发恐慌。<br>
+                <strong>11:00-14:00:</strong> 金价突破$5,400+战争升级消息传出，资金重新涌入，强势反弹至34.48。<br><br>
+                <strong>关键转折:</strong> 31.85低点出现"双针探底"(2/3跌停29.55 + 今日31.85)，威科夫Spring信号再次确认，随后放量反弹。主力资金净流入33.68亿(超大单+7.73亿)，显示机构在低位坚决抄底。
+            </p>
+        </div>
+    </div>
+
+    <!-- 资金流向 -->
+    <div class="section">
+        <h2>今日资金流向 (14:13)</h2>
+        <div class="fund-flow">
+            <div class="fund-item">
+                <div class="label">主力净额</div>
+                <div class="val in">+33.68亿</div>
+            </div>
+            <div class="fund-item">
+                <div class="label">超大单</div>
+                <div class="val in">+7.73亿</div>
+            </div>
+            <div class="fund-item">
+                <div class="label">大单</div>
+                <div class="val in">+25.95亿</div>
+            </div>
+            <div class="fund-item">
+                <div class="label">中单</div>
+                <div class="val in">+258.53亿</div>
+            </div>
+            <div class="fund-item">
+                <div class="label">小单(散户)</div>
+                <div class="val out">-292.18亿</div>
+            </div>
+            <div class="fund-item">
+                <div class="label">成交额</div>
+                <div class="val" style="color:#fff;">64.27亿</div>
+            </div>
+        </div>
+
+        <div class="analysis-box">
+            <h3>资金解读</h3>
+            <p>
+                <strong>主力态度:</strong> 主力资金大幅净流入33.68亿，其中超大单(机构)净流入7.73亿，大单(游资/主力)净流入25.95亿。说明<strong>机构+游资形成合力</strong>，在战争催化下坚定看多。<br><br>
+                <strong>散户行为:</strong> 小单净流出292.18亿，典型的"散户恐慌抛售+机构抄底"格局。早盘高开后散户追涨，回调时恐慌割肉，主力在31.85低点大举接盘。<br><br>
+                <strong>中单异常:</strong> 中单净流入258.53亿(异常巨大)，可能是部分中型机构和私募基金紧急建仓。<br><br>
+                <strong>成交额:</strong> 64.27亿创近期新高(上周五仅26亿)，换手率4.02%，说明筹码快速换手，主力在吸收散户抛盘。
+            </p>
+        </div>
+    </div>
+
+    <!-- 大盘环境 -->
+    <div class="section">
+        <h2>大盘环境 (14:13)</h2>
+        <div class="fund-flow">
+            <div class="fund-item">
+                <div class="label">上证指数</div>
+                <div class="val" style="color:#ef4444;">4181.26</div>
+                <div style="font-size:11px; color:#ef4444; margin-top:2px;">+0.44%</div>
+            </div>
+            <div class="fund-item">
+                <div class="label">深证成指</div>
+                <div class="val" style="color:#22c55e;">14467</div>
+                <div style="font-size:11px; color:#22c55e; margin-top:2px;">-0.19%</div>
+            </div>
+            <div class="fund-item">
+                <div class="label">创业板指</div>
+                <div class="val" style="color:#22c55e;">3301.82</div>
+                <div style="font-size:11px; color:#22c55e; margin-top:2px;">-0.26%</div>
+            </div>
+            <div class="fund-item">
+                <div class="label">沪深300</div>
+                <div class="val" style="color:#ef4444;">4727.47</div>
+                <div style="font-size:11px; color:#ef4444; margin-top:2px;">+0.36%</div>
+            </div>
+            <div class="fund-item">
+                <div class="label">中证1000</div>
+                <div class="val" style="color:#22c55e;">8478.47</div>
+                <div style="font-size:11px; color:#22c55e; margin-top:2px;">-0.96%</div>
+            </div>
+            <div class="fund-item">
+                <div class="label">市场风格</div>
+                <div class="val" style="color:#f59e0b; font-size:14px;">大盘价值</div>
+            </div>
+        </div>
+        <p style="font-size:14px; color:#aaa; line-height:1.7; margin-top:12px;">
+            <strong>环境特征:</strong> 大盘震荡偏强，上证+0.44%，沪深300+0.36%，呈现"大盘价值"风格。小盘股(中证1000-0.96%)承压。<strong>资源股(黄金/有色/能源)逆势大涨</strong>，与科技股形成鲜明对比，典型的"避险+滞涨交易"主导行情。中金黄金涨8.29%远超大盘，板块效应明显。
+        </p>
+    </div>
+
+    <!-- 操作策略 -->
+    <div class="section">
+        <h2>实时操作策略</h2>
+
+        <div class="strategy-box">
+            <h3>当前时点(14:13) 三种策略</h3>
+
+            <div class="strategy-item">
+                <h4 style="color:#22c55e;">策略1 — 持有者: 继续持有 ★★★★★</h4>
+                <p>
+                    <strong>理由:</strong> 战争才刚开始(特朗普称持续4周)，金价突破$5,400且趋势向上，中金黄金技术面+基本面+催化面三重共振。今日31.85低点已形成"双针探底"确认支撑。<br>
+                    <strong>止盈:</strong> 不设具体价位，跟随金价走势。若金价突破$6,000，中金黄金可能冲击40+。<br>
+                    <strong>止损:</strong> 跌破29.55(2/3跌停低点)，或美伊突然和解。<br>
+                    <strong>仓位:</strong> 已持有者保持5-7成仓位，不建议加仓(当前34.48已距涨停0.54元，追高风险大)。
+                </p>
+            </div>
+
+            <div class="strategy-item">
+                <h4 style="color:#f59e0b;">策略2 — 空仓者: 等待回调 ★★★</h4>
+                <p>
+                    <strong>理由:</strong> 当前34.48距涨停仅0.54元，追高风险极大。今日振幅8.48%(31.85-34.55)，说明波动剧烈。<br>
+                    <strong>买点1:</strong> 回踩32.5-33.0区间(今日低点31.85上方)，这是早盘支撑位。<br>
+                    <strong>买点2:</strong> 明日若低开至32.0附近，属于"缺口回补"机会。<br>
+                    <strong>买点3:</strong> 若明日放量突破35.02涨停板，次日确认后追入(但风险较大)。<br>
+                    <strong>仓位:</strong> 首次建仓2-3成，确认趋势后加至5成。
+                </p>
+            </div>
+
+            <div class="strategy-item">
+                <h4 style="color:#ef4444;">策略3 — 短线客: 尾盘观望 ★★</h4>
+                <p>
+                    <strong>理由:</strong> 今日高开8%+已透支部分预期，尾盘(14:30-15:00)可能出现获利盘抛压回落。<br>
+                    <strong>操作:</strong> 若尾盘跳水至33.5以下，可小仓位(1-2成)抄底博弈次日高开。止损设在32.5。<br>
+                    <strong>风险:</strong> 短线波动大，不适合风险厌恶型投资者。
+                </p>
+            </div>
+        </div>
+
+        <div class="analysis-box" style="margin-top:16px;">
+            <h3>核心判断</h3>
+            <p>
+                中金黄金当前处于<strong>"战争驱动的主升浪初期"</strong>。从威科夫供需角度，今日31.85低点是第二次Spring确认(第一次2/3跌停29.55)，主力资金33.68亿净流入是SOS(强势信号)的延续。<br><br>
+                <strong>中期目标:</strong> 研报目标价47.62元(+38%空间)，若战争持续4周+金价突破$6,000，中金黄金可能提前达到甚至超越目标价。<br><br>
+                <strong>关键变量:</strong> 美伊战争进展(霍尔木兹海峡是否持续关闭) + 国际金价走势(能否突破$5,500) + 央行购金节奏(连续15个月购金是否加速)。
+            </p>
+        </div>
+    </div>
+
+    <!-- 风险提示 -->
+    <div class="section">
+        <h2>风险提示</h2>
+        <div class="risk-box">
+            <h3>⚠️ 高度警惕以下风险</h3>
+            <ul>
+                <li><strong>战争突然结束:</strong> 若美伊达成停火协议(概率低但不能排除)，避险逻辑瞬间瓦解，金价和黄金股将暴跌(参考2/3闪崩)</li>
+                <li><strong>金价技术性回调:</strong> $5,377已创历史新高，短期可能出现技术性回调至$5,200-5,300，中金黄金将跟随调整</li>
+                <li><strong>高开低走陷阱:</strong> 今日高开8%+尾盘可能跳水，若收盘跌破33元则形成"假突破"</li>
+                <li><strong>主力出货风险:</strong> 主力今日大举净流入33.68亿，若明日高开后快速流出，可能是"拉高出货"</li>
+                <li><strong>散户踩踏:</strong> 小单今日净流出292亿，说明散户筹码松动。若明日继续下跌，散户恐慌性抛售将加剧</li>
+                <li><strong>美元走强:</strong> 若美元指数反弹(战争推升避险美元)，将压制金价上涨空间</li>
+                <li><strong>估值过高:</strong> PE 37.8倍、PB 5.72倍，估值已不便宜。若金价回调，估值压力将显现</li>
+            </ul>
+        </div>
+
+        <div class="analysis-box" style="margin-top:16px; background:rgba(239,68,68,0.08); border-color:rgba(239,68,68,0.2);">
+            <h3 style="color:#ef4444;">止损铁律</h3>
+            <p style="color:#fca5a5;">
+                <strong>硬止损:</strong> 跌破29.55元(2/3跌停低点)，无条件清仓。<br>
+                <strong>软止损:</strong> 若美伊宣布停火/和解，立刻减仓至3成以下，观望1-2天后决定是否清仓。<br>
+                <strong>时间止损:</strong> 若持有超过4周(战争结束时点)金价未突破$6,000，考虑减仓至5成以下。<br><br>
+                <strong>纪律:</strong> 黄金股波动极大(今日振幅8.48%)，严格执行止损是保住本金的唯一方法。不要因为"战争还在继续"就死扛不止损——2月3日闪崩已是前车之鉴。
+            </p>
+        </div>
+    </div>
+
+    <div class="disclaimer">
+        以上分析基于2026年3月2日14:13实时数据，仅供参考研究，不构成任何投资建议。<br>
+        战争局势瞬息万变，黄金价格波动剧烈，投资有风险，入市需谨慎。请严格执行止损纪律。<br>
+        数据来源: 腾讯财经、东方财富、新浪财经、和讯期货、中国经济网
+    </div>
+</div>
+</body>
+</html>
