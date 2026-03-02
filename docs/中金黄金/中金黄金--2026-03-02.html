@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中金黄金(600489) 深度分析报告 2026-03-02</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #1e1e2e 0%, #2d2d44 100%);
+            min-height: 100vh;
+            color: #e0e0e0;
+            padding: 20px;
+        }
+        .container { max-width: 1000px; margin: 0 auto; }
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h1 { font-size: 28px; color: #fff; margin-bottom: 10px; }
+        .header .date { color: #888; font-size: 14px; }
+
+        .stock-card {
+            background: linear-gradient(135deg, #2a2a40 0%, #1a1a2e 100%);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 1px solid #3a3a5a;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        .stock-info { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+        .stock-name { font-size: 24px; font-weight: bold; color: #fff; }
+        .stock-code { font-size: 14px; color: #888; background: #3a3a5a; padding: 4px 12px; border-radius: 20px; }
+        .stock-sector { font-size: 14px; color: #888; }
+        .stock-price-container { text-align: right; }
+        .stock-price { font-size: 32px; font-weight: bold; color: #ef4444; }
+        .stock-change { font-size: 18px; color: #ef4444; }
+        .price-time { font-size: 12px; color: #666; margin-top: 4px; }
+        .market-data { font-size: 12px; color: #888; margin-top: 4px; }
+        .anomaly-badge { background: #dc2626; color: white; padding: 6px 16px; border-radius: 20px; font-size: 14px; font-weight: bold; }
+
+        .section {
+            background: #2a2a40;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 1px solid #3a3a5a;
+        }
+        .section h2 {
+            font-size: 18px;
+            color: #fff;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #4a4a6a;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .section h2::before {
+            content: "";
+            display: inline-block;
+            width: 4px;
+            height: 20px;
+            background: linear-gradient(to bottom, #6366f1, #8b5cf6);
+            border-radius: 2px;
+        }
+
+        /* 触发因素 */
+        .trigger-card {
+            background: #1e1e2e;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            border: 1px solid #3a3a5a;
+        }
+        .trigger-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+        .trigger-type { font-size: 12px; padding: 3px 10px; border-radius: 20px; }
+        .trigger-type.today { background: #dc2626; color: white; }
+        .trigger-type.recent { background: #f59e0b; color: #1a1a2e; }
+        .trigger-type.week { background: #6366f1; color: white; }
+        .trigger-type.bg { background: #3a3a5a; color: #ccc; }
+        .trigger-title { font-size: 15px; color: #fff; font-weight: 500; }
+        .trigger-detail { font-size: 13px; color: #aaa; line-height: 1.7; }
+        .trigger-source { font-size: 12px; color: #666; margin-top: 8px; }
+        .trigger-source a { color: #818cf8; text-decoration: none; }
+
+        /* 博弈分析 */
+        .participant-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+        .participant-card {
+            background: #1e1e2e;
+            border-radius: 12px;
+            padding: 18px;
+            border: 1px solid #3a3a5a;
+        }
+        .participant-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .participant-name { font-size: 15px; font-weight: bold; color: #fff; }
+        .stance-badge { font-size: 12px; padding: 3px 12px; border-radius: 20px; font-weight: 500; }
+        .stance-badge.bullish { background: rgba(34,197,94,0.15); color: #22c55e; border: 1px solid rgba(34,197,94,0.3); }
+        .stance-badge.neutral { background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); }
+        .stance-badge.bearish { background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
+        .stance-badge.policy { background: rgba(99,102,241,0.15); color: #818cf8; border: 1px solid rgba(99,102,241,0.3); }
+        .participant-detail { font-size: 13px; color: #aaa; line-height: 1.7; }
+        .participant-detail li { margin-bottom: 6px; }
+
+        /* 战争催化模块 */
+        .war-section {
+            background: linear-gradient(135deg, #3b1a1a 0%, #2a1a2e 100%);
+            border: 1px solid #5a2a2a;
+        }
+        .war-section h2 { color: #ff6b6b; border-bottom-color: #5a2a2a; }
+        .war-section h2::before { background: linear-gradient(to bottom, #ef4444, #dc2626); }
+        .war-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 16px; }
+        .war-item { background: rgba(0,0,0,0.25); border-radius: 10px; padding: 14px; }
+        .war-item .label { font-size: 11px; color: #999; margin-bottom: 4px; }
+        .war-item .value { font-size: 18px; font-weight: bold; }
+        .war-item .value.up { color: #ef4444; }
+        .war-item .value.gold { color: #fbbf24; }
+        .war-item .sub { font-size: 11px; color: #888; margin-top: 3px; }
+
+        /* 时间线 */
+        .timeline { position: relative; padding-left: 30px; }
+        .timeline::before { content: ''; position: absolute; left: 10px; top: 0; bottom: 0; width: 2px; background: #4a4a6a; }
+        .timeline-item { position: relative; margin-bottom: 18px; }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -24px;
+            top: 6px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #6366f1;
+            border: 2px solid #2a2a40;
+        }
+        .timeline-item.highlight::before { background: #ef4444; }
+        .timeline-date { font-size: 12px; color: #888; margin-bottom: 2px; }
+        .timeline-text { font-size: 13px; color: #ccc; line-height: 1.6; }
+
+        /* 供需仪表盘 */
+        .gauge-container { text-align: center; margin: 20px 0; }
+        .gauge-bar {
+            width: 100%;
+            height: 24px;
+            background: linear-gradient(to right, #ef4444, #f59e0b, #22c55e);
+            border-radius: 12px;
+            position: relative;
+            margin: 10px 0;
+        }
+        .gauge-pointer {
+            position: absolute;
+            top: -8px;
+            width: 4px;
+            height: 40px;
+            background: #fff;
+            border-radius: 2px;
+            transform: translateX(-50%);
+        }
+        .gauge-labels { display: flex; justify-content: space-between; font-size: 11px; color: #888; }
+        .gauge-score { font-size: 28px; font-weight: bold; margin-top: 8px; }
+        .gauge-score.positive { color: #22c55e; }
+
+        /* 预判模块 */
+        .outlook-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .outlook-card { background: #1e1e2e; border-radius: 12px; padding: 18px; border: 1px solid #3a3a5a; }
+        .outlook-card h3 { font-size: 14px; color: #fff; margin-bottom: 10px; }
+        .outlook-card p { font-size: 13px; color: #aaa; line-height: 1.7; }
+        .outlook-card .key-level { display: flex; justify-content: space-between; margin-top: 8px; padding: 6px 0; border-top: 1px solid #3a3a5a; font-size: 13px; }
+        .outlook-card .key-level .label { color: #888; }
+        .outlook-card .key-level .val { font-weight: bold; }
+        .outlook-card .key-level .val.support { color: #22c55e; }
+        .outlook-card .key-level .val.resist { color: #ef4444; }
+
+        .risk-list { list-style: none; padding: 0; }
+        .risk-list li { padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 13px; color: #ccc; padding-left: 18px; position: relative; }
+        .risk-list li::before { content: "!"; position: absolute; left: 0; color: #ef4444; font-weight: bold; }
+
+        .core-logic { background: rgba(99,102,241,0.08); border: 1px solid rgba(99,102,241,0.2); border-radius: 12px; padding: 18px; margin-bottom: 16px; }
+        .core-logic h3 { color: #818cf8; font-size: 15px; margin-bottom: 10px; }
+        .core-logic p { font-size: 14px; color: #c0c0d0; line-height: 1.8; }
+
+        .battle-summary {
+            background: linear-gradient(135deg, rgba(34,197,94,0.08) 0%, rgba(99,102,241,0.08) 100%);
+            border: 1px solid rgba(34,197,94,0.2);
+            border-radius: 12px;
+            padding: 18px;
+            margin-top: 16px;
+            text-align: center;
+        }
+        .battle-summary .pattern { font-size: 20px; font-weight: bold; color: #22c55e; }
+        .battle-summary .detail { font-size: 14px; color: #aaa; margin-top: 8px; line-height: 1.7; }
+
+        .disclaimer { text-align: center; font-size: 12px; color: #666; padding: 20px; border-top: 1px solid #3a3a5a; margin-top: 20px; }
+
+        @media (max-width: 640px) {
+            .stock-card { flex-direction: column; align-items: flex-start; }
+            .stock-price-container { text-align: left; }
+            .outlook-grid { grid-template-columns: 1fr; }
+            .participant-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <div class="header">
+        <h1>中金黄金(600489) 深度分析报告</h1>
+        <div class="date">分析日期: 2026-03-02 (周一) | 背景: 美以伊朗冲突升级 + 国际金价历史高位</div>
+    </div>
+
+    <!-- 股票卡片 -->
+    <div class="stock-card">
+        <div class="stock-info">
+            <span class="stock-name">中金黄金</span>
+            <span class="stock-code">600489.SH</span>
+            <span class="stock-sector">黄金 | 贵金属 | 央企</span>
+            <span class="anomaly-badge">高开6.16%</span>
+        </div>
+        <div class="stock-price-container">
+            <div class="stock-price">33.80</div>
+            <div class="stock-change">+6.16% (+1.96)</div>
+            <div class="price-time">2026-03-02 09:25 竞价</div>
+            <div class="market-data">PE 37.05 | PB 5.61 | 市值 1638亿</div>
+        </div>
+    </div>
+
+    <!-- ===== 美伊冲突专题 ===== -->
+    <div class="section war-section">
+        <h2>美以伊朗冲突 — 黄金核心催化</h2>
+
+        <div class="war-grid">
+            <div class="war-item">
+                <div class="label">COMEX 黄金期货</div>
+                <div class="value gold">$5,170</div>
+                <div class="sub">历史高点 $5,594 (1月29日)</div>
+            </div>
+            <div class="war-item">
+                <div class="label">WTI 原油 (2/28)</div>
+                <div class="value up">$70.35</div>
+                <div class="sub">+2.52% 受冲突升级推动</div>
+            </div>
+            <div class="war-item">
+                <div class="label">CFTC黄金净多头</div>
+                <div class="value gold">99,937手</div>
+                <div class="sub">周增+3,878手 资金加速回流</div>
+            </div>
+            <div class="war-item">
+                <div class="label">央行连续购金</div>
+                <div class="value gold">15个月</div>
+                <div class="sub">储备达7,419万盎司</div>
+            </div>
+            <div class="war-item">
+                <div class="label">打击伊朗概率</div>
+                <div class="value up">~26%</div>
+                <div class="sub">预测市场数据</div>
+            </div>
+            <div class="war-item">
+                <div class="label">高盛金价目标</div>
+                <div class="value gold">$5,400</div>
+                <div class="sub">2026年底前预测</div>
+            </div>
+        </div>
+
+        <h3 style="color:#ff6b6b; font-size:15px; margin-bottom:14px;">冲突升级时间线</h3>
+        <div class="timeline">
+            <div class="timeline-item highlight">
+                <div class="timeline-date">2026-02-28</div>
+                <div class="timeline-text">特朗普表态对伊核谈判"不满意"，WTI油价暴涨2.52%，黄金白银直线飙升</div>
+            </div>
+            <div class="timeline-item highlight">
+                <div class="timeline-date">2026-02-26</div>
+                <div class="timeline-text">油运板块再度冲高，BDTI原油运输指数达1842点创阶段新高</div>
+            </div>
+            <div class="timeline-item highlight">
+                <div class="timeline-date">2026-02-19~20</div>
+                <div class="timeline-text">特朗普发出15天伊朗核协议最后通牒，金价再度测试$5,000关口；石油股大爆发</div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-date">2026-02-16~18</div>
+                <div class="timeline-text">伊朗在霍尔木兹海峡大规模军演(反舰导弹+无人机群)；金价触及$5,019创纪录；美国部署福特号+林肯号双航母至波斯湾</div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-date">2026-02-12</div>
+                <div class="timeline-text">美以联合袭击伊朗传闻，原油贵金属大涨；中石化升2.9%，中海油升2.02%</div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-date">2026-02-03</div>
+                <div class="timeline-text">特朗普称伊朗"认真协商"缓解紧张 + CME上调保证金 → 金价闪崩，中金黄金跌停</div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-date">2026-01-29</div>
+                <div class="timeline-text">COMEX黄金创历史新高$5,594.82/盎司</div>
+            </div>
+        </div>
+
+        <div style="background:rgba(0,0,0,0.2); border-radius:12px; padding:16px; margin-top:16px;">
+            <h3 style="color:#fbbf24; font-size:14px; margin-bottom:10px;">战争对中金黄金的传导路径</h3>
+            <p style="font-size:13px; color:#ccc; line-height:1.8;">
+                <strong>路径1 (直接):</strong> 美伊冲突升级 → 全球避险情绪飙升 → 国际金价突破$5,400+ → 中金黄金矿产金售价上涨 → 毛利率大幅提升 → 业绩超预期<br>
+                <strong>路径2 (间接):</strong> 霍尔木兹海峡风险 → 油价飙升 → 通胀预期上升 → 美联储降息预期增强 → 实际利率下降 → 黄金估值重估<br>
+                <strong>路径3 (央行):</strong> 地缘风险加剧 → 各国央行加速去美元化 → 购金需求激增(中国已连续15个月) → 黄金长期供需结构性利好<br>
+                <strong>弹性测算:</strong> 金价每上涨$100/盎司(约2%)，中金黄金矿产金收入增加约5-8亿元/年，净利润弹性约3-5%
+            </p>
+        </div>
+    </div>
+
+    <!-- ===== 大盘环境 ===== -->
+    <div class="section">
+        <h2>大盘环境 (2月28日收盘)</h2>
+        <div class="war-grid">
+            <div class="war-item">
+                <div class="label">上证指数</div>
+                <div class="value" style="color:#fff;">4,162.88</div>
+                <div class="sub">沪指微涨0.39%</div>
+            </div>
+            <div class="war-item">
+                <div class="label">深证成指</div>
+                <div class="value" style="color:#22c55e;">14,495</div>
+                <div class="sub">-0.06% 微跌</div>
+            </div>
+            <div class="war-item">
+                <div class="label">创业板指</div>
+                <div class="value" style="color:#22c55e;">3,310</div>
+                <div class="sub">-1.04% 科技板块回调</div>
+            </div>
+            <div class="war-item">
+                <div class="label">市场特征</div>
+                <div class="value" style="color:#f59e0b; font-size:14px;">结构分化</div>
+                <div class="sub">资源股强 科技股弱</div>
+            </div>
+            <div class="war-item">
+                <div class="label">涨停家数</div>
+                <div class="value" style="color:#fff;">~100只</div>
+                <div class="sub">小金属板块爆发</div>
+            </div>
+            <div class="war-item">
+                <div class="label">下跌家数</div>
+                <div class="value" style="color:#ef4444;">2900+</div>
+                <div class="sub">八成个股下跌</div>
+            </div>
+        </div>
+        <p style="font-size:14px; color:#aaa; line-height:1.7; margin-top:12px;">
+            <strong>环境评估:</strong> 市场呈现明显的结构分化——小金属/贵金属/能源板块资金涌入(小金属板块净流入40.65亿)，而科技/半导体板块大幅回调(通信设备净流出107.8亿)。这种"资源为王"的格局对中金黄金构成<span style="color:#22c55e;">正向支撑</span>。券商股尾盘拉升(中国银河涨停创新高)显示市场风险偏好并未全面崩塌。
+        </p>
+    </div>
+
+    <!-- ===== 近期触发因素 ===== -->
+    <div class="section">
+        <h2>近期触发因素</h2>
+
+        <div class="trigger-card">
+            <div class="trigger-header">
+                <span class="trigger-type today">今日</span>
+                <span class="trigger-title">竞价高开6.16%至33.80元</span>
+            </div>
+            <div class="trigger-detail">周末美伊冲突催化发酵(特朗普2/28表态不满意+油价暴涨)，周一开盘资金抢筹，竞价直接高开至33.80元(前收31.84)。涨停板价35.02，高开后距离涨停仅3.6%空间。</div>
+        </div>
+
+        <div class="trigger-card">
+            <div class="trigger-header">
+                <span class="trigger-type recent">近3日</span>
+                <span class="trigger-title">CFTC黄金投机净多头大增3,878手至99,937手</span>
+            </div>
+            <div class="trigger-detail">截至2月24日当周，COMEX黄金投机者净多头增加3,878份合约，接近10万手大关。投机资金加速回流黄金市场，白银净多头同步增加1,822手。</div>
+            <div class="trigger-source">来源: <a href="https://finance.sina.cn/2026-02-28/detail-inhpimsq6207899.d.html" target="_blank">新浪财经 CFTC持仓报告</a></div>
+        </div>
+
+        <div class="trigger-card">
+            <div class="trigger-header">
+                <span class="trigger-type recent">近3日</span>
+                <span class="trigger-title">国际油价大涨 + 黄金白银飙升</span>
+            </div>
+            <div class="trigger-detail">2月28日WTI涨2.52%至$70.35，布伦特涨2.08%至$74.04。原因：特朗普对伊核谈判"不满意"+ 中东2003年以来最大规模军事集结。黄金白银直线飙升。</div>
+            <div class="trigger-source">来源: <a href="https://cls.cn/detail/1956730" target="_blank">财联社</a> | <a href="https://m.nbd.com.cn/articles/2026-02-27/4270985.html" target="_blank">每日经济新闻</a></div>
+        </div>
+
+        <div class="trigger-card">
+            <div class="trigger-header">
+                <span class="trigger-type week">近7日</span>
+                <span class="trigger-title">2025年度业绩预增公告：净利润+42%~59%</span>
+            </div>
+            <div class="trigger-detail">预计2025年归母净利润48-54亿元(2024年33.86亿)，同比增长41.76%-59.48%。扣非净利润56-62亿元，同比增长58.55%-75.54%。驱动力：矿产金售价上涨 + 降本增效 + 毛利率提升。</div>
+            <div class="trigger-source">来源: <a href="https://www.cfi.net.cn/p20260127000373.html" target="_blank">中财网 业绩预增公告</a></div>
+        </div>
+
+        <div class="trigger-card">
+            <div class="trigger-header">
+                <span class="trigger-type bg">背景</span>
+                <span class="trigger-title">研报目标价47.62元 — 全球第六大单体金矿投产</span>
+            </div>
+            <div class="trigger-detail">2026年1月研报给出目标价47.62元(当前33.80，上涨空间约41%)。核心看点：全球第六大单体金矿投产+央企护城河优势。央企背景提供矿权获取和资源整合的独特优势。</div>
+            <div class="trigger-source">来源: <a href="https://caifuhao.eastmoney.com/news/20260104070106027496290" target="_blank">东方财富研报</a></div>
+        </div>
+    </div>
+
+    <!-- ===== 五维度博弈分析 ===== -->
+    <div class="section">
+        <h2>五维度多方博弈分析</h2>
+
+        <div class="participant-grid">
+            <div class="participant-card">
+                <div class="participant-header">
+                    <span class="participant-name">游资 (短线热钱)</span>
+                    <span class="stance-badge neutral">中性偏多</span>
+                </div>
+                <div class="participant-detail">
+                    <ul>
+                        <li>2月3日跌停时游资净流出5,721万元(跟随金价闪崩抛售)</li>
+                        <li>近期未见知名游资席位大举介入龙虎榜</li>
+                        <li>黄金股属于趋势交易品种，游资更偏好题材股打板</li>
+                        <li>但今日6%+高开可能吸引短线资金追涨</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="participant-card">
+                <div class="participant-header">
+                    <span class="participant-name">主力 (控盘大资金)</span>
+                    <span class="stance-badge bullish">看多</span>
+                </div>
+                <div class="participant-detail">
+                    <ul>
+                        <li><strong>2月11日:</strong> 主力大资金净流入1.76亿元(超大单+1.49亿)</li>
+                        <li>3日DDX指标升至0.165，短期资金活跃度提升</li>
+                        <li>主力资金从2月初的净流出转向净流入，方向性转变明确</li>
+                        <li>上周五(2/28)外盘5.45亿 > 内盘3.83亿，买方积极</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="participant-card">
+                <div class="participant-header">
+                    <span class="participant-name">机构 (基金/QFII)</span>
+                    <span class="stance-badge bullish">看多</span>
+                </div>
+                <div class="participant-detail">
+                    <ul>
+                        <li>研报目标价47.62元(+41%空间)，维持看好评级</li>
+                        <li>华泰柏瑞沪深300ETF持股4,955万股(第五大流通股东)</li>
+                        <li>黄金股ETF(517520)持股4,776万股(新进股东)</li>
+                        <li>1月28日涨停时北向资金净卖出3,190万(短线获利了结)</li>
+                        <li>招商期货：黄金多单持有，长期逻辑未变依旧看好</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="participant-card">
+                <div class="participant-header">
+                    <span class="participant-name">监管/政策</span>
+                    <span class="stance-badge policy">强利好</span>
+                </div>
+                <div class="participant-detail">
+                    <ul>
+                        <li><strong>央行连续15个月购金</strong>，储备达7,419万盎司(2,308吨)</li>
+                        <li>采取"小步快走"策略，过去一年累计增加86万盎司</li>
+                        <li>储备多元化+去美元化国家战略，黄金是重要组成部分</li>
+                        <li>中金集团为央企背景，在矿权获取上享有政策优势</li>
+                        <li>无任何监管问询/关注函等负面信号</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="participant-card">
+                <div class="participant-header">
+                    <span class="participant-name">散户 (市场情绪)</span>
+                    <span class="stance-badge neutral">分歧</span>
+                </div>
+                <div class="participant-detail">
+                    <ul>
+                        <li>2月3日跌停时散户净买入4.33亿(典型抄底行为)</li>
+                        <li>股吧部分散户悲观："中字头以量化做空为主"</li>
+                        <li>另一部分看好金价长期趋势，认为回调是买入机会</li>
+                        <li>情绪从2月初的恐慌逐步回暖，但尚未达到狂热</li>
+                        <li>2月11日中单净流出5,149万+小单净流出1.22亿(散户获利减仓)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="participant-card">
+                <div class="participant-header">
+                    <span class="participant-name">全球资金 (CFTC)</span>
+                    <span class="stance-badge bullish">强烈看多</span>
+                </div>
+                <div class="participant-detail">
+                    <ul>
+                        <li>COMEX黄金净多头99,937手(接近10万手大关)</li>
+                        <li>周增3,878手，资金加速回流</li>
+                        <li>白银净多头同步增加1,822手至7,981手</li>
+                        <li>贵金属板块整体看涨共振</li>
+                        <li>对冲基金和投机者同步增加多头仓位</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="battle-summary">
+            <div class="pattern">多方占优 (4看多 : 0看空 : 2中性)</div>
+            <div class="detail">
+                主力+机构+监管+全球CFTC四维共振看多，游资和散户中性偏多。<br>
+                核心驱动力量：<strong>央行持续购金(政策面) + 机构持仓增加(资金面) + 地缘避险(催化面)</strong>三重共振。<br>
+                风险来自：高开后可能出现的短线获利了结(散户抛压) + 金价波动(2月3日闪崩前车之鉴)。
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 技术形态+供需分析 ===== -->
+    <div class="section">
+        <h2>技术形态与威科夫供需分析</h2>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin-bottom:16px;">
+            <div style="background:#1e1e2e; border-radius:12px; padding:16px; border:1px solid #3a3a5a;">
+                <h3 style="font-size:14px; color:#fff; margin-bottom:10px;">K线形态识别</h3>
+                <p style="font-size:13px; color:#aaa; line-height:1.8;">
+                    <strong>形态:</strong> V型反转 + 底部双针探底<br>
+                    <strong>类型:</strong> 看涨<br>
+                    <strong>可靠度:</strong> ★★★★<br>
+                    <strong>描述:</strong> 2月3日跌停后(最低~29.55)形成V型反转，至2/28收31.84已修复约80%。2月3日和2月13日两次探底形成"双针探底"确认支撑。今日高开33.80突破前高区间，进入新的上涨通道。
+                </p>
+            </div>
+            <div style="background:#1e1e2e; border-radius:12px; padding:16px; border:1px solid #3a3a5a;">
+                <h3 style="font-size:14px; color:#fff; margin-bottom:10px;">量价关系</h3>
+                <p style="font-size:13px; color:#aaa; line-height:1.8;">
+                    <strong>2月28日:</strong> 外盘5.45亿 > 内盘3.83亿，买方积极<br>
+                    <strong>换手率:</strong> 1.91%，交投正常<br>
+                    <strong>2月3日跌停:</strong> 成交106亿(天量)，恐慌性抛售<br>
+                    <strong>2月11日:</strong> 主力净流入1.76亿，资金方向性转变<br>
+                    <strong>判断:</strong> 放量下跌(2/3) → 缩量企稳 → 温和放量上涨(2/28)，量价配合良好，符合V型反转特征
+                </p>
+            </div>
+        </div>
+
+        <h3 style="font-size:15px; color:#fff; margin-bottom:14px;">威科夫供需分析</h3>
+
+        <div class="gauge-container">
+            <div style="font-size:13px; color:#888; margin-bottom:6px;">供需力量评估</div>
+            <div class="gauge-bar">
+                <div class="gauge-pointer" style="left: 72%;"></div>
+            </div>
+            <div class="gauge-labels">
+                <span>-100 供应碾压</span>
+                <span>0 均衡</span>
+                <span>+100 需求碾压</span>
+            </div>
+            <div class="gauge-score positive">+45</div>
+            <div style="font-size:14px; color:#22c55e; margin-top:4px;">需求占优</div>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+            <div style="background:#1e1e2e; border-radius:12px; padding:16px; border:1px solid #3a3a5a;">
+                <h3 style="font-size:14px; color:#fff; margin-bottom:10px;">威科夫阶段判断</h3>
+                <p style="font-size:13px; color:#aaa; line-height:1.8;">
+                    <strong>当前阶段:</strong> 吸筹末期 → 上涨初期过渡<br><br>
+                    <strong>阶段依据:</strong><br>
+                    • SC(恐慌抛售): 2/3跌停，天量106亿成交<br>
+                    • AR(自动反弹): 2/4-2/11快速反弹至33+<br>
+                    • ST(二次测试): 2/13贵金属集体下挫，再次探底<br>
+                    • Spring(弹簧): 2/13触及低点后迅速收回<br>
+                    • SOS(强势信号): 2/28放量上涨+2.48%，外盘>内盘<br>
+                    • <span style="color:#ef4444;">今日高开突破: 确认需求正式占优</span>
+                </p>
+            </div>
+            <div style="background:#1e1e2e; border-radius:12px; padding:16px; border:1px solid #3a3a5a;">
+                <h3 style="font-size:14px; color:#fff; margin-bottom:10px;">关键价位</h3>
+                <div style="font-size:13px; line-height:2.2;">
+                    <div style="display:flex; justify-content:space-between;">
+                        <span style="color:#888;">研报目标价</span>
+                        <span style="color:#fbbf24; font-weight:bold;">47.62</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between;">
+                        <span style="color:#888;">涨停板</span>
+                        <span style="color:#ef4444; font-weight:bold;">35.02</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between;">
+                        <span style="color:#888;">今日开盘/前高</span>
+                        <span style="color:#ef4444;">33.80</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between;">
+                        <span style="color:#888;">供应密集区(阻力)</span>
+                        <span style="color:#ef4444;">34.0 ~ 35.0</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; border-top:1px solid #3a3a5a; padding-top:6px;">
+                        <span style="color:#888;">上周五收盘</span>
+                        <span style="color:#fff;">31.84</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between;">
+                        <span style="color:#888;">需求支撑区</span>
+                        <span style="color:#22c55e;">31.0 ~ 32.0</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between;">
+                        <span style="color:#888;">强支撑(2/3跌停低点)</span>
+                        <span style="color:#22c55e; font-weight:bold;">~29.55</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between;">
+                        <span style="color:#888;">止损建议</span>
+                        <span style="color:#ef4444;">29.00</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 走势预判 ===== -->
+    <div class="section">
+        <h2>综合走势预判</h2>
+
+        <div class="core-logic">
+            <h3>核心逻辑</h3>
+            <p>
+                中金黄金当前处于<strong>三重共振</strong>窗口期：<br>
+                (1) <strong>业绩驱动</strong> — 2025年净利润+42~59%，金价高位推升毛利率；<br>
+                (2) <strong>地缘催化</strong> — 美以伊朗冲突升级(双航母+15天最后通牒)，避险需求推升金价至$5,000+历史高位区；<br>
+                (3) <strong>供需转换</strong> — 威科夫SC→Spring→SOS完成，2月3日天量跌停充分释放供应，今日高开6%确认需求重新占优。<br><br>
+                央行连续15个月购金+CFTC净多头逼近10万手，提供了中长期的需求支撑"锚"。研报目标价47.62元意味着从当前价位仍有约41%的上涨空间。
+            </p>
+        </div>
+
+        <div class="outlook-grid">
+            <div class="outlook-card">
+                <h3 style="color:#ef4444;">短期展望 (1-5个交易日)</h3>
+                <p>
+                    今日高开6.16%表明周末地缘催化被市场充分price in。短期关注两个场景：<br><br>
+                    <strong>场景1 (偏多60%):</strong> 高开后回踩32.5-33元不破，尾盘收阳确认突破 → 后续冲击34-35元前高区间。<br>
+                    <strong>场景2 (偏空40%):</strong> 高开低走回补缺口至31.84附近 → 属于正常回踩确认，若不破31元则买入机会。
+                </p>
+                <div class="key-level">
+                    <span class="label">压力位</span>
+                    <span class="val resist">34.0 / 35.02(涨停)</span>
+                </div>
+                <div class="key-level">
+                    <span class="label">支撑位</span>
+                    <span class="val support">32.5 / 31.84 / 31.0</span>
+                </div>
+            </div>
+
+            <div class="outlook-card">
+                <h3 style="color:#6366f1;">中期展望 (1-3个月)</h3>
+                <p>
+                    中期看好，多重利好叠加：<br><br>
+                    • 高盛目标金价$5,400(距当前+4~5%)，若美伊冲突真正爆发可能突破$6,000<br>
+                    • 2025年报业绩兑现将成为估值锚提升催化<br>
+                    • 央行购金+CFTC增仓提供持续需求支撑<br>
+                    • 研报目标价47.62元，中期上行空间充裕<br>
+                    • 威科夫从吸筹过渡到上涨期(Markup)，趋势确认后可能走出主升浪
+                </p>
+                <div class="key-level">
+                    <span class="label">中期目标</span>
+                    <span class="val resist">38~40 / 47.62(研报)</span>
+                </div>
+                <div class="key-level">
+                    <span class="label">中期强支撑</span>
+                    <span class="val support">29.55 (2/3跌停低点)</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 买入建议 -->
+        <div style="background:rgba(34,197,94,0.08); border:1px solid rgba(34,197,94,0.2); border-radius:12px; padding:18px; margin-top:16px;">
+            <h3 style="color:#22c55e; font-size:15px; margin-bottom:10px;">买入策略建议</h3>
+            <p style="font-size:14px; color:#a0c0a0; line-height:1.8;">
+                <strong>策略1 — 回踩低吸(优选):</strong> 若今日高开回落，在32.0-32.5元区间分批建仓。止损设在31.0下方(约跌3%)。<br>
+                <strong>策略2 — 突破追入:</strong> 若今日收盘站稳34元以上(放量阳线)，可在次日确认后追入。止损设在32.5(约跌4%)。<br>
+                <strong>策略3 — 缺口回补:</strong> 若回补今日跳空缺口至31.84附近企稳，是最佳低吸位。止损设在29.55(2/3跌停低点)下方。<br><br>
+                <strong>仓位建议:</strong> 首次建仓2成，确认趋势后加至5成。总黄金板块配置不超过总仓位的3成。<br>
+                <strong>持有周期:</strong> 中线持有1-3个月，关注金价走势和美伊局势演变。
+            </p>
+        </div>
+
+        <!-- 风险提示 -->
+        <div style="background:rgba(239,68,68,0.06); border:1px solid rgba(239,68,68,0.15); border-radius:12px; padding:18px; margin-top:16px;">
+            <h3 style="color:#ef4444; font-size:15px; margin-bottom:10px;">风险提示</h3>
+            <ul class="risk-list">
+                <li><strong>金价闪崩风险:</strong> 2月3日已有前车之鉴——金价单日暴跌超$900(从$5,594跌至$4,660)，CME上调保证金可再次触发连锁抛售</li>
+                <li><strong>美伊和谈突变:</strong> 若美伊达成核协议和解，避险逻辑瞬间瓦解，金价和黄金股将遭受重创(参考2/3跌停)</li>
+                <li><strong>高开低走陷阱:</strong> 今日6%+高开已包含大量预期，若盘中快速回落可能形成"买预期卖事实"套人走势</li>
+                <li><strong>美元走强:</strong> 美元指数反弹将压制金价，2月20-24日金价从高位回落1.5%即因美元走强</li>
+                <li><strong>散户获利回吐:</strong> 2/3跌停时散户净买入4.33亿(抄底筹码)，今日高开后可能集中获利了结形成短期抛压</li>
+                <li><strong>估值偏高:</strong> PE 37倍、PB 5.61倍，在黄金股中估值不算便宜，若金价回调业绩预期下修将带来估值杀</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- ===== 信息来源 ===== -->
+    <div class="section">
+        <h2>信息来源</h2>
+        <div style="font-size:13px; color:#888; line-height:2;">
+            <div>[1] 财联社 — WTI/布伦特原油结算价 (2026-02-28)</div>
+            <div>[2] 新浪财经 — CFTC持仓报告：黄金多头狂飙 (2026-02-28)</div>
+            <div>[3] 每日经济新闻 — 油价大涨黄金白银飙升 (2026-02-27)</div>
+            <div>[4] 中财网 — 中金黄金2025年度业绩预增公告 (2026-01-27)</div>
+            <div>[5] Bloomberg — China Central Bank Keeps Buying Gold (2026-02-07)</div>
+            <div>[6] World Gold Council — China Gold Market Update (2026-02)</div>
+            <div>[7] 东方财富 — 中金黄金资金流向/机构买卖统计</div>
+            <div>[8] 新浪财经 — 中金黄金2月3日跌停分析 (2026-02-03)</div>
+            <div>[9] 腾讯财经 — 实时行情数据 (2026-03-02 09:25)</div>
+            <div>[10] 东方财富研报 — 中金黄金目标价47.62元 (2026-01-04)</div>
+        </div>
+    </div>
+
+    <div class="disclaimer">
+        以上分析基于2026年3月2日公开市场数据，仅供参考研究，不构成任何投资建议。<br>
+        黄金价格受地缘政治、汇率、利率等多重因素影响波动剧烈，投资有风险，入市需谨慎。<br>
+        数据来源: 腾讯财经、东方财富、新浪财经、财联社、Bloomberg、World Gold Council
+    </div>
+</div>
+</body>
+</html>
