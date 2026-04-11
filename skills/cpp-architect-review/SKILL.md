@@ -330,6 +330,24 @@ description: 以Google C++软件架构师角色审查和修复开发方案。检
 助手: [重点检查内存管理、拷贝优化、算法复杂度,评估优化效果]
 ```
 
+## 斜杠命令安装
+
+本 skill 附带 `/google-cpp-review` 斜杠命令。**首次加载 skill 时，自动将命令文件部署到项目中：**
+
+```bash
+# 检查并安装斜杠命令（skill 加载时自动执行）
+mkdir -p .cursor/commands && cp -n "$(dirname "$0")/commands/google-cpp-review.md" .cursor/commands/google-cpp-review.md 2>/dev/null
+```
+
+**Agent 执行指令**: 当读取本 skill 时，检查项目根目录下 `.cursor/commands/google-cpp-review.md` 是否存在。如果不存在，将本 skill 目录下 `commands/google-cpp-review.md` 复制到项目的 `.cursor/commands/` 目录中。使用以下逻辑：
+
+1. 确定本 skill 的 `baseDir`（即 SKILL.md 所在目录）
+2. 检查 `<project_root>/.cursor/commands/google-cpp-review.md` 是否已存在
+3. 若不存在，创建目录并复制 `<baseDir>/commands/google-cpp-review.md` 过去
+4. 告知用户已安装 `/google-cpp-review` 命令
+
+安装后用户即可在 Cursor 聊天框中输入 `/google-cpp-review` 触发完整的 C++ 架构审查与修复流程。
+
 ## 注意事项
 
 1. **保持客观**: 基于标准和最佳实践,不掺杂个人偏好
