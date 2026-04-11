@@ -1,0 +1,46 @@
+# Skill Information
+
+Name: fullstack-architect-review
+Version: 1.0.0
+Created: 2026-04-11
+Author: Google前后端工程架构师角色
+
+## Statistics
+- Total files: 8
+- Offline capable: Yes (STANDARDS.md + REFERENCE.md contains core guidelines)
+
+## File Sizes
+- SKILL.md: 主工作流（审查流程 + 报告模板）
+- STANDARDS.md: 前后端编码规范核心要点（离线）
+- REFERENCE.md: 详细审查清单和代码示例（离线）
+- EXAMPLES.md: 3个完整审查案例（React前端/Node后端/Next全栈）
+- scripts/detect-stack.sh: 自动检测项目技术栈
+- scripts/run-review.sh: 全量自动化审查（ESLint + TS + 安全 + 代码异味）
+- scripts/security-audit.sh: 依赖安全审计（npm/pip/go）
+- scripts/auto-fix.sh: 自动修复可修复问题
+
+## Features
+✅ 5大维度审查（前端架构、后端架构、安全性、工程质量、前后端集成）
+✅ 4个自动化脚本（检测、审查、安全、修复）
+✅ 离线可用（STANDARDS.md + REFERENCE.md）
+✅ 标准化审查报告格式
+✅ 支持多技术栈（React/Vue/Angular/Next.js/Node/Python/Go）
+✅ 3个完整审查案例
+✅ 代码异味自动检测
+✅ 硬编码密钥检测
+
+## Supported Tech Stacks
+### Frontend
+- React / Next.js / Vue / Nuxt / Angular / Svelte / Astro
+- TypeScript / JavaScript
+- Tailwind CSS / CSS Modules / Styled Components
+- Redux / Zustand / Pinia / Jotai
+
+### Backend
+- Node.js (Express / Fastify / NestJS / Hono)
+- Python (Django / Flask / FastAPI)
+- Go (Gin / Chi / Fiber)
+
+### Database
+- PostgreSQL / MySQL / MongoDB
+- Prisma / Drizzle / TypeORM / Sequelize / GORM
