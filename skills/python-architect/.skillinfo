@@ -1,0 +1,59 @@
+# Skill Information
+
+Name: python-architect
+Version: 1.0.0
+Created: 2026-04-11
+Author: Google Python 软件架构师角色
+
+## Statistics
+- Total files: 15
+- Offline capable: Yes (STANDARDS.md + REFERENCE.md + references/)
+
+## File Overview
+### Core
+- SKILL.md: 主工作流（6阶段全生命周期）
+- STANDARDS.md: Python编码规范核心要点（离线）
+- REFERENCE.md: 详细审查清单 + 正确/错误代码对比（离线）
+- EXAMPLES.md: 3个完整审查案例（FastAPI / 数据Pipeline / CLI工具）
+
+### Domain References
+- references/web.md: Web后端领域指南（FastAPI/Django/安全/性能）
+- references/data.md: 数据工程领域指南（Polars/Pandas/Pipeline/流式处理）
+- references/cli.md: CLI工具领域指南（Typer/Rich/配置管理）
+
+### Automation Scripts
+- scripts/detect-stack.sh: 自动检测Python项目技术栈
+- scripts/run-review.sh: 全量代码审查（ruff + mypy + bandit + 异味检测）
+- scripts/security-audit.sh: 安全专项审计（依赖漏洞 + 密钥泄露 + 危险函数）
+- scripts/run-tests.sh: 运行pytest测试套件（支持覆盖率）
+- scripts/quick-check.sh: 开发中快速增量检查
+- scripts/auto-fix.sh: 自动修复（ruff fix + format）
+- scripts/init-project.sh: 初始化新项目骨架（--web/--cli/--data/--lib）
+
+## Features
+✅ 6阶段全生命周期（需求→设计→审核→开发→测试→验收）
+✅ 7个自动化脚本
+✅ 3个领域专项指南（Web/数据/CLI）
+✅ 离线可用编码规范
+✅ Google Python Style Guide 标准
+✅ 3个完整审查案例
+✅ 项目初始化脚手架
+✅ 支持全Python生态（Web/数据/ML/CLI/通用库）
+
+## Supported Tech Stacks
+### Web Backend
+- FastAPI / Django / Flask / Litestar
+- SQLAlchemy / SQLModel / Tortoise ORM
+- PostgreSQL / MySQL / MongoDB / Redis
+
+### Data Engineering
+- Polars / Pandas / DuckDB
+- PySpark / Dask
+- Airflow / Prefect / Dagster
+
+### CLI Tools
+- Typer / Click
+- Rich / tqdm
+
+### Quality Tools
+- ruff / mypy / bandit / pytest
