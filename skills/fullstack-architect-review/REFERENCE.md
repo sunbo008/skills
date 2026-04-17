@@ -8,19 +8,21 @@
 
 ### 1.1 React组件反模式
 
-**反模式: 在渲染中创建对象/函数**
+**反模式: 在渲染中创建对象/函数（仅当子组件使用 React.memo 时有意义）**
 ```tsx
-// ❌ 每次渲染创建新对象,导致子组件无谓重渲染
+// ❌ 每次渲染创建新对象引用,若 Child 使用 React.memo 则会导致无谓重渲染
 const Parent = () => {
   return <Child style={{ color: 'red' }} onClick={() => doSomething()} />;
 };
 
-// ✅ 提取到组件外或使用useMemo/useCallback
+// ✅ 静态值提取到组件外; 回调仅在子组件使用 React.memo 优化时才需要 useCallback
 const style = { color: 'red' };
 const Parent = () => {
   const handleClick = useCallback(() => doSomething(), []);
-  return <Child style={style} onClick={handleClick} />;
+  return <MemoizedChild style={style} onClick={handleClick} />;
 };
+
+// 注意: 如果 Child 未使用 React.memo, useCallback 不会带来性能收益
 ```
 
 **反模式: useEffect中的状态同步**
@@ -250,33 +252,65 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 
 ### 3.1 API客户端封装
 
+以下示例使用 fetch 封装,也可替换为 axios/ky/ofetch 等库:
+
 ```typescript
-// ✅ 统一API客户端
-const apiClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
-  timeout: 10000,
-});
+// ✅ 统一API客户端 (框架无关)
+async function apiFetch<T>(
+  endpoint: string,
+  options?: RequestInit,
+  _retried = false,
+): Promise<T> {
+  const { headers: customHeaders, ...restOptions } = options ?? {};
+  const defaultHeaders: Record<string, string> =
+    restOptions.body instanceof FormData
+      ? {}
+      : { 'Content-Type': 'application/json' };
 
-apiClient.interceptors.request.use((config) => {
-  // Token注入由httpOnly cookie自动处理,无需手动设置
-  return config;
-});
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    credentials: 'include',
+    ...restOptions,
+    headers: { ...defaultHeaders, ...(customHeaders as Record<string, string>) },
+  });
 
-apiClient.interceptors.response.use(
-  (response) => response.data,
-  async (error) => {
-    if (error.response?.status === 401) {
-      // 尝试刷新Token
-      try {
-        await refreshToken();
-        return apiClient(error.config);
-      } catch {
-        redirectToLogin();
-      }
+  if (response.status === 401 && !_retried) {
+    const refreshed = await tryRefreshToken();
+    if (refreshed) {
+      return apiFetch<T>(endpoint, options, true);
     }
-    return Promise.reject(normalizeError(error));
+    redirectToLogin();
+    throw new Error('Unauthorized');
   }
-);
+
+  if (!response.ok) {
+    throw await normalizeError(response);
+  }
+
+  return response.json();
+}
+
+// ✅ Token 刷新需防止并发竞态
+let refreshPromise: Promise<boolean> | null = null;
+
+async function tryRefreshToken(): Promise<boolean> {
+  if (refreshPromise) return refreshPromise;
+
+  refreshPromise = (async () => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/auth/refresh`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+      return res.ok;
+    } catch {
+      return false;
+    } finally {
+      refreshPromise = null;
+    }
+  })();
+
+  return refreshPromise;
+}
 ```
 
 ### 3.2 类型共享
@@ -313,3 +347,145 @@ export interface PaginatedResponse<T> {
 | 生产配置硬编码 | 🟡 | 使用环境变量 |
 | 前端变量缺少前缀 | 🟡 | NEXT_PUBLIC_/VITE_/REACT_APP_ |
 | 缺少.env.example | 🟡 | 团队需要知道需配置哪些变量 |
+
+---
+
+## 四、Vue详细审查
+
+### 4.1 Vue组件反模式
+
+**反模式: Options API + 无类型标注**
+```vue
+<!-- ❌ Options API 类型推断差,逻辑分散 -->
+<script>
+export default {
+  data() {
+    return { count: 0, users: [] }
+  },
+  methods: {
+    increment() { this.count++ },
+    async fetchUsers() { this.users = await api.getUsers() }
+  },
+  mounted() { this.fetchUsers() }
+}
+</script>
+
+<!-- ✅ Composition API + TypeScript -->
+<script setup lang="ts">
+import { ref, onMounted } from 'vue'
+
+const count = ref(0)
+const users = ref<User[]>([])
+
+const increment = () => count.value++
+const fetchUsers = async () => { users.value = await api.getUsers() }
+
+onMounted(fetchUsers)
+</script>
+```
+
+**反模式: 模板中复杂表达式**
+```vue
+<!-- ❌ 模板中放复杂逻辑 -->
+<template>
+  <span>{{ items.filter(i => i.active).reduce((s, i) => s + i.price, 0).toFixed(2) }}</span>
+</template>
+
+<!-- ✅ 提取为 computed -->
+<script setup lang="ts">
+import { computed, ref } from 'vue'
+
+interface Item { active: boolean; price: number }
+const items = ref<Item[]>([])
+
+const activeTotal = computed(() =>
+  items.value.filter(i => i.active).reduce((s, i) => s + i.price, 0).toFixed(2)
+)
+</script>
+<template>
+  <span>{{ activeTotal }}</span>
+</template>
+```
+
+### 4.2 Vue审查清单
+
+| 检查项 | 严重度 | 说明 |
+|--------|--------|------|
+| 使用 Options API | 🟡 | 应迁移到 Composition API |
+| Props 使用运行时声明 | 🟡 | 应使用 `defineProps<T>()` 类型声明 |
+| v-html 未经 XSS 过滤 | 🔴 | 必须使用 DOMPurify |
+| 未使用 Pinia 的 storeToRefs | 🟡 | 直接解构 store 会丢失响应性 |
+| 路由未使用懒加载 | 🟡 | 应使用 `() => import('./XXX.vue')` |
+| 组件未使用 `<script setup>` | 🟡 | `<script setup>` 编译更优,类型推断更好 |
+
+---
+
+## 五、Python后端详细审查
+
+### 5.1 FastAPI反模式
+
+**反模式: 手动管理数据库会话**
+```python
+# ❌ 异常时会话未关闭,连接泄漏
+@router.get("/users/{user_id}")
+async def get_user(user_id: int):
+    db = SessionLocal()
+    user = db.query(User).filter(User.id == user_id).first()
+    db.close()
+    return user
+
+# ✅ 使用依赖注入管理生命周期
+async def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+@router.get("/users/{user_id}", response_model=UserResponse)
+async def get_user(user_id: int, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user
+```
+
+**反模式: 同步操作阻塞事件循环**
+```python
+# ❌ FastAPI使用async但数据库操作是同步的
+@router.get("/users")
+async def list_users(db: Session = Depends(get_db)):
+    return db.query(User).all()
+
+# ✅ 使用异步ORM或线程池
+from sqlalchemy.ext.asyncio import AsyncSession
+
+@router.get("/users")
+async def list_users(db: AsyncSession = Depends(get_async_db)):
+    result = await db.execute(select(User))
+    return result.scalars().all()
+```
+
+### 5.2 Django审查清单
+
+| 检查项 | 严重度 | 说明 |
+|--------|--------|------|
+| N+1查询 | 🔴 | 使用 select_related / prefetch_related |
+| Fat Model | 🟡 | 复杂业务逻辑应抽到 Service 层 |
+| 未使用 F() 表达式 | 🟡 | 计数器更新应用 F() 避免竞态 |
+| SECRET_KEY 硬编码 | 🔴 | 必须使用环境变量 |
+| DEBUG=True 在生产 | 🔴 | 生产环境必须关闭 |
+| 未配置 ALLOWED_HOSTS | 🔴 | 生产环境必须限定域名 |
+| 缺少 CSRF 中间件 | 🔴 | CsrfViewMiddleware 不得移除 |
+
+### 5.3 Python安全审查
+
+| 检查项 | 严重度 | 检测方法 |
+|--------|--------|----------|
+| MD5/SHA1 密码哈希 | 🔴 | 搜索 hashlib.md5/sha1 |
+| eval()/exec() | 🔴 | 搜索 eval / exec 调用 |
+| pickle 反序列化不可信数据 | 🔴 | 搜索 pickle.loads |
+| subprocess shell=True | 🔴 | 搜索 subprocess + shell=True |
+| SQL 字符串拼接 | 🔴 | 搜索 f-string/format 拼接 SQL |
+| 缺少类型标注 | 🟡 | 运行 mypy --strict |
+| 未使用 bandit 扫描 | 🟡 | bandit -r . |
